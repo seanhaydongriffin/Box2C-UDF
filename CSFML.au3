@@ -11,7 +11,6 @@
 ; #VARIABLES# ===================================================================================================================
 Global $__CSFML_System_DLL = -1
 Global $__CSFML_Graphics_DLL = -1
-Global Enum $CSFML_sfEvtClosed, $CSFML_sfEvtResized, $CSFML_sfEvtLostFocus, $CSFML_sfEvtGainedFocus, $CSFML_sfEvtTextEntered, $CSFML_sfEvtKeyPressed, $CSFML_sfEvtKeyReleased, $CSFML_sfEvtMouseWheelMoved, $CSFML_sfEvtMouseWheelScrolled, $CSFML_sfEvtMouseButtonPressed, $CSFML_sfEvtMouseButtonReleased, $CSFML_sfEvtMouseMoved, $CSFML_sfEvtMouseEntered, $CSFML_sfEvtMouseLeft, $CSFML_sfEvtJoystickButtonPressed, $CSFML_sfEvtJoystickButtonReleased, $CSFML_sfEvtJoystickMoved, $CSFML_sfEvtJoystickConnected, $CSFML_sfEvtJoystickDisconnected, $CSFML_sfEvtTouchBegan, $CSFML_sfEvtTouchMoved, $CSFML_sfEvtTouchEnded, $CSFML_sfEvtSensorChanged, $CSFML_sfEvtCount
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
@@ -23,6 +22,7 @@ Global Const $CSFML_sfWindowStyle_sfResize = 2
 Global Const $CSFML_sfWindowStyle_sfClose = 4
 Global Const $CSFML_sfWindowStyle_sfFullscreen = 8
 Global Const $CSFML_sfWindowStyle_sfDefaultStyle = $CSFML_sfWindowStyle_sfTitlebar + $CSFML_sfWindowStyle_sfResize + $CSFML_sfWindowStyle_sfClose
+Global Enum $CSFML_sfEvtClosed, $CSFML_sfEvtResized, $CSFML_sfEvtLostFocus, $CSFML_sfEvtGainedFocus, $CSFML_sfEvtTextEntered, $CSFML_sfEvtKeyPressed, $CSFML_sfEvtKeyReleased, $CSFML_sfEvtMouseWheelMoved, $CSFML_sfEvtMouseWheelScrolled, $CSFML_sfEvtMouseButtonPressed, $CSFML_sfEvtMouseButtonReleased, $CSFML_sfEvtMouseMoved, $CSFML_sfEvtMouseEntered, $CSFML_sfEvtMouseLeft, $CSFML_sfEvtJoystickButtonPressed, $CSFML_sfEvtJoystickButtonReleased, $CSFML_sfEvtJoystickMoved, $CSFML_sfEvtJoystickConnected, $CSFML_sfEvtJoystickDisconnected, $CSFML_sfEvtTouchBegan, $CSFML_sfEvtTouchMoved, $CSFML_sfEvtTouchEnded, $CSFML_sfEvtSensorChanged, $CSFML_sfEvtCount
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
