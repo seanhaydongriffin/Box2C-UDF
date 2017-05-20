@@ -8,8 +8,8 @@
 ; Dlls ..........: Box2C.dll
 ; ===============================================================================================================================
 
-#include-once
-#include <Array.au3>
+;#include-once
+;#include <Array.au3>
 
 ; #VARIABLES# ===================================================================================================================
 Global $__Box2C_Box2C_DLL = -1
@@ -25,31 +25,31 @@ Global Const $__epsilon = 0.00001
 ; _Box2C_Startup
 ; _Box2C_Shutdown
 ; _Box2C_b2Vec2_Constructor
+; _Box2C_b2Vec2_Length
 ; _Box2C_b2World_Constructor
 ; _Box2C_b2World_CreateBody
 ; _Box2C_b2World_DestroyBody
 ; _Box2C_b2World_CreateFixture
-; _Box2C_b2Body_DestroyFixture
 ; _Box2C_b2World_CreateFixtureFromShape
 ; _Box2C_b2World_Step
-; _Box2C_b2PolygonShape_Constructor
 ; _Box2C_b2BoxShape_Constructor
+; _Box2C_b2PolygonShape_Constructor
 ; _Box2C_b2PolygonShape_Set
 ; _Box2C_b2PolygonShape_CrossProductVectorScalar
 ; _Box2C_b2PolygonShape_CrossProductVectorVector
 ; _Box2C_b2PolygonShape_Normalize
 ; _Box2C_b2PolygonShape_ComputeCentroid
 ; _Box2C_b2BodyDef_Constructor
+; _Box2C_b2Body_DestroyFixture
 ; _Box2C_b2Body_GetPosition
+; _Box2C_b2Body_SetPosition
 ; _Box2C_b2Body_GetAngle
+; _Box2C_b2Body_SetAngle
 ; _Box2C_b2Body_SetAwake
 ; _Box2C_b2Body_SetTransform
-; _Box2C_b2Body_SetPosition
-; _Box2C_b2Body_SetAngle
 ; _Box2C_b2Fixture_GetShape
 ; _Box2C_b2Fixture_GetRestitution
 ; _Box2C_b2Fixture_SetRestitution
-; _Box2C_b2Vec2_Length
 ; ===============================================================================================================================
 
 
@@ -133,6 +133,21 @@ Func _Box2C_b2Vec2_Constructor($x = 0, $y = 0)
 	Return $b2Vec2
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Vec2_Length
+; Description ...: Gets the length of a vector.
+; Syntax.........: _Box2C_b2Vec2_Length($x, $y)
+; Parameters ....: $x - horizontal component (pixel position) of the vector
+;				   $y - vertical component (pixel position) of the vector
+; Return values .: Success - the length of the vector
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2Vec2_Length($x, $y)
 
 	Return Sqrt($x * $x + $y * $y)
@@ -148,7 +163,7 @@ EndFunc
 ; Syntax.........: _Box2C_b2World_Constructor($gravity, $doSleep)
 ; Parameters ....: $gravity - gravity
 ;				   $doSleep - ?
-; Return values .: Success - a pointer to the b2World structure (PTR).
+; Return values .: Success - a pointer (PTR) to the b2World structure (PTR).
 ;				   Failure - 0
 ; Author ........: Sean Griffin
 ; Modified.......:
@@ -166,6 +181,21 @@ Func _Box2C_b2World_Constructor($gravity, $doSleep = True)
 	Return $world_ptr
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2World_CreateBody
+; Description ...: Creates a body in a world from a body definition
+; Syntax.........: _Box2C_b2World_CreateBody($world_ptr, $bodyDef_ptr)
+; Parameters ....: $world_ptr - a pointer (PTR) to the world (b2World) to create the body within
+;				   $bodyDef_ptr - a pointer (PTR) to the definition of the body (b2BodyDef)
+; Return values .: Success - a pointer (PTR) to the body (b2Body) structure (STRUCT)
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2World_CreateBody($world_ptr, $bodyDef_ptr)
 
 	Local $body = DllCall($__Box2C_Box2C_DLL, "PTR:cdecl", "b2world_createbody", "PTR", $world_ptr, "PTR", $bodyDef_ptr)
@@ -175,6 +205,21 @@ Func _Box2C_b2World_CreateBody($world_ptr, $bodyDef_ptr)
 	Return $body_ptr
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2World_DestroyBody
+; Description ...: Destroys / removes a body from a world
+; Syntax.........: _Box2C_b2World_DestroyBody($world_ptr, $bodyDef_ptr)
+; Parameters ....: $world_ptr - a pointer (PTR) to the world (b2World) to remove the body from
+;				   $body_ptr - a pointer (PTR) to the body (b2Body) to remove
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2World_DestroyBody($world_ptr, $body_ptr)
 
 	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2world_destroybody", "PTR", $world_ptr, "PTR", $body_ptr)
@@ -183,6 +228,29 @@ Func _Box2C_b2World_DestroyBody($world_ptr, $body_ptr)
 	Return True
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2World_CreateFixture
+; Description ...: Creates a fixture for a shape and body combination
+; Syntax.........: _Box2C_b2World_CreateFixture($body_ptr, $shape_ptr, $density, $restitution, $friction, $filter_category_bits, $filter_mask_bits, $filter_group_index, $is_sensor, $user_data)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $shape_ptr - a pointer to the shape (b2...)
+;				   $density -
+;				   $restitution -
+;				   $friction -
+;				   $filter_category_bits -
+;				   $filter_mask_bits -
+;				   $filter_group_index -
+;				   $is_sensor -
+;				   $user_data -
+; Return values .: Success - a pointer (PTR) to the fixture (b2Fixture) structure
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2World_CreateFixture($body_ptr, $shape_ptr, $density, $restitution, $friction, $filter_category_bits = 1, $filter_mask_bits = 65535, $filter_group_index = 0, $is_sensor = False, $user_data = Null)
 
 	local $fixture_ptr = _Box2C_b2World_CreateFixtureFromShape($body_ptr, $shape_ptr, $density)
@@ -203,14 +271,22 @@ Func _Box2C_b2World_CreateFixture($body_ptr, $shape_ptr, $density, $restitution,
 	Return $fixture_ptr
 EndFunc
 
-Func _Box2C_b2Body_DestroyFixture($body_ptr, $fixture_ptr)
-
-	Local $fixture = DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_destroyfixture", "PTR", $body_ptr, "PTR", $fixture_ptr)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	Return True
-EndFunc
-
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2World_CreateFixtureFromShape
+; Description ...: Creates a fixture for a shape and body combination
+; Syntax.........: _Box2C_b2World_CreateFixtureFromShape($body_ptr, $shape_ptr, $density)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $shape_ptr - a pointer to the shape (b2...)
+;				   $density -
+; Return values .: Success - a pointer (PTR) to the fixture (b2Fixture) structure
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2World_CreateFixtureFromShape($body_ptr, $shape_ptr, $density)
 
 	Local $fixture = DllCall($__Box2C_Box2C_DLL, "PTR:cdecl", "b2body_createfixturefromshape", "PTR", $body_ptr, "PTR", $shape_ptr, "FLOAT", $density)
@@ -220,6 +296,23 @@ Func _Box2C_b2World_CreateFixtureFromShape($body_ptr, $shape_ptr, $density)
 	Return $fixture_ptr
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2World_Step
+; Description ...: Creates a fixture for a shape and body combination
+; Syntax.........: _Box2C_b2World_Step($world_ptr, $timeStep, $velocityIterations, $positionIterations)
+; Parameters ....: $world_ptr - a pointer to the body (b2Body)
+;				   $timeStep - a pointer to the shape (b2...)
+;				   $velocityIterations -
+;				   $positionIterations -
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2World_Step($world_ptr, $timeStep, $velocityIterations, $positionIterations)
 
 	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2world_step", "PTR", $world_ptr, "FLOAT", $timeStep, "INT", $velocityIterations, "INT", $positionIterations)
@@ -230,150 +323,6 @@ EndFunc
 
 
 ; #B2POLYGONSHAPE FUNCTIONS# =====================================================================================================
-
-
-; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2PolygonShape_Constructor
-; Description ...: Constructs a b2PolygonShape structure.
-; Syntax.........: _Box2C_b2PolygonShape_Constructor($vertices)
-; Parameters ....: $vertices - the vertices of the polygon to construct
-; Return values .: Success - the b2PolygonShape structure (STRUCT).
-;				   Failure - 0
-; Author ........: Sean Griffin
-; Modified.......:
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......:
-; ===============================================================================================================================
-Func _Box2C_b2PolygonShape_Constructor($vertices)
-
-	local $polygon_shape_portable = DllStructCreate("STRUCT;int;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;int;ENDSTRUCT")
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	; cb2polygonshapeportable for a box shape as follows.
-	; m_shape ...
-	DllStructSetData($polygon_shape_portable, 1, 1)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 2, 0.01)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	; m_centroid ...
-	DllStructSetData($polygon_shape_portable, 3, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 4, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	; m_vertices ...
-	DllStructSetData($polygon_shape_portable, 5, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 6, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 7, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 8, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 9, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 10, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 11, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 12, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 13, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 14, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 15, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 16, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 17, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 18, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 19, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 20, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	; m_normals  ...
-	DllStructSetData($polygon_shape_portable, 21, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 22, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 23, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 24, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 25, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 26, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 27, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 28, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 29, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 30, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 31, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 32, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 33, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 34, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 35, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($polygon_shape_portable, 36, 0)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	; m_vertexCount ...
-	DllStructSetData($polygon_shape_portable, 37, 4)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	_Box2C_b2PolygonShape_Set(DllStructGetPtr($polygon_shape_portable), $vertices)
-
-	Return $polygon_shape_portable
-
-EndFunc
-
 
 
 ; #FUNCTION# ====================================================================================================================
@@ -522,6 +471,164 @@ Func _Box2C_b2BoxShape_Constructor($shape_width, $shape_height)
 
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2PolygonShape_Constructor
+; Description ...: Constructs a b2PolygonShape structure.
+; Syntax.........: _Box2C_b2PolygonShape_Constructor($vertices)
+; Parameters ....: $vertices - the vertices of the polygon to construct
+; Return values .: Success - the b2PolygonShape structure (STRUCT).
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2PolygonShape_Constructor($vertices)
+
+	local $polygon_shape_portable = DllStructCreate("STRUCT;int;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;int;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; cb2polygonshapeportable for a box shape as follows.
+	; m_shape ...
+	DllStructSetData($polygon_shape_portable, 1, 1)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 2, 0.01)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; m_centroid ...
+	DllStructSetData($polygon_shape_portable, 3, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 4, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; m_vertices ...
+	DllStructSetData($polygon_shape_portable, 5, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 6, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 7, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 8, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 9, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 10, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 11, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 12, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 13, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 14, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 15, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 16, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 17, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 18, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 19, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 20, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; m_normals  ...
+	DllStructSetData($polygon_shape_portable, 21, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 22, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 23, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 24, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 25, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 26, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 27, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 28, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 29, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 30, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 31, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 32, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 33, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 34, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 35, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 36, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; m_vertexCount ...
+	DllStructSetData($polygon_shape_portable, 37, 4)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	_Box2C_b2PolygonShape_Set(DllStructGetPtr($polygon_shape_portable), $vertices)
+
+	Return $polygon_shape_portable
+
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2PolygonShape_Set
+; Description ...: Creates a fixture for a shape and body combination
+; Syntax.........: _Box2C_b2PolygonShape_Set($polygon_shape_portable_ptr, $vertices)
+; Parameters ....: $polygon_shape_portable_ptr - a pointer to the body (b2Body)
+;				   $vertices - a pointer to the shape (b2...)
+; Return values .: None
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2PolygonShape_Set($polygon_shape_portable_ptr, $vertices)
 
 	local $polygon_shape_portable = DllStructCreate("STRUCT;int;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;int;ENDSTRUCT", $polygon_shape_portable_ptr)
@@ -609,6 +716,21 @@ Func _Box2C_b2PolygonShape_Set($polygon_shape_portable_ptr, $vertices)
 
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2PolygonShape_CrossProductVectorScalar
+; Description ...:
+; Syntax.........: _Box2C_b2PolygonShape_CrossProductVectorScalar($x, $y, $s)
+; Parameters ....: $x -
+;				   $y -
+;				   $s -
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2PolygonShape_CrossProductVectorScalar($x, $y, $s)
 
 	Local $vector[2]
@@ -619,11 +741,41 @@ Func _Box2C_b2PolygonShape_CrossProductVectorScalar($x, $y, $s)
 	Return $vector
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2PolygonShape_CrossProductVectorVector
+; Description ...:
+; Syntax.........: _Box2C_b2PolygonShape_CrossProductVectorVector($x1, $y1, $x2, $y2)
+; Parameters ....: $x1 -
+;				   $y1 -
+;				   $x2 -
+;				   $y2 -
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2PolygonShape_CrossProductVectorVector($x1, $y1, $x2, $y2)
 
 	Return $x1 * $y2 - $y1 * $x2
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2PolygonShape_Normalize
+; Description ...:
+; Syntax.........: _Box2C_b2PolygonShape_Normalize($x, $y)
+; Parameters ....: $x -
+;				   $y -
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2PolygonShape_Normalize($x, $y)
 
 	Local $vector[2]
@@ -643,6 +795,20 @@ Func _Box2C_b2PolygonShape_Normalize($x, $y)
 	Return $vector
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2PolygonShape_ComputeCentroid
+; Description ...:
+; Syntax.........: _Box2C_b2PolygonShape_ComputeCentroid($vertices)
+; Parameters ....: $x -
+;				   $y -
+; Return values .: A vector (2D element array) of the centroid of the vertices
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2PolygonShape_ComputeCentroid($vertices)
 
 	Local $centroid[2]
@@ -831,6 +997,42 @@ EndFunc
 ; #B2BODY FUNCTIONS# =====================================================================================================
 
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_DestroyFixture
+; Description ...: Destroys / removes a fixture from a body
+; Syntax.........: _Box2C_b2Body_DestroyFixture($body_ptr, $fixture_ptr)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $fixture_ptr - a pointer to the shape (b2Fixture)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_DestroyFixture($body_ptr, $fixture_ptr)
+
+	Local $fixture = DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_destroyfixture", "PTR", $body_ptr, "PTR", $fixture_ptr)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_GetPosition
+; Description ...: Gets the position (vector) of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_GetPosition($body_ptr)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+; Return values .: A vector (2D element array) of the position of the body (b2Body)
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2Body_GetPosition($body_ptr)
 
 	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_getposition", "PTR", $body_ptr, "PTR", $__position_ptr)
@@ -846,40 +1048,22 @@ Func _Box2C_b2Body_GetPosition($body_ptr)
 	Return $position_arr
 EndFunc
 
-Func _Box2C_b2Body_GetAngle($body_ptr)
-
-	Local $angle = DllCall($__Box2C_Box2C_DLL, "FLOAT:cdecl", "b2body_getangle", "PTR", $body_ptr)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	Local $angle_val = $angle[0]
-	Return $angle_val
-EndFunc
-
-Func _Box2C_b2Body_SetAwake($body_ptr, $awake)
-
-	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_setawake", "PTR", $body_ptr, "BOOL", $awake)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	Return True
-EndFunc
-
-Func _Box2C_b2Body_SetTransform($body_ptr, $x, $y, $angle)
-
-	local $position = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($position, 1, $x)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllStructSetData($position, 2, $y)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_settransform", "PTR", $body_ptr, "STRUCT", $position, "FLOAT", $angle)
-	If @error > 0 Then Return SetError(@error,0,0)
-
-	Return True
-EndFunc
-
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_SetPosition
+; Description ...: Sets the position (vector) of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_SetPosition($body_ptr, $x, $y)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $x - the horizontal position / vector
+;				   $y - the vertical position / vector
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2Body_SetPosition($body_ptr, $x, $y)
 
 	local $position = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
@@ -899,6 +1083,43 @@ Func _Box2C_b2Body_SetPosition($body_ptr, $x, $y)
 	Return True
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_GetAngle
+; Description ...: Gets the angle (radians) of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_GetAngle($body_ptr)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+; Return values .: The angle (radians) of the body (b2Body)
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_GetAngle($body_ptr)
+
+	Local $angle = DllCall($__Box2C_Box2C_DLL, "FLOAT:cdecl", "b2body_getangle", "PTR", $body_ptr)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $angle_val = $angle[0]
+	Return $angle_val
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_SetAngle
+; Description ...: Sets the angle (radians) of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_SetAngle($body_ptr, $angle)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $angle - the angle (radians)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2Body_SetAngle($body_ptr, $angle)
 
 	Local $position_arr = _Box2C_b2Body_GetPosition($body_ptr)
@@ -918,10 +1139,82 @@ Func _Box2C_b2Body_SetAngle($body_ptr, $angle)
 	Return True
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_SetAwake
+; Description ...: Sets the awake state of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_SetAwake($body_ptr, $awake)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $awake - True for awake, False for sleep
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_SetAwake($body_ptr, $awake)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_setawake", "PTR", $body_ptr, "BOOL", $awake)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_SetTransform
+; Description ...: Sets the transform of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_SetTransform($body_ptr, $x, $y, $angle)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $x -
+;				   $y -
+;				   $angle -
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_SetTransform($body_ptr, $x, $y, $angle)
+
+	local $position = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($position, 1, $x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($position, 2, $y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_settransform", "PTR", $body_ptr, "STRUCT", $position, "FLOAT", $angle)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
 
 ; #B2FIXTURE FUNCTIONS# =====================================================================================================
 
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Fixture_GetShape
+; Description ...: Gets the shape (b2...) of a fixture (b2Fixture)
+; Syntax.........: _Box2C_b2Fixture_GetShape($fixture_ptr, $shape_ptr)
+; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
+;				   $shape_ptr - a pointer to the shape (b2...)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2Fixture_GetShape($fixture_ptr, $shape_ptr)
 
 	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2fixture_getshape", "PTR", $fixture_ptr, "PTR", $shape_ptr)
@@ -930,6 +1223,20 @@ Func _Box2C_b2Fixture_GetShape($fixture_ptr, $shape_ptr)
 	Return True
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Fixture_GetRestitution
+; Description ...: Gets the restitution of a fixture (b2Fixture)
+; Syntax.........: _Box2C_b2Fixture_GetRestitution($fixture_ptr)
+; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2Fixture_GetRestitution($fixture_ptr)
 
 	Local $restitution = DllCall($__Box2C_Box2C_DLL, "FLOAT:cdecl", "b2fixture_getrestitution", "PTR", $fixture_ptr)
@@ -939,6 +1246,21 @@ Func _Box2C_b2Fixture_GetRestitution($fixture_ptr)
 	Return $restitution_val
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Fixture_SetRestitution
+; Description ...: Sets the restitution of a fixture (b2Fixture)
+; Syntax.........: _Box2C_b2Fixture_SetRestitution($fixture_ptr, $value)
+; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
+;				   $vlue - the restitution value
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
 Func _Box2C_b2Fixture_SetRestitution($fixture_ptr, $value)
 
 	Local $restitution = DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2fixture_setrestitution", "PTR", $fixture_ptr, "FLOAT", $value)
