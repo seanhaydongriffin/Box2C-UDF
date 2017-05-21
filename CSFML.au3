@@ -536,6 +536,54 @@ Func  _CSFML_sfRenderWindow_setVerticalSyncEnabled($renderWindow, $enabled)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfRenderWindow_setFramerateLimit
+; Description ...: Enable / disable vertical synchronization on a render window.
+; Syntax.........: _CSFML_sfRenderWindow_setFramerateLimit($renderWindow, $limit)
+; Parameters ....: $renderWindow - Render window object
+;				   $limit - Framerate limit, in frames per seconds (use 0 to disable limit)
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......: _CSFML_sfRenderWindow_create
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfRenderWindow_setFramerateLimit($renderWindow, $limit)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfRenderWindow_setVerticalSyncEnabled", "PTR", $renderWindow, "UINT", $limit)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfRenderWindow_getSystemHandle
+; Description ...: Retrieve the OS-specific handle of a render window.
+; Syntax.........: _CSFML_sfRenderWindow_getSystemHandle($renderWindow, $limit)
+; Parameters ....: $renderWindow - Render window object
+; Return values .: Success - Window handle
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......: _CSFML_sfRenderWindow_create
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfRenderWindow_getSystemHandle($renderWindow)
+
+	Local $sfWindowHandle = DllCall($__CSFML_Graphics_DLL, "HWND:cdecl", "sfRenderWindow_getSystemHandle", "PTR", $renderWindow)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $sfWindowHandle_val = $sfWindowHandle[0]
+	Return $sfWindowHandle_val
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _CSFML_sfRenderWindow_isOpen
 ; Description ...: Tell whether or not a render window is opened.
 ; Syntax.........: _CSFML_sfRenderWindow_isOpen($renderWindow)
@@ -805,7 +853,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _CSFML_sfSprite_setPosition
-; Description ...: Set the position of a sprite.
+; Description ...: Set the position of a sprite, with a sfVector2f structure.
 ;				   This function completely overwrites the previous position. See sfSprite_move to apply an offset based
 ;				   on the previous position instead. The default position of a sprite Sprite object is (0, 0).
 ; Syntax.........: _CSFML_sfSprite_setPosition($sprite, $position)
@@ -815,7 +863,7 @@ EndFunc
 ;				   Failure - 0
 ; Author ........: Sean Griffin
 ; Modified.......:
-; Remarks .......:
+; Remarks .......: This function is slightly slower than _CSFML_sfSprite_setPosition_xy by about 100 frames per second
 ; Related .......: _CSFML_sfSprite_create, _CSFML_sfVector2f_Constructor
 ; Link ..........:
 ; Example .......:
@@ -823,6 +871,36 @@ EndFunc
 Func  _CSFML_sfSprite_setPosition($sprite, $position)
 
 	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfSprite_setPosition", "PTR", $sprite, "STRUCT", $position)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfSprite_setPosition_xy
+; Description ...: Set the position of a sprite, with horizontal and vertical coordinates.
+;				   This function completely overwrites the previous position. See sfSprite_move to apply an offset based
+;				   on the previous position instead. The default position of a sprite Sprite object is (0, 0).
+; Syntax.........: _CSFML_sfSprite_setPosition_xy($sprite, $x, $y)
+; Parameters ....: $sprite - Sprite object
+;				   $position - New position (sfVector2f)
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......: This function is slightly faster than _CSFML_sfSprite_setPosition by about 100 frames per second
+; Related .......: _CSFML_sfSprite_create, _CSFML_sfVector2f_Constructor
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfSprite_setPosition_xy($sprite, $x, $y)
+
+
+	local $sfVector2f = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	DllStructSetData($sfVector2f, 1, $x)
+	DllStructSetData($sfVector2f, 2, $y)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfSprite_setPosition", "PTR", $sprite, "STRUCT", $sfVector2f)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True

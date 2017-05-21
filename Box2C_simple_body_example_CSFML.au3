@@ -1,4 +1,5 @@
 #include-once
+#include <WindowsConstants.au3>
 #include <Array.au3>
 #include "Box2CEx.au3"
 
@@ -48,22 +49,24 @@ Local $white = _CSFML_sfColor_Constructor(255,255,255,0)
 Local $pos = _CSFML_sfVector2f_Constructor(1,1)
 Local $pos_ptr = DllStructGetPtr($pos)
 
-; Setup the GUI for SFML
+; Setup the GUI for AutoIT
+
+Global $main_gui = GUICreate("Box2D / Box2C by seangriffin", 1200, 700, -1, -1, $WS_CAPTION)
+Global $number_of_bodies_label = GUICtrlCreateLabel("Number of bodies = ", 880, 80, 160, 20)
+Global $fps_label = GUICtrlCreateLabel("FPS = ", 880, 140, 260, 20)
+GUISetState(@SW_SHOW)
+
+; Setup the GUI for SFML inside the AutoIT GUI
 
 $video_mode = _CSFML_sfVideoMode_Constructor(800, 600, 16)
 Local $window_ptr = _CSFML_sfRenderWindow_create($video_mode, "SFML window", $CSFML_sfWindowStyle_sfResize + $CSFML_sfWindowStyle_sfClose, Null)
 _CSFML_sfRenderWindow_setVerticalSyncEnabled($window_ptr, False)
 
-; Attach an AutoIT GUI for reporting
-
-Local $irr_win_pos = WinGetPos("SFML window")
-Global $g_hGUI = GUICreate("Box2D / Box2C by seangriffin", 300, 400, $irr_win_pos[0] + $irr_win_pos[2], $irr_win_pos[1])
-Global $number_of_bodies_label = GUICtrlCreateLabel("Number of bodies = ", 20, 80, 160, 20)
-Global $b2world_step_time_label = GUICtrlCreateLabel("b2World_Step runtime = ", 20, 100, 160, 20)
-Global $CSFML_clear_transform_display_runtime_label = GUICtrlCreateLabel("CSFML_clear_tranform_display runtime = ", 20, 120, 260, 20)
-Global $fps_label = GUICtrlCreateLabel("FPS = ", 20, 140, 260, 20)
-GUISetState(@SW_SHOW)
-WinActivate( "SFML window" )
+Local $window_handle = _CSFML_sfRenderWindow_getSystemHandle($window_ptr)
+; note the two lines below do slow down the animation loop by about 200 frames per second
+_WinAPI_SetParent($window_handle, $main_gui)
+WinMove($window_handle, "", 10, 10)
+WinActivate($window_handle)
 
 ; Setup the initial 4 SFML sprites
 
@@ -86,48 +89,37 @@ Next
 
 ; Setup the Box2D animation, including the clocks (timers) and animation rate
 
-Local $clock_ptr = _CSFML_sfClock_create()
-Local $b2World_Step_clock_ptr = _CSFML_sfClock_create()
-Local $b2World_Step_runtime_clock_ptr = _CSFML_sfClock_create()
-;Local $CSFML_clear_transform_display_runtime_clock_ptr = _CSFML_sfClock_create()
-Local $fps_clock_ptr = _CSFML_sfClock_create()
+
 Local $fps = 0
+Local $fps_timer = _Timer_Init()
+Local $frame_timer = _Timer_Init()
 
 ; in microseconds (i.e. 1 60th of a second times 1,000,000 microseconds in a second)
 Local $animation_rate = Int(1 / 60 * 1000000)
 
 ; The animation loop
 
-While True
-
-;	$animation_rate = 20000 - (UBound($__body_struct_ptr) * 60)
+While true ; GUIGetMsg() <> $GUI_EVENT_CLOSE
 
 	; Every second calculate and display the FPS and number of active bodies
 
-	if _CSFML_sfClock_getElapsedTime($fps_clock_ptr) > 1000000 Then
+	if _Timer_Diff($fps_timer) > 1000 Then
 
-		_CSFML_sfClock_restart($fps_clock_ptr)
-
+		$fps_timer = _Timer_Init()
 		GUICtrlSetData($fps_label, "FPS = " & $fps)
-		$fps = 0
-
 		GUICtrlSetData($number_of_bodies_label, "Number of bodies = " & UBound($__body_struct_ptr))
+		$fps = 0
 	EndIf
 
 	; Every animation frame update the Box2D world
 
-	if _CSFML_sfClock_getElapsedTime($b2World_Step_clock_ptr) > ($animation_rate - 3000) Then
+	if _Timer_Diff($frame_timer) > ((1 / 60) * 1000) Then
 
-		_CSFML_sfClock_restart($b2World_Step_clock_ptr)
-		_Box2C_b2World_Step($__world_ptr, (1.0 / 60.0), 6, 2)
-	EndIf
+		$frame_timer = _Timer_Init()
+;		_Box2C_b2World_Step($__world_ptr, (1.0 / 60.0), 6, 2)
 
-	; Every animation frame render the bodies with SFML 2D
-
-;	if _CSFML_sfClock_getElapsedTime($clock_ptr) > $animation_rate Then
-	if _CSFML_sfClock_getElapsedTime($clock_ptr) > 1 Then
-
-		_CSFML_sfClock_restart($clock_ptr)
+		; The followsing b2World Step compensates well for a large number of bodies
+		_Box2C_b2World_Step($__world_ptr, (0.6 + (UBound($__body_struct_ptr) / 200)) / 60.0, 6, 2)
 
 		; Check for events
 
@@ -139,7 +131,7 @@ While True
 
 				Case $CSFML_sfEvtClosed
 
-					_CSFML_sfRenderWindow_close($window_ptr)
+					_Exit()
 
 				; if a key was pressed
 
@@ -152,14 +144,14 @@ While True
 
 						Case 36 ; Esc
 
-							_CSFML_sfRenderWindow_close($window_ptr)
-							ExitLoop 2
+							_Exit()
 
 						; if "A" was pressed then add a new body
 
 						case 0 ; A
 
 							Local $new_body_num = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, $crate_shape_vertice, 0, 4)
+;							Local $new_body_num = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 0.1, 1.2, 1, $crate_shape_vertice, 0, 4)
 
 							_ArrayAdd($sprite_ptr, Null)
 							$sprite_ptr[$new_body_num] = _CSFML_sfSprite_create()
@@ -207,12 +199,17 @@ While True
 
 			Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_num])
 
-			if $body_position[1] < -11 Then
+			if $body_position[0] < -8 or $body_position[0] > 8 or $body_position[1] < -11 or $body_position[1] > 11 Then
 
-				_Box2C_b2Body_Destroy($body_num)
+				_Box2C_b2Body_Destroy_SFML($body_num, $sprite_ptr)
 				_CSFML_sfSprite_destroy($sprite_ptr[$body_num])
 				_ArrayDelete($sprite_ptr, $body_num)
+
 			Else
+
+				; Update sprite position
+
+				; converting the below to C might improve animations by a further 500 frames per seconds
 
 				$__body_curr_screen_x[$body_num] = $tmp_gui_center_x + ($body_position[0] * $__pixels_per_metre)
 ;				$__body_curr_screen_x[$body_num] = x_metres_to_gui_x($body_position[0], $tmp_gui_center_x)
@@ -220,22 +217,43 @@ While True
 				$__body_curr_screen_y[$body_num] = $tmp_gui_center_y - ($body_position[1] * $__pixels_per_metre)
 ;				$__body_curr_screen_y[$body_num] = y_metres_to_gui_y($body_position[1], $tmp_gui_center_y)
 
+				_CSFML_sfSprite_setPosition_xy($sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+
+				; Update sprite rotation
+
 				Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
 				$__body_curr_angle_degrees[$body_num] = 0 - radians_to_degrees($body_angle)
-
-				_CSFML_sfVector2f_Update($pos_ptr, $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
-				_CSFML_sfSprite_setPosition($sprite_ptr[$body_num], $pos)
 				_CSFML_sfSprite_setRotation($sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+
 				_CSFML_sfRenderWindow_drawSprite($window_ptr, $sprite_ptr[$body_num], Null)
+
 			EndIf
 		WEnd
 
 		; Render the animation frame
 
 		_CSFML_sfRenderWindow_display($window_ptr)
-		$fps = $fps + 1
+
 	EndIf
+
+		$fps = $fps + 1
+;	EndIf
 WEnd
 
 ; Shutdown SFML
-_CSFML_Shutdown()
+;_CSFML_Shutdown()
+
+Func _Exit()
+
+	; Close the SFML RenderWindow
+	_CSFML_sfRenderWindow_close($window_ptr)
+
+	; Shutdown SFML
+	_CSFML_Shutdown()
+
+	; Close the AutoIT GUI
+	GUIDelete($main_gui)
+
+	Exit
+EndFunc
+

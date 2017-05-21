@@ -1036,6 +1036,50 @@ Func _Box2C_b2Body_Destroy($body_index)
 
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_Destroy_SFML
+; Description ...: A convenience function for SFML that destroys a body (b2Body) within the internal (PTR) array of bodies.
+; Syntax.........: _Box2C_b2Body_Destroy_SFML($body_index)
+; Parameters ....: $body_index - the index of the body within the internal array of bodies to destroy
+; Return values .: None
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_Destroy_SFML($body_index, $sprite_ptr)
+
+	; destroy the fixture
+
+	_Box2C_b2Body_DestroyFixture($__body_struct_ptr[$body_index], $__fixture_struct_ptr[$body_index])
+	_ArrayDelete($__fixture_struct_ptr, $body_index)
+
+	; destroy the body
+
+	_Box2C_b2World_DestroyBody($__world_ptr, $__body_struct_ptr[$body_index])
+	_ArrayDelete($__body_struct_ptr, $body_index)
+	_ArrayDelete($__body_prev_screen_x, $body_index)
+	_ArrayDelete($__body_prev_screen_y, $body_index)
+	_ArrayDelete($__body_curr_screen_x, $body_index)
+	_ArrayDelete($__body_curr_screen_y, $body_index)
+	_ArrayDelete($__body_prev_angle_degrees, $body_index)
+	_ArrayDelete($__body_curr_angle_degrees, $body_index)
+	_ArrayDelete($__body_width, $body_index)
+	_ArrayDelete($__body_height, $body_index)
+	_ArrayDelete($__body_gui_pos, $body_index)
+	_ArrayDelete($__body_shape_index, $body_index)
+
+	; destroy the graphics
+
+;	_CSFML_sfSprite_destroy($sprite_ptr[$body_index])
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_index = ' & $body_index & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;	_ArrayDelete($sprite_ptr, $body_index)
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_index = ' & $body_index & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+EndFunc
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Body_Rotate_GDIPlus

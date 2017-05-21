@@ -24,6 +24,7 @@ $g_hGUI = GUICreate("Box2D / Box2C by seangriffin", $world_width + 400, $world_h
 GUICtrlCreateGroup("World", $world_width + 10, 10, 380, 120)
 ;Global $restart_button = GUICtrlCreateButton("Restart (&r)", $world_width + 20, 30, 80, 20)
 Global $number_of_bodies_label = GUICtrlCreateLabel("Number of bodies = ", $world_width + 20, 80, 160, 20)
+Global $fps_label = GUICtrlCreateLabel("FPS = ", $world_width + 20, 100, 160, 20)
 GUICtrlCreateGroup("", -99, -99, 1, 1)
 
 GUICtrlCreateGroup("Falling Body", $world_width + 10, 140, 380, 140)
@@ -101,11 +102,26 @@ Local $falling_body_index = _Box2C_b2Body_ArrayAdd_GDIPlus($falling_bodydef_inde
 ;ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $__body_hGfx_Buffer[0] = ' & $__body_hGfx_Buffer[0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 ;Exit
 
+Local $fps = 0
+Local $fps_timer = _Timer_Init()
+
+
 While True
 
 	if $__destroy_all_bodies = True Then
 
 		Exit
+	EndIf
+
+	; Every second calculate and display the FPS and number of active bodies
+
+	if _Timer_Diff($fps_timer) > 1000 Then
+
+		$fps_timer = _Timer_Init()
+
+		GUICtrlSetData($number_of_bodies_label, "Number of bodies = " & UBound($__body_struct_ptr))
+		GUICtrlSetData($fps_label, "FPS = " & $fps)
+		$fps = 0
 	EndIf
 
 
@@ -150,6 +166,8 @@ While True
 	WEnd
 
 	_GDIPlus_GraphicsDrawImage($__g_hGraphics, $__g_hBmp_Buffer, 0, 0)
+
+	$fps = $fps + 1
 
 	$__playing_anim = False
 
