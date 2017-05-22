@@ -54,6 +54,16 @@ Global $__world_animation_timer
 
 Global $__g_hGraphics
 Global $__g_hBmp_Buffer
+
+Global $__sprite_ptr[0]
+Global $__gui_center_x
+Global $__gui_center_y
+
+Global $__event
+Global $__event_ptr
+Global $__black
+Global $__green
+Global $__white
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
@@ -200,6 +210,43 @@ EndFunc
 Func degrees_to_radians($degrees)
 
 	Return $degrees * 0.01745329252
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_Setup_SFML
+; Description ...: A convenience function that sets up SFML for Box2D rendering.
+; Syntax.........: _Box2C_Setup_SFML()
+; Parameters ....: $pixels_per_metre - the AutoIT GUI to set the timer for
+;				   $gui_width - the interval
+;				   $gui_height -
+;				   $gravity_x -
+;				   $gravity_y -
+; Return values .: None
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_Setup_SFML()
+
+	_CSFML_Startup()
+
+	; Setup basic variables for SFML
+
+	Global $__event = _CSFML_sfEvent_Constructor()
+	Global $__event_ptr = DllStructGetPtr($__event)
+
+	; Setup colors for SFML
+
+	Global $__black = _CSFML_sfColor_Constructor(0,0,0,255)
+	Global $__green = _CSFML_sfColor_Constructor(0,255,0,255)
+	Global $__white = _CSFML_sfColor_Constructor(255,255,255,255)
+
+	; Setup fonts for SFML
+
+	Global $__courier_new_font_ptr = _CSFML_sfFont_createFromFile("C:\Windows\Fonts\cour.ttf")
 EndFunc
 
 
@@ -413,6 +460,8 @@ Func _Box2C_b2World_Setup($pixels_per_metre = 50, $gui_width = 640, $gui_height 
 	_Box2C_b2World_SetGUIArea($gui_width, $gui_height)
 	_Box2C_b2World_Create($gravity_x, $gravity_y)
 
+	$__gui_center_x = $__GUI_Area[0] / 2
+	$__gui_center_y = $__GUI_Area[1] / 2
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -538,6 +587,85 @@ Func _Box2C_b2World_WaitForAnimateEnd()
 
 		Sleep(250)
 	WEnd
+
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2World_FrameAnimate_SFML
+; Description ...: The animation loop specifically for Box2D and SFML
+; Syntax.........: _Box2C_b2World_FrameAnimate_SFML($window_ptr, $window_color, $info_text_ptr, $info_text_string)
+; Parameters ....: $window_ptr
+;				   $window_color
+;				   $info_text_ptr
+;				   $info_text_string
+; Return values .: None
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $info_text_ptr, ByRef $info_text_string)
+
+	; Clear the animation frame
+
+	_CSFML_sfRenderWindow_clear($window_ptr, $window_color)
+
+	; Draw SFML text
+
+	_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
+
+	; Transform the Box2D bodies and draw SFML sprites
+
+	Local $body_num = -1
+
+	While True
+
+		$body_num = $body_num + 1
+
+		if $body_num > (UBound($__body_struct_ptr) - 1) Then
+
+			ExitLoop
+		EndIf
+
+		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_num])
+
+		if $body_position[0] < -8 or $body_position[0] > 8 or $body_position[1] < -11 or $body_position[1] > 11 Then
+
+			_Box2C_b2Body_Destroy_SFML($body_num, $__sprite_ptr)
+			_CSFML_sfSprite_destroy($__sprite_ptr[$body_num])
+			_ArrayDelete($__sprite_ptr, $body_num)
+
+		Else
+
+			; Update sprite position
+
+			; converting the below to C might improve animations by a further 500 frames per seconds
+
+			$__body_curr_screen_x[$body_num] = $__gui_center_x + ($body_position[0] * $__pixels_per_metre)
+;				$__body_curr_screen_x[$body_num] = x_metres_to_gui_x($body_position[0], $tmp_gui_center_x)
+
+			$__body_curr_screen_y[$body_num] = $__gui_center_y - ($body_position[1] * $__pixels_per_metre)
+;				$__body_curr_screen_y[$body_num] = y_metres_to_gui_y($body_position[1], $tmp_gui_center_y)
+
+
+			_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+
+			; Update sprite rotation
+
+			Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
+			$__body_curr_angle_degrees[$body_num] = 0 - radians_to_degrees($body_angle)
+			_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+
+			_CSFML_sfRenderWindow_drawSprite($window_ptr, $__sprite_ptr[$body_num], Null)
+
+		EndIf
+	WEnd
+
+	; Render the animation frame
+
+	_CSFML_sfRenderWindow_display($window_ptr)
 
 EndFunc
 
@@ -818,7 +946,7 @@ EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Body_ArrayAdd_SFML
-; Description ...: A convenience function for SFML that adds a body (b2Body) to an internal (PTR) array of bodies.
+; Description ...: A convenience function for SFML that adds a body (b2Body) and sprite to an internal (PTR) array of bodies and sprites.
 ; Syntax.........: _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $vertice, $initial_x, $initial_y)
 ; Parameters ....: $bodydef_index - the index of the body definition within the internal array of body definitions to create the body with
 ;				   $shape_index - the index of the shape within the internal arrays of shapes to create the body with
@@ -861,6 +989,19 @@ Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restit
 
 	; add the index of the shape to the internal array of body shapes
 	_ArrayAdd($__body_shape_index, $shape_index)
+
+
+
+	; Add the SFML sprite
+
+	_ArrayAdd($__sprite_ptr, Null)
+	$__sprite_ptr[$body_struct_ptr_index] = _CSFML_sfSprite_create()
+	_CSFML_sfSprite_setTexture($__sprite_ptr[$body_struct_ptr_index], $__shape_image[$shape_index], $CSFML_sfTrue)
+	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(($__body_width[$body_struct_ptr_index] / 2) * $__pixels_per_metre, ($__body_height[$body_struct_ptr_index] / 2) * $__pixels_per_metre))
+
+
+
+
 
 	; return the index to the new body
 	Return $body_struct_ptr_index
@@ -1110,6 +1251,5 @@ Func _Box2C_b2Body_Rotate_GDIPlus($gfx_buffer, $body_center_x, $body_center_y, $
 	_GDIPlus_GraphicsTranslateTransform($gfx_buffer, -$aMousePos[1][0], -$aMousePos[1][1])
 
 EndFunc
-
 
 
