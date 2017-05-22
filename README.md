@@ -11,9 +11,12 @@ Click **Clone or download** above, then **Download ZIP**, then download and extr
 
 ## Contents
 
-- **CSFML.au3** is the CSFML UDF itself, containing the SFML functions for AutoIT
-- **CSFML_short_example.au3** is an example of an AutoIT script using the UDF
-- **arial.ttf** and **logo4.gif** are resource files required by CSFML_short_example.au3 above
+- **Box2C.au3** is the Box2D UDF itself, containing the Box2D / Box2C functions for AutoIT
+- **Box2C_speed_test_SFML.au3** is the AutoIT speed test script for SFML
+- **Box2C_speed_test_Irrlicht.au3** is the AutoIT speed test script for Irrlicht
+- **Box2C_speed_test_D2D.au3** is the AutoIT speed test script for Direct 2D
+- **Box2C_speed_test_GDIPlus.au3** is the AutoIT speed test script for GDI+
+- ***.gif** are resource files required by CSFML_short_example.au3 above
 
 ## Usage
 
