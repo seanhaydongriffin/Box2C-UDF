@@ -7,7 +7,7 @@ This is an AutoIT UDF of for Box2D.  It uses the Box2C API / wrapper for Box2D.
 
 ## Download
 
-Click **Clone or download** above and **Download ZIP** and download the zip file to your computer.  Unzip the file to a location on your computer.
+Click **Clone or download** above, then **Download ZIP**, then download and extract the contents of the zip file to your computer.
 
 ## Contents
 
