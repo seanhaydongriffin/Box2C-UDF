@@ -1,3 +1,4 @@
+#include <Array.au3>
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: CSFML
@@ -346,6 +347,29 @@ Func  _CSFML_sfColor_fromRGB($red, $green, $blue)
 	return $sfColor
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfColor_fromInteger
+; Description ...: Constructs a sfColor structure, from a RGB value.
+; Syntax.........: _CSFML_sfColor_fromInteger($color)
+; Parameters ....: $color - Number containing the RGBA components (in that order)
+; Return values .: Success - the sfColor structure (STRUCT)
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfColor_fromInteger($color)
+
+	Local $sfColor = DllCall($__CSFML_Graphics_DLL, "STRUCT:cdecl", "sfColor_fromInteger", "UINT", $color)
+		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : @error = ' & @error & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	return $sfColor[0]
+EndFunc
+
 
 ; #SFSIZEEVENT FUNCTIONS# =====================================================================================================
 
@@ -678,6 +702,32 @@ Func  _CSFML_sfRenderWindow_drawText($renderWindow, $object, $states)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfRenderWindow_drawTextString
+; Description ...: A convenience function to set the string of a sfText object and draw it in one call.
+; Syntax.........: _CSFML_sfRenderWindow_drawTextString($renderWindow, $object, $states)
+; Parameters ....: $renderWindow - Render window object
+;				   $object - the text to draw
+;				   $states - Render states to use for drawing (Null to use the default states)
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......: _CSFML_sfRenderWindow_create
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfRenderWindow_drawTextString($renderWindow, $object, $string, $states)
+
+	_CSFML_sfText_setString($object, $string)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfRenderWindow_drawText", "PTR", $renderWindow, "PTR", $object, "PTR", $states)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _CSFML_sfRenderWindow_drawSprite
 ; Description ...: Draw a drawable object to the render-target.
 ; Syntax.........: _CSFML_sfRenderWindow_drawSprite($renderWindow, $object, $states)
@@ -1002,9 +1052,12 @@ EndFunc
 Func  _CSFML_sfFont_createFromFile($filename)
 
 	Local $sfFont = DllCall($__CSFML_Graphics_DLL, "PTR:cdecl", "sfFont_createFromFile", "STR", $filename)
+;	_ArrayDisplay($sfFont)
+;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : @error = ' & @error & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Local $sfFont_ptr = $sfFont[0]
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $sfFont_ptr = ' & $sfFont_ptr & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 	Return $sfFont_ptr
 EndFunc
 
@@ -1029,9 +1082,39 @@ EndFunc
 Func  _CSFML_sfText_create()
 
 	Local $sfText = DllCall($__CSFML_Graphics_DLL, "PTR:cdecl", "sfText_create")
+;	_ArrayDisplay($sfText)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Local $sfText_ptr = $sfText[0]
+	Return $sfText_ptr
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfText_create_and_set
+; Description ...: A convenience function to create a new text and also set it's properties in one call.
+; Syntax.........: _CSFML_sfText_create_and_set()
+; Parameters ....: None
+; Return values .: Success - A new sfText object
+;				   Failure - 0 or Null
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfText_create_and_set($font_ptr, $size, $color, $x, $y)
+
+	Local $sfText = DllCall($__CSFML_Graphics_DLL, "PTR:cdecl", "sfText_create")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $sfText_ptr = $sfText[0]
+
+	_CSFML_sfText_setFont($sfText_ptr, $font_ptr)
+	_CSFML_sfText_setCharacterSize($sfText_ptr, $size)
+	_CSFML_sfText_setFillColor($sfText_ptr, $color)
+	_CSFML_sfText_setPosition_xy($sfText_ptr, $x, $y)
+
 	Return $sfText_ptr
 EndFunc
 
@@ -1054,6 +1137,7 @@ EndFunc
 Func  _CSFML_sfText_setString($text, $string)
 
 	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfText_setString", "PTR", $text, "STR", $string)
+;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : @error = ' & @error & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True
@@ -1079,7 +1163,37 @@ EndFunc
 ; ===============================================================================================================================
 Func  _CSFML_sfText_setPosition($text, $position)
 
-	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfText_setString", "PTR", $text, "PTR", $position)
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfText_setPosition", "PTR", $text, "PTR", $position)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfText_setPosition_xy
+; Description ...: Set the position of a sprite, with horizontal and vertical coordinates.
+;				   This function completely overwrites the previous position. See sfSprite_move to apply an offset based
+;				   on the previous position instead. The default position of a sprite Sprite object is (0, 0).
+; Syntax.........: _CSFML_sfText_setPosition_xy($text, $x, $y)
+; Parameters ....: $sprite - Text object
+;				   $position - New position (sfVector2f)
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......: This function is slightly faster than _CSFML_sfSprite_setPosition by about 100 frames per second
+; Related .......: _CSFML_sfSprite_create, _CSFML_sfVector2f_Constructor
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfText_setPosition_xy($text, $x, $y)
+
+
+	local $sfVector2f = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	DllStructSetData($sfVector2f, 1, $x)
+	DllStructSetData($sfVector2f, 2, $y)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfText_setPosition", "PTR", $text, "STRUCT", $sfVector2f)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True
@@ -1105,7 +1219,7 @@ EndFunc
 ; ===============================================================================================================================
 Func  _CSFML_sfText_setFont($text, $font)
 
-	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfText_setString", "PTR", $text, "PTR", $font)
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfText_setFont", "PTR", $text, "PTR", $font)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True

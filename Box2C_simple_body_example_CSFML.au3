@@ -1,11 +1,8 @@
 #include-once
-#include <WindowsConstants.au3>
 #include <Array.au3>
 #include "Box2CEx.au3"
 
-
 Local $video_mode, $video_mode_ptr
-
 
 ; Startup SFML
 
@@ -43,18 +40,18 @@ Local $falling_body_index = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, 
 
 Local $event = _CSFML_sfEvent_Constructor()
 Local $event_ptr = DllStructGetPtr($event)
-;Local $black = _CSFML_sfColor_fromRGB(0,0,0)
-Local $black = _CSFML_sfColor_Constructor(0,0,0,0)
-Local $white = _CSFML_sfColor_Constructor(255,255,255,0)
 Local $pos = _CSFML_sfVector2f_Constructor(1,1)
 Local $pos_ptr = DllStructGetPtr($pos)
 
-; Setup the GUI for AutoIT
+; Setup colors for SFML
 
-Global $main_gui = GUICreate("Box2D / Box2C by seangriffin", 1200, 700, -1, -1, $WS_CAPTION)
-Global $number_of_bodies_label = GUICtrlCreateLabel("Number of bodies = ", 880, 80, 160, 20)
-Global $fps_label = GUICtrlCreateLabel("FPS = ", 880, 140, 260, 20)
-GUISetState(@SW_SHOW)
+Local $black = _CSFML_sfColor_Constructor(0,0,0,255)
+Local $green = _CSFML_sfColor_Constructor(0,255,0,255)
+Local $white = _CSFML_sfColor_Constructor(255,255,255,255)
+
+; Setup fonts for SFML
+
+Local $arial_font_ptr = _CSFML_sfFont_createFromFile("C:\Windows\Fonts\Arial.ttf")
 
 ; Setup the GUI for SFML inside the AutoIT GUI
 
@@ -62,11 +59,8 @@ $video_mode = _CSFML_sfVideoMode_Constructor(800, 600, 16)
 Local $window_ptr = _CSFML_sfRenderWindow_create($video_mode, "SFML window", $CSFML_sfWindowStyle_sfResize + $CSFML_sfWindowStyle_sfClose, Null)
 _CSFML_sfRenderWindow_setVerticalSyncEnabled($window_ptr, False)
 
-Local $window_handle = _CSFML_sfRenderWindow_getSystemHandle($window_ptr)
-; note the two lines below do slow down the animation loop by about 200 frames per second
-_WinAPI_SetParent($window_handle, $main_gui)
-WinMove($window_handle, "", 10, 10)
-WinActivate($window_handle)
+Local $number_of_bodies_text_ptr = _CSFML_sfText_create_and_set($arial_font_ptr, 12, $black, 40, 40)
+Local $fps_text_ptr = _CSFML_sfText_create_and_set($arial_font_ptr, 12, $black, 40, 60)
 
 ; Setup the initial 4 SFML sprites
 
@@ -89,7 +83,7 @@ Next
 
 ; Setup the Box2D animation, including the clocks (timers) and animation rate
 
-
+Local $num_frames = 0
 Local $fps = 0
 Local $fps_timer = _Timer_Init()
 Local $frame_timer = _Timer_Init()
@@ -99,16 +93,15 @@ Local $animation_rate = Int(1 / 60 * 1000000)
 
 ; The animation loop
 
-While true ; GUIGetMsg() <> $GUI_EVENT_CLOSE
+While true
 
 	; Every second calculate and display the FPS and number of active bodies
 
 	if _Timer_Diff($fps_timer) > 1000 Then
 
 		$fps_timer = _Timer_Init()
-		GUICtrlSetData($fps_label, "FPS = " & $fps)
-		GUICtrlSetData($number_of_bodies_label, "Number of bodies = " & UBound($__body_struct_ptr))
-		$fps = 0
+		$fps = $num_frames
+		$num_frames = 0
 	EndIf
 
 	; Every animation frame update the Box2D world
@@ -184,7 +177,12 @@ While true ; GUIGetMsg() <> $GUI_EVENT_CLOSE
 
 		_CSFML_sfRenderWindow_clear($window_ptr, $white)
 
-		; Transform the Box2D bodies and SFML sprites
+		; Draw SFML text
+
+		_CSFML_sfRenderWindow_drawTextString($window_ptr, $fps_text_ptr, "FPS = " & $fps, Null)
+		_CSFML_sfRenderWindow_drawTextString($window_ptr, $number_of_bodies_text_ptr, "Number of bodies = " & UBound($__body_struct_ptr), Null)
+
+		; Transform the Box2D bodies and draw SFML sprites
 
 		Local $body_num = -1
 
@@ -236,12 +234,10 @@ While true ; GUIGetMsg() <> $GUI_EVENT_CLOSE
 
 	EndIf
 
-		$fps = $fps + 1
+		$num_frames = $num_frames + 1
 ;	EndIf
 WEnd
 
-; Shutdown SFML
-;_CSFML_Shutdown()
 
 Func _Exit()
 
@@ -250,9 +246,6 @@ Func _Exit()
 
 	; Shutdown SFML
 	_CSFML_Shutdown()
-
-	; Close the AutoIT GUI
-	GUIDelete($main_gui)
 
 	Exit
 EndFunc
