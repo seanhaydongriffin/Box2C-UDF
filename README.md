@@ -25,8 +25,8 @@ FPS readings are not limited.
 
 test 1. 60hz box2d step, all frame rendering, for 4 bodies
 
-             | FPS          
------------- | -------------
+Engine | FPS
+------ | ---
 Irrlicht | 1360
 SFML | 1260
 D2D | 650
