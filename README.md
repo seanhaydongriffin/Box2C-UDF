@@ -7,7 +7,7 @@ This is an AutoIT UDF of for Box2D.  It uses the Box2C API / wrapper for Box2D.
 
 ## Download
 
-Download the files above to a location on your computer.
+Click **Clone or download** above and **Download ZIP** and download the zip file to your computer.  Unzip the file to a location on your computer.
 
 ## Contents
 
@@ -17,7 +17,18 @@ Download the files above to a location on your computer.
 
 ## Usage
 
-To run the example, open **CSFML_short_example.au3** in AutoIT (SciTe) and **Go** (press **F5**).
+There are four speed tests, which you can run to test the performance of the UDF against four popular graphics engines.  These are the following files.
+
+Filename | Test
+-------- | ----
+Box2C_speed_test_SFML.exe | Tests the SFML graphics engine with the Box2D UDF
+Box2C_speed_test_Irrlicht.exe | Tests the Irrlicht graphics engine with the Box2D UDF
+Box2C_speed_test_D2D.exe | Tests the Direct 2D graphics engine with the Box2D UDF
+Box2C_speed_test_GDIPlus.exe | Tests the GDI+ graphics engine with the Box2D UDF
+
+Follow the prompts in the displayed GUI on how to conduct the test.
+
+SFML (Box2C_speed_test_SFML.exe) should provide the best performance.
 
 ## Benchmarks
 
