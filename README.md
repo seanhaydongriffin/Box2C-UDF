@@ -23,7 +23,7 @@ To run the example, open **CSFML_short_example.au3** in AutoIT (SciTe) and **Go*
 
 FPS readings are not limited.
 
-test 1. 60hz box2d step, all frame rendering, for 4 bodies
+test 1. 60hz box2d step, all frame rendering, for 4 bodies ...
 
 Engine | FPS
 ------ | ---
@@ -32,11 +32,35 @@ SFML | 1260
 D2D | 650
 GDI+ | 114
 
+Repeated above but with 10 bodies ...
 
+Engine | FPS
+------ | ---
+Irrlicht | 780
+SFML | 700
+D2D | 333
+GDI+ | 86
 
+Repeated above but with 100 bodies ...
 
+Engine | FPS
+------ | ---
+Irrlicht | 100
+SFML | 87
+D2D | 44
+GDI+ | 24
 
-test 1. 60hz box2d step, all frame rendering, for 4 bodies
+test 2. Irrlicht and SFML only. 60hz box2d step and frame rendering combined, for 100 bodies
 
+Engine | FPS
+------ | ---
+Irrlicht | 7300
+SFML | 6500
 
+test 3. as above but excluding transforming / draw logic
+
+Engine | FPS
+------ | ---
+Irrlicht | 13000
+SFML | 14200
 
