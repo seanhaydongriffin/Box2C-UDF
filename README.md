@@ -16,7 +16,7 @@ Click **Clone or download** above, then **Download ZIP**, then download and extr
 - **Box2C_speed_test_Irrlicht.au3** is the AutoIT speed test script for Irrlicht
 - **Box2C_speed_test_D2D.au3** is the AutoIT speed test script for Direct 2D
 - **Box2C_speed_test_GDIPlus.au3** is the AutoIT speed test script for GDI+
-- ***.gif** are resource files required by CSFML_short_example.au3 above
+- ***.gif** are resource files required by the scripts above
 
 ## Usage
 
