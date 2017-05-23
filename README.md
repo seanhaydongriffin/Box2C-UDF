@@ -12,15 +12,20 @@ Click **Clone or download** above, then **Download ZIP**, then download and extr
 ## Contents
 
 - **Box2C.au3** is the Box2D UDF itself, containing the Box2D / Box2C functions for AutoIT
-- **Box2C_speed_test_SFML.au3** is the AutoIT speed test script for SFML
-- **Box2C_speed_test_Irrlicht.au3** is the AutoIT speed test script for Irrlicht
-- **Box2C_speed_test_D2D.au3** is the AutoIT speed test script for Direct 2D
-- **Box2C_speed_test_GDIPlus.au3** is the AutoIT speed test script for GDI+
-- ***.gif** are resource files required by the scripts above
+- **Box2C_linear_forces_test_SFML.exe** is a test of Box2D linear forces using AutoIT and SFML
+- **Box2C_angular_forces_test_SFML.exe** is a test of Box2D angular forces using AutoIT and SFML
+- **Box2C_speed_test_SFML.exe** is a speed test using AutoIT and SFML
+- **Box2C_speed_test_Irrlicht.exe** is a speed test using AutoIT and Irrlicht
+- **Box2C_speed_test_D2D.exe** is a speed test using AutoIT and Direct 2D
+- **Box2C_speed_test_GDIPlus.exe** is a speed test using AutoIT and GDI+
+- the ***.au3** files are the AutoIT scripts of the same name as the exe files above
+- the ***.gif** and ***.png** files are the sprites / images used in the tests
 
 ## Usage
 
-There are four speed tests, which you can run to test the performance of the UDF against four popular graphics engines.  These are the following files.
+You can run any of the executables (exe files) above to test the UDF.
+
+The four speed tests will test the performance of the UDF against four popular graphics engines, as follows.
 
 Filename | Test
 -------- | ----
