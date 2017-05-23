@@ -20,6 +20,7 @@ Click **Clone or download** above, then **Download ZIP**, then download and extr
 - **Box2C_speed_test_GDIPlus.exe** is a speed test using AutoIT and GDI+
 - the ***.au3** files are the AutoIT scripts of the same name as the exe files above
 - the ***.gif** and ***.png** files are the sprites / images used in the tests
+- the ***.dll** files are the graphic engine libraries, and also the Box2C libraries
 
 ## Usage
 
