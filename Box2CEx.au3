@@ -48,6 +48,7 @@ Global $__body_prev_angle_degrees[0]
 Global $__body_curr_angle_degrees[0]
 Global $__body_gui_pos[0][2]
 Global $__body_shape_index[0]
+Global $__body_out_of_bounds_behaviour[0]
 
 Global $__world_ptr
 Global $__world_animation_timer
@@ -591,9 +592,9 @@ Func _Box2C_b2World_WaitForAnimateEnd()
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2World_FrameAnimate_SFML
+; Name...........: _Box2C_b2World_Animate_SFML
 ; Description ...: The animation loop specifically for Box2D and SFML
-; Syntax.........: _Box2C_b2World_FrameAnimate_SFML($window_ptr, $window_color, $info_text_ptr, $info_text_string)
+; Syntax.........: _Box2C_b2World_Animate_SFML($window_ptr, $window_color, $info_text_ptr, $info_text_string)
 ; Parameters ....: $window_ptr
 ;				   $window_color
 ;				   $info_text_ptr
@@ -631,12 +632,31 @@ Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $
 
 		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_num])
 
-		if $body_position[0] < -8 or $body_position[0] > 8 or $body_position[1] < -11 or $body_position[1] > 11 Then
+		if $body_position[0] < -8 or $body_position[0] > 8 or $body_position[1] < -6 or $body_position[1] > 6 Then
 
-			_Box2C_b2Body_Destroy_SFML($body_num, $__sprite_ptr)
-			_CSFML_sfSprite_destroy($__sprite_ptr[$body_num])
-			_ArrayDelete($__sprite_ptr, $body_num)
+			if $__body_out_of_bounds_behaviour[$body_num] = 2 Then
 
+				Local $velocity = _Box2C_b2Body_GetLinearVelocity($__body_struct_ptr[$body_num])
+
+				if $body_position[0] < -8 or $body_position[0] > 8 Then
+
+					_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_num], $body_position[0] * 0.99, $body_position[1])
+					_Box2C_b2Body_SetLinearVelocity($__body_struct_ptr[$body_num], 0 - $velocity[0], $velocity[1])
+				EndIf
+
+				if $body_position[1] < -6 or $body_position[1] > 6 Then
+
+					_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_num], $body_position[0], $body_position[1] * 0.99)
+					_Box2C_b2Body_SetLinearVelocity($__body_struct_ptr[$body_num], $velocity[0], 0 - $velocity[1])
+				EndIf
+			EndIf
+
+			if $__body_out_of_bounds_behaviour[$body_num] = 1 Then
+
+				_Box2C_b2Body_Destroy_SFML($body_num, $__sprite_ptr)
+				_CSFML_sfSprite_destroy($__sprite_ptr[$body_num])
+				_ArrayDelete($__sprite_ptr, $body_num)
+			EndIf
 		Else
 
 			; Update sprite position
@@ -667,6 +687,64 @@ Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $
 
 	_CSFML_sfRenderWindow_display($window_ptr)
 
+EndFunc
+
+
+; #B2SHAPE FUNCTIONS# =====================================================================================================
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Shape_ArrayAdd_SFML
+; Description ...: A convenience function for SFML that adds a polygon shape (b2PolygonShape) to an internal array of shapes.
+; Syntax.........: _Box2C_b2Shape_ArrayAdd_SFML($type, $radius_vertice, $shape_image_file_path)
+; Parameters ....: $type - the type of shape:
+;						$Box2C_e_circle (0) = a circle shape
+;						$Box2C_e_edge (1) = an edge shape
+;						$Box2C_e_polygon (2) = a polygon shape
+;						$Box2C_e_chain (3) = a chain shape
+;				   $radius_vertice:
+;						for a $type of $Box2C_e_circle this is the radius of the circle
+;						for a $type of $Box2C_e_edge this is a two dimensional vector array of the edges of the polygon
+;				   $shape_image_file_path - the path to the image file of the shape to add
+; Return values .: The index of the shape within the internal array of shapes.
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Shape_ArrayAdd_SFML($type, $radius_vertice, $shape_image_file_path)
+
+	; add the new vertices to the internal array of shape vertices
+	Local $shape_vertice_index = _ArrayAdd($__shape_vertice, Null)
+
+	if $type = $Box2C_e_edge Then
+
+		$__shape_vertice[$shape_vertice_index] = $radius_vertice
+	EndIf
+
+	; add the new sfTexture to the internal array of shape images
+	Local $struct_image_array_index = _ArrayAdd($__shape_image, _CSFML_sfTexture_createFromFile($shape_image_file_path, Null))
+
+	; create a new Box2C Polygone Shape for the new vertices and add it to the internal array of shape structures
+	Local $shape_struct_index
+
+	Switch $type
+
+		case $Box2C_e_circle
+
+			$shape_struct_index = _ArrayAdd($__shape_struct, _Box2C_b2CircleShape_Constructor($radius_vertice))
+
+		case $Box2C_e_edge
+
+			$shape_struct_index = _ArrayAdd($__shape_struct, _Box2C_b2PolygonShape_Constructor($radius_vertice))
+	EndSwitch
+
+	_ArrayAdd($__shape_struct_ptr, DllStructGetPtr($__shape_struct[$shape_struct_index]))
+
+	; return the index of the new shape within the internal arrays of shapes
+	Return $shape_struct_index
 EndFunc
 
 
@@ -746,37 +824,6 @@ Func _Box2C_b2PolygonShape_ArrayAdd_GDIPlus($vertice, $shape_image_file_path)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2PolygonShape_ArrayAdd_SFML
-; Description ...: A convenience function for SFML that adds a polygon shape (b2PolygonShape) to an internal array of shapes.
-; Syntax.........: _Box2C_b2PolygonShape_ArrayAdd_SFML($vertice, $shape_image_file_path)
-; Parameters ....: $vertice - the vectices of the shape to add
-;				   $shape_image_file_path - the path to the image file of the shape to add
-; Return values .: The index of the shape within the internal array of shapes.
-; Author ........: Sean Griffin
-; Modified.......:
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......:
-; ===============================================================================================================================
-Func _Box2C_b2PolygonShape_ArrayAdd_SFML($vertice, $shape_image_file_path)
-
-	; add the new vertices to the internal array of shape vertices
-	Local $shape_vertice_index = _ArrayAdd($__shape_vertice, Null)
-	$__shape_vertice[$shape_vertice_index] = $vertice
-
-	; add the new sfTexture to the internal array of shape images
-	Local $struct_image_array_index = _ArrayAdd($__shape_image, _CSFML_sfTexture_createFromFile($shape_image_file_path, Null))
-
-	; create a new Box2C Polygone Shape for the new vertices and add it to the internal array of shape structures
-	Local $shape_struct_index = _ArrayAdd($__shape_struct, _Box2C_b2PolygonShape_Constructor($vertice))
-	_ArrayAdd($__shape_struct_ptr, DllStructGetPtr($__shape_struct[$shape_struct_index]))
-
-	; return the index of the new shape within the internal arrays of shapes
-	Return $shape_struct_index
-EndFunc
-
-; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2PolygonShape_ArrayAdd_Irrlicht
 ; Description ...: A convenience function for Irrlicht that adds a polygon shape (b2PolygonShape) to an internal array of shapes.
 ; Syntax.........: _Box2C_b2PolygonShape_ArrayAdd_Irrlicht($vertice, $shape_image_file_path)
@@ -814,11 +861,13 @@ EndFunc
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2BodyDef_ArrayAdd
 ; Description ...: A convenience function that adds a body definition (b2BodyDef) to an internal array of body definitions.
-; Syntax.........: _Box2C_b2BodyDef_ArrayAdd($body_type, $initial_x, $initial_y, $initial_angle)
+; Syntax.........: _Box2C_b2BodyDef_ArrayAdd($body_type, $initial_x, $initial_y, $initial_angle, $linearDamping, $angularDamping)
 ; Parameters ....: $body_type
 ;				   $initial_x
 ;				   $initial_y
 ;				   $initial_angle
+;				   $linearDamping
+;				   $angularDamping
 ; Return values .: The index of the body definition within the internal array of body definitions.
 ; Author ........: Sean Griffin
 ; Modified.......:
@@ -827,10 +876,10 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyDef_ArrayAdd($body_type, $initial_x = 0, $initial_y = 0, $initial_angle = 0)
+Func _Box2C_b2BodyDef_ArrayAdd($body_type, $initial_x = 0, $initial_y = 0, $initial_angle = 0, $linearDamping = 0, $angularDamping = 0)
 
 	; create a new Box2C Body Definition for the body type, initial x and y and angles, and add it to the internal array of body definition structures
-	Local $bodydef_struct_index = _ArrayAdd($__bodydef_struct, _Box2C_b2BodyDef_Constructor($body_type, $initial_x, $initial_y, $initial_angle, 0, 0, 0, 0, 0, True, True, False, False, True, Null, 1))
+	Local $bodydef_struct_index = _ArrayAdd($__bodydef_struct, _Box2C_b2BodyDef_Constructor($body_type, $initial_x, $initial_y, $initial_angle, 0, 0, 0, $linearDamping, $angularDamping, True, True, False, False, True, Null, 1))
 	_ArrayAdd($__bodydef_struct_ptr, DllStructGetPtr($__bodydef_struct[$bodydef_struct_index]))
 
 	; return the index of the new body definition within the internal array of body definitions
@@ -925,6 +974,7 @@ Func _Box2C_b2Body_ArrayAdd_GDIPlus($bodydef_index, $shape_index, $density, $res
 	_ArrayAdd($__body_curr_angle_degrees, -1)
 	_ArrayAdd($__body_width, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 0))
 	_ArrayAdd($__body_height, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 1))
+	_ArrayAdd($__body_out_of_bounds_behaviour, 0)
 
 	; create a new Box2C Fixture for the index of the body created, and the index of the shape supplied, and other attributes supplied (density, restitution and friction), add it to the internal array of fixture structures
 	Local $fixture_struct_ptr_index = _ArrayAdd($__fixture_struct_ptr, _Box2C_b2World_CreateFixture($__body_struct_ptr[$body_struct_ptr_index], $__shape_struct_ptr[$shape_index], $density, $restitution, $friction))
@@ -956,6 +1006,11 @@ EndFunc
 ;				   $vertice - the index of the shape containing the vertices for the new body
 ;				   $initial_x - the initial horizontal position of the new body
 ;				   $initial_y - the initial vertical position of the new body
+;				   $out_of_bounds_behaviour - a flag that indicates what bodies / sprites should do when they go outside the GUI area
+;						0 = do nothing (keep animating)
+;						1 = destroy the body / sprite
+;						2 = bounce the linear velocity of the body / sprite (like bouncing off a wall)
+;						3 = stop the linear velocity of the body / sprite (like hitting a wall)
 ; Return values .: The index of the body within the internal array of bodies.
 ; Author ........: Sean Griffin
 ; Modified.......:
@@ -964,7 +1019,7 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $vertice, $initial_x, $initial_y)
+Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $initial_x, $initial_y, $out_of_bounds_behaviour = 0)
 
 	; create a new Box2C Body for the index of the body definition supplied, and add it to the internal array of body structures
 	Local $body_struct_ptr_index = _ArrayAdd($__body_struct_ptr, _Box2C_b2World_CreateBody($__world_ptr, $__bodydef_struct_ptr[$bodydef_index]))
@@ -979,12 +1034,13 @@ Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restit
 	_ArrayAdd($__body_curr_angle_degrees, -1)
 	_ArrayAdd($__body_width, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 0))
 	_ArrayAdd($__body_height, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 1))
+	_ArrayAdd($__body_out_of_bounds_behaviour, $out_of_bounds_behaviour)
 
 	; create a new Box2C Fixture for the index of the body created, and the index of the shape supplied, and other attributes supplied (density, restitution and friction), add it to the internal array of fixture structures
 	Local $fixture_struct_ptr_index = _ArrayAdd($__fixture_struct_ptr, _Box2C_b2World_CreateFixture($__body_struct_ptr[$body_struct_ptr_index], $__shape_struct_ptr[$shape_index], $density, $restitution, $friction))
 
 	; get the GUI position of the initial (vector) position of the body, and add it to the internal array of body GUI positions
-	Local $tmp_gui_pos = _Box2C_b2Vec2_GetGUIPosition($initial_x, $initial_y, $vertice)
+	Local $tmp_gui_pos = _Box2C_b2Vec2_GetGUIPosition($initial_x, $initial_y, $__shape_vertice[$shape_index])
 	_ArrayAdd($__body_gui_pos, $tmp_gui_pos[0] & "|" & $tmp_gui_pos[1])
 
 	; add the index of the shape to the internal array of body shapes
@@ -1042,6 +1098,7 @@ Func _Box2C_b2Body_ArrayAdd_Irrlicht($bodydef_index, $shape_index, $density, $re
 	_ArrayAdd($__body_curr_angle_degrees, -1)
 	_ArrayAdd($__body_width, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 0))
 	_ArrayAdd($__body_height, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 1))
+	_ArrayAdd($__body_out_of_bounds_behaviour, 0)
 
 	; create a new Box2C Fixture for the index of the body created, and the index of the shape supplied, and other attributes supplied (density, restitution and friction), add it to the internal array of fixture structures
 	Local $fixture_struct_ptr_index = _ArrayAdd($__fixture_struct_ptr, _Box2C_b2World_CreateFixture($__body_struct_ptr[$body_struct_ptr_index], $__shape_struct_ptr[$shape_index], $density, $restitution, $friction))
@@ -1169,6 +1226,7 @@ Func _Box2C_b2Body_Destroy($body_index)
 	_ArrayDelete($__body_height, $body_index)
 	_ArrayDelete($__body_gui_pos, $body_index)
 	_ArrayDelete($__body_shape_index, $body_index)
+	_ArrayDelete($__body_out_of_bounds_behaviour, $body_index)
 
 	; destroy the graphics
 

@@ -13,10 +13,10 @@ _Box2C_b2World_Setup(50, 800, 600, 0.000000000, -10.0000000)
 ; Setup the Box2D Shapes
 
 Global $platform_shape_vertice[4][2] = [[0,0],[5,0],[5,1],[0,1]]
-Global $platform_shape_index = _Box2C_b2PolygonShape_ArrayAdd_SFML($platform_shape_vertice, @ScriptDir & "\platform.gif")
+Global $platform_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $platform_shape_vertice, @ScriptDir & "\platform.gif")
 
 Global $crate_shape_vertice[4][2] = [[0,0],[0.25,0],[0.25,0.25],[0,0.25]]
-Global $crate_shape_index = _Box2C_b2PolygonShape_ArrayAdd_SFML($crate_shape_vertice, @ScriptDir & "\smallest_crate.gif")
+Global $crate_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $crate_shape_vertice, @ScriptDir & "\smallest_crate.gif")
 
 ; Setup the Box2D Body Definitions
 
@@ -27,10 +27,10 @@ Global $falling_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(2, 0, 4, 0)
 
 ; Setup the Box2D Bodies and SFML Sprites
 
-Local $platform_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform_bodydef_index, $platform_shape_index, 0, 0, 0, $platform_shape_index, 0, -4)
-Local $platform2_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform2_bodydef_index, $platform_shape_index, 0, 0, 0, $platform_shape_index, -4.5, -2)
-Local $platform3_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform3_bodydef_index, $platform_shape_index, 0, 0, 0, $platform_shape_index, +4.5, -2)
-Local $falling_body_index = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, $crate_shape_index, 0, 4)
+Local $platform_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform_bodydef_index, $platform_shape_index, 0, 0, 0, 0, -4)
+Local $platform2_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform2_bodydef_index, $platform_shape_index, 0, 0, 0, -4.5, -2)
+Local $platform3_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform3_bodydef_index, $platform_shape_index, 0, 0, 0, +4.5, -2)
+Local $falling_body_index = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, 0, 4)
 
 ; Setup the GUI for SFML inside the AutoIT GUI
 

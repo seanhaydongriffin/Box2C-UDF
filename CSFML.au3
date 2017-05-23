@@ -12,6 +12,7 @@
 ; #VARIABLES# ===================================================================================================================
 Global $__CSFML_System_DLL = -1
 Global $__CSFML_Graphics_DLL = -1
+Global $__CSFML_Window_DLL = -1
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
@@ -86,7 +87,7 @@ Global Enum $CSFML_sfEvtClosed, $CSFML_sfEvtResized, $CSFML_sfEvtLostFocus, $CSF
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _CSFML_Startup($CSFMLSystemDLL = "csfml-system-2.dll", $CSFMLGraphicsDLL = "csfml-graphics-2.dll")
+Func _CSFML_Startup($CSFMLSystemDLL = "csfml-system-2.dll", $CSFMLGraphicsDLL = "csfml-graphics-2.dll", $CSFMLWindowDLL = "csfml-window-2.dll")
 
 	If $__CSFML_System_DLL >= 0 Then Return 1
 	$__CSFML_System_DLL = DllOpen($CSFMLSystemDLL)
@@ -95,6 +96,10 @@ Func _CSFML_Startup($CSFMLSystemDLL = "csfml-system-2.dll", $CSFMLGraphicsDLL = 
 	If $__CSFML_Graphics_DLL >= 0 Then Return 1
 	$__CSFML_Graphics_DLL = DllOpen($CSFMLGraphicsDLL)
 	If $__CSFML_System_DLL = -1 Then Return SetError(@error,0,0)
+
+	If $__CSFML_Window_DLL >= 0 Then Return 1
+	$__CSFML_Window_DLL = DllOpen($CSFMLWindowDLL)
+	If $__CSFML_Window_DLL = -1 Then Return SetError(@error,0,0)
 
 	Return True
 EndFunc
@@ -116,6 +121,33 @@ Func _CSFML_Shutdown()
 
 	DllClose($__CSFML_System_DLL)
 	DllClose($__CSFML_Graphics_DLL)
+EndFunc
+
+
+; #SFKEYBOARD FUNCTIONS# =====================================================================================================
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfClock_getElapsedTime
+; Description ...: Get the time elapsed in a clock.
+;				   This function returns the time elapsed since the last call to _CSFML_sfClock_restart or _CSFML_sfClock_create.
+; Syntax.........: _CSFML_sfClock_getElapsedTime($clock)
+; Parameters ....:
+; Return values .: Success - Time elapsed (in microseconds).
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......: _CSFML_sfClock_create, _CSFML_sfClock_restart
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfKeyboard_isKeyPressed($key)
+
+	Local $key_pressed = DllCall($__CSFML_Window_DLL, "BOOL:cdecl", "sfKeyboard_isKeyPressed", "INT", $key)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return $key_pressed[0]
 EndFunc
 
 

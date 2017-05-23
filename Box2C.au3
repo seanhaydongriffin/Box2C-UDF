@@ -19,6 +19,8 @@ Global $__position_ptr = -1
 
 ; #CONSTANTS# ===================================================================================================================
 Global Const $__epsilon = 0.00001
+Global Enum $Box2C_b2_staticBody, $Box2C_b2_kinematicBody, $Box2C_b2_dynamicBody
+Global Enum $Box2C_e_circle, $Box2C_e_edge, $Box2C_e_polygon, $Box2C_e_chain, $Box2C_e_typeCount
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
@@ -472,6 +474,150 @@ Func _Box2C_b2BoxShape_Constructor($shape_width, $shape_height)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2CircleShape_Constructor
+; Description ...: Constructs a b2PolygonShape structure.
+; Syntax.........: _Box2C_b2CircleShape_Constructor($radius)
+; Parameters ....: $radius - the radius of the circle to construct
+; Return values .: Success - the b2PolygonShape structure (STRUCT).
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2CircleShape_Constructor($radius)
+
+	local $polygon_shape_portable = DllStructCreate("STRUCT;int;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;float;int;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; cb2polygonshapeportable for a circle shape as follows.
+	; m_shape ...
+	DllStructSetData($polygon_shape_portable, 1, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 2, $radius)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; m_centroid ...
+	DllStructSetData($polygon_shape_portable, 3, $radius)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 4, -$radius)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; m_vertices ...
+	DllStructSetData($polygon_shape_portable, 5, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 6, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 7, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 8, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 9, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 10, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 11, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 12, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 13, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 14, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 15, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 16, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 17, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 18, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 19, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 20, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; m_normals  ...
+	DllStructSetData($polygon_shape_portable, 21, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 22, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 23, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 24, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 25, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 26, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 27, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 28, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 29, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 30, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 31, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 32, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 33, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 34, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 35, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($polygon_shape_portable, 36, 0)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	; m_vertexCount ...
+	DllStructSetData($polygon_shape_portable, 37, 4)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+;	_Box2C_b2PolygonShape_Set(DllStructGetPtr($polygon_shape_portable), $vertices)
+
+	Return $polygon_shape_portable
+
+EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2PolygonShape_Constructor
 ; Description ...: Constructs a b2PolygonShape structure.
 ; Syntax.........: _Box2C_b2PolygonShape_Constructor($vertices)
@@ -624,7 +770,7 @@ EndFunc
 ; Return values .: None
 ; Author ........: Sean Griffin
 ; Modified.......:
-; Remarks .......:
+; Remarks .......: There is no return value for this function.  It simply repopulates the structure pointed to by $polygon_shape_portable_ptr
 ; Related .......:
 ; Link ..........:
 ; Example .......:
@@ -1191,6 +1337,227 @@ Func _Box2C_b2Body_SetTransform($body_ptr, $x, $y, $angle)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_settransform", "PTR", $body_ptr, "STRUCT", $position, "FLOAT", $angle)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_GetLinearVelocity
+; Description ...: Gets the linear velocity of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_GetLinearVelocity($body_ptr)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+; Return values .: Success - the linear velocity as a two dimensional array
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_GetLinearVelocity($body_ptr)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_getlinearvelocity", "PTR", $body_ptr, "PTR", $__position_ptr)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $velocity_x = DllStructGetData($__position, 1)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $velocity_y = DllStructGetData($__position, 2)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $velocity_arr[2] = [$velocity_x, $velocity_y]
+	Return $velocity_arr
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_SetLinearVelocity
+; Description ...: Sets the velocity (vector) of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_SetLinearVelocity($body_ptr, $x, $y)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $x - the horizontal velocity / vector
+;				   $y - the vertical velocity / vector
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_SetLinearVelocity($body_ptr, $x, $y)
+
+	local $velocity = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($velocity, 1, $x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($velocity, 2, $y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_setlinearvelocity", "PTR", $body_ptr, "STRUCT", $velocity)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_GetAngularVelocity
+; Description ...: Gets the angular velocity of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_GetAngularVelocity($body_ptr)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+; Return values .: Success - the linear velocity as a two dimensional array
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_GetAngularVelocity($body_ptr)
+
+	Local $angular_velocity = DllCall($__Box2C_Box2C_DLL, "FLOAT:cdecl", "b2body_getangularvelocity", "PTR", $body_ptr)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $angular_velocity_val = $angular_velocity[0]
+	Return $angular_velocity_val
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_SetAngularVelocity
+; Description ...: Sets the angular velocity (radians) of a body (b2Body)
+; Syntax.........: _Box2C_b2Body_SetAngularVelocity($body_ptr, $angular_velocity)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $angular_velocity - the angular velocity (radians)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_SetAngularVelocity($body_ptr, $angular_velocity)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_setangularvelocity", "PTR", $body_ptr, "FLOAT", $angular_velocity)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_ApplyForce
+; Description ...: Applies a force to a point on a body (b2Body)
+; Syntax.........: _Box2C_b2Body_ApplyForce($body_ptr, $force_x, $force_y, $point_x, $point_y)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $force_x - the horizontal component of the force
+;				   $force_y - the vertical component of the force
+;				   $point_x - the horizontal component of the point
+;				   $point_y - the vertical component of the point
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_ApplyForce($body_ptr, $force_x, $force_y, $point_x, $point_y)
+
+	local $force = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($force, 1, $force_x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($force, 2, $force_y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	local $point = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($point, 1, $point_x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($point, 2, $point_y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_applyforce", "PTR", $body_ptr, "STRUCT", $force, "STRUCT", $point)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_ApplyForceAtBody
+; Description ...: A convenience function to apply a force to a body relative to it's centroid (b2Body)
+; Syntax.........: _Box2C_b2Body_ApplyForceAtBody($body_ptr, $force_x, $force_y, $offset_point_x, $offset_point_y)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $force_x - the horizontal component of the force
+;				   $force_y - the vertical component of the force
+;				   $offset_point_x - the horizontal component of an offset point from the centroid (defaults to 0 for no offset)
+;				   $offset_point_y - the vertical component of offset point from the centroid (defaults to 0 for no offset)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_ApplyForceAtBody($body_ptr, $force_x, $force_y, $offset_point_x = 0, $offset_point_y = 0)
+
+	Local $body_position = _Box2C_b2Body_GetPosition($body_ptr)
+
+	local $force = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($force, 1, $force_x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($force, 2, $force_y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	local $point = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($point, 1, $body_position[0] + $offset_point_x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($point, 2, $body_position[1] + $offset_point_y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_applyforce", "PTR", $body_ptr, "STRUCT", $force, "STRUCT", $point)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_ApplyTorque
+; Description ...: Applies a torque on a body (b2Body)
+; Syntax.........: _Box2C_b2Body_ApplyTorque($body_ptr, $torque)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $torque - the torque
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_ApplyTorque($body_ptr, $torque)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_applytorque", "PTR", $body_ptr, "FLOAT", $torque)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True
