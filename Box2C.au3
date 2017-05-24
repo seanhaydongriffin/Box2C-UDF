@@ -1144,6 +1144,29 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_SetActive
+; Description ...: Activates / deactivates a body
+; Syntax.........: _Box2C_b2Body_SetActive($body_ptr, $fixture_ptr)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $active - True to activate, False to deactivate
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_SetActive($body_ptr, $active)
+
+	Local $fixture = DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_setactive", "PTR", $body_ptr, "BOOL", $active)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Body_DestroyFixture
 ; Description ...: Destroys / removes a fixture from a body
 ; Syntax.........: _Box2C_b2Body_DestroyFixture($body_ptr, $fixture_ptr)

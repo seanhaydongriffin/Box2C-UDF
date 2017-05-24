@@ -653,7 +653,7 @@ Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $
 
 			if $__body_out_of_bounds_behaviour[$body_num] = 1 Then
 
-				_Box2C_b2Body_Destroy_SFML($body_num, $__sprite_ptr)
+				_Box2C_b2Body_Destroy_SFML($body_num)
 				_CSFML_sfSprite_destroy($__sprite_ptr[$body_num])
 				_ArrayDelete($__sprite_ptr, $body_num)
 			EndIf
@@ -1004,8 +1004,12 @@ EndFunc
 ;				   $restitution - the $restitution of the new body
 ;				   $friction - the $friction of the new body
 ;				   $vertice - the index of the shape containing the vertices for the new body
-;				   $initial_x - the initial horizontal position of the new body
-;				   $initial_y - the initial vertical position of the new body
+;				   $x - the horizontal position of the new body (overriding the position from the BodyDef)
+;						use blank string to skip
+;				   $y - the vertical position of the new body (overriding the position from the BodyDef)
+;						use blank string to skip
+;				   $angle - the angle of the new body (overriding the angle from the BodyDef)
+;						use blank string to skip
 ;				   $out_of_bounds_behaviour - a flag that indicates what bodies / sprites should do when they go outside the GUI area
 ;						0 = do nothing (keep animating)
 ;						1 = destroy the body / sprite
@@ -1019,11 +1023,21 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $initial_x, $initial_y, $out_of_bounds_behaviour = 0)
+Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $x = "", $y = "", $angle = "", $out_of_bounds_behaviour = 0)
 
 	; create a new Box2C Body for the index of the body definition supplied, and add it to the internal array of body structures
 	Local $body_struct_ptr_index = _ArrayAdd($__body_struct_ptr, _Box2C_b2World_CreateBody($__world_ptr, $__bodydef_struct_ptr[$bodydef_index]))
 	_Box2C_b2Body_SetAwake($__body_struct_ptr[$body_struct_ptr_index], True)
+
+	if IsNumber($x) = True And IsNumber($y) = True Then
+
+		_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_struct_ptr_index], $x, $y)
+	EndIf
+
+	if IsNumber($angle) = True Then
+
+		_Box2C_b2Body_SetAngle($__body_struct_ptr[$body_struct_ptr_index], $angle)
+	EndIf
 
 	; add other attributes, such as the initial positions, angles and body widths and heights to the internal arrays for bodies
 	_ArrayAdd($__body_prev_screen_x, -1)
@@ -1040,13 +1054,19 @@ Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restit
 	Local $fixture_struct_ptr_index = _ArrayAdd($__fixture_struct_ptr, _Box2C_b2World_CreateFixture($__body_struct_ptr[$body_struct_ptr_index], $__shape_struct_ptr[$shape_index], $density, $restitution, $friction))
 
 	; get the GUI position of the initial (vector) position of the body, and add it to the internal array of body GUI positions
-	Local $tmp_gui_pos = _Box2C_b2Vec2_GetGUIPosition($initial_x, $initial_y, $__shape_vertice[$shape_index])
+
+	if IsNumber($x) = False or IsNumber($y) = False Then
+
+		local $b2BodyDef = DllStructCreate("STRUCT;int;float;float;float;float;float;float;float;float;bool;bool;bool;bool;bool;ptr;float;ENDSTRUCT", $__bodydef_struct_ptr[$bodydef_index])
+		$x = DllStructGetData($b2BodyDef, 2)
+		$y = DllStructGetData($b2BodyDef, 3)
+	EndIf
+
+	Local $tmp_gui_pos = _Box2C_b2Vec2_GetGUIPosition($x, $y, $__shape_vertice[$shape_index])
 	_ArrayAdd($__body_gui_pos, $tmp_gui_pos[0] & "|" & $tmp_gui_pos[1])
 
 	; add the index of the shape to the internal array of body shapes
 	_ArrayAdd($__body_shape_index, $shape_index)
-
-
 
 	; Add the SFML sprite
 
@@ -1248,7 +1268,8 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_Destroy_SFML($body_index, $sprite_ptr)
+;Func _Box2C_b2Body_Destroy_SFML($body_index, $sprite_ptr)
+Func _Box2C_b2Body_Destroy_SFML($body_index)
 
 	; destroy the fixture
 
@@ -1272,11 +1293,36 @@ Func _Box2C_b2Body_Destroy_SFML($body_index, $sprite_ptr)
 
 	; destroy the graphics
 
-;	_CSFML_sfSprite_destroy($sprite_ptr[$body_index])
+	_CSFML_sfSprite_destroy($__sprite_ptr[$body_index])
 ;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_index = ' & $body_index & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
-;	_ArrayDelete($sprite_ptr, $body_index)
+	_ArrayDelete($__sprite_ptr, $body_index)
 ;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_index = ' & $body_index & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
+
+
+
+	; Add the SFML sprite
+
+;	_ArrayAdd($__sprite_ptr, Null)
+;	$__sprite_ptr[$body_struct_ptr_index] = _CSFML_sfSprite_create()
+;	_CSFML_sfSprite_setTexture($__sprite_ptr[$body_struct_ptr_index], $__shape_image[$shape_index], $CSFML_sfTrue)
+;	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(($__body_width[$body_struct_ptr_index] / 2) * $__pixels_per_metre, ($__body_height[$body_struct_ptr_index] / 2) * $__pixels_per_metre))
+
+
+
+EndFunc
+
+Func _Box2C_b2Body_DestroyAll_SFML($first_body_num = 0)
+
+	while True
+
+		if $first_body_num > (UBound($__body_struct_ptr) - 1) then
+
+			ExitLoop
+		EndIf
+
+		_Box2C_b2Body_Destroy_SFML($first_body_num)
+	WEnd
 EndFunc
 
 
