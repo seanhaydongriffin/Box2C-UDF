@@ -599,6 +599,7 @@ EndFunc
 ;				   $window_color
 ;				   $info_text_ptr
 ;				   $info_text_string
+;				   $draw_info_text_before_body - the index of the body to draw the info text before
 ; Return values .: None
 ; Author ........: Sean Griffin
 ; Modified.......:
@@ -607,15 +608,11 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $info_text_ptr, ByRef $info_text_string)
+Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $info_text_ptr, ByRef $info_text_string, $draw_info_text_before_body = 0)
 
 	; Clear the animation frame
 
 	_CSFML_sfRenderWindow_clear($window_ptr, $window_color)
-
-	; Draw SFML text
-
-	_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
 
 	; Transform the Box2D bodies and draw SFML sprites
 
@@ -628,6 +625,13 @@ Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $
 		if $body_num > (UBound($__body_struct_ptr) - 1) Then
 
 			ExitLoop
+		EndIf
+
+		if $body_num = $draw_info_text_before_body Then
+
+			; Draw the info text
+
+			_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
 		EndIf
 
 		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_num])

@@ -22,7 +22,10 @@ Global $background_shape_vertice[4][2] = [[0,0],[16,0],[16,12],[0,12]]
 Global $background_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $background_shape_vertice, @ScriptDir & "\angry_nerds_fence_background.png")
 Global $ground_shape_vertice[4][2] = [[0,0],[16,0],[16,2],[0,2]]
 Global $ground_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $ground_shape_vertice, @ScriptDir & "\angry_nerds_ground.png")
-Global $earth_ball_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_circle, (0.5 / 2), @ScriptDir & "\earth_ball.png")
+
+Global $cross1_plank_shape_vertice[4][2] = [[0,0],[2,0],[2,0.6],[0,0.6]]
+Global $cross1_plank_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $cross1_plank_shape_vertice, @ScriptDir & "\angry_nerds_crossed_plank1.png")
+
 Global $box_shape_vertice[4][2] = [[0,0],[1,0],[1,1],[0,1]]
 Global $box_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $box_shape_vertice, @ScriptDir & "\angry_nerds_box.png")
 Global $triangle_plank_shape_vertice[3][2] = [[0,0],[1,0],[0.5,1]]
@@ -43,23 +46,42 @@ Global $thin3_plank_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $t
 Global $thin4_plank_shape_vertice[4][2] = [[0,0],[2,0],[2,0.25],[0,0.25]]
 Global $thin4_plank_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $thin4_plank_shape_vertice, @ScriptDir & "\angry_nerds_thin_plank4.png")
 
-Global $droid_shape_margin = 0.15
-Global $droid_stand_shape_vertice[4][2] = [[0 + $droid_shape_margin, 0 + $droid_shape_margin],[1.12 - $droid_shape_margin, 0 + $droid_shape_margin],[1.12 - $droid_shape_margin, 1.6 - $droid_shape_margin],[0 + $droid_shape_margin, 1.6 - $droid_shape_margin]]
+Global $earth_ball_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_circle, (0.5 / 2), @ScriptDir & "\earth_ball.png")
 
+;Global $droid_shape_margin = 0.35
+;Global $droid_stand_shape_vertice[4][2] = [[0 + $droid_shape_margin, 0 + $droid_shape_margin],[1.12, 0 + $droid_shape_margin],[1.12, 1.6],[0 + $droid_shape_margin, 1.6]]
+;Global $droid_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $droid_stand_shape_vertice, @ScriptDir & "\droid_stand.png")
+
+Global $droid_shape_margin = 0.26
+Global $droid_stand_shape_vertice[4][2] = [[0 + $droid_shape_margin, 0 + $droid_shape_margin],[0.84, 0 + $droid_shape_margin],[0.84, 1.2],[0 + $droid_shape_margin, 1.2]]
 Global $droid_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $droid_stand_shape_vertice, @ScriptDir & "\droid_stand.png")
-Global $gnu_stand_shape_vertice[4][2] = [[0,0],[1.12,0],[1.12,1.6],[0,1.6]]
+
+Global $gnu_shape_margin = 0.35
+Global $gnu_stand_shape_vertice[4][2] = [[0 + $gnu_shape_margin, 0 + $gnu_shape_margin],[1.12, 0 + $gnu_shape_margin],[1.12, 1.6],[0 + $gnu_shape_margin, 1.6]]
 Global $gnu_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $gnu_stand_shape_vertice, @ScriptDir & "\gnu_stand.png")
-Global $kisi_stand_shape_vertice[4][2] = [[0,0],[1.12,0],[1.12,1.6],[0,1.6]]
+
+Global $kisi_shape_margin = 0.35
+Global $kisi_stand_shape_vertice[4][2] = [[0 + $kisi_shape_margin, 0 + $kisi_shape_margin],[1.12, 0 + $kisi_shape_margin],[1.12, 1.6],[0 + $kisi_shape_margin, 1.6]]
 Global $kisi_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $kisi_stand_shape_vertice, @ScriptDir & "\kisi_stand.png")
-Global $kit_stand_shape_vertice[4][2] = [[0,0],[1.12,0],[1.12,1.6],[0,1.6]]
+
+Global $kit_shape_margin = 0.35
+Global $kit_stand_shape_vertice[4][2] = [[0 + $kit_shape_margin, 0 + $kit_shape_margin],[1.12, 0 + $kit_shape_margin],[1.12, 1.6],[0 + $kit_shape_margin, 1.6]]
 Global $kit_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $kit_stand_shape_vertice, @ScriptDir & "\kit_stand.png")
-Global $pacman_stand_shape_vertice[4][2] = [[0,0],[1.12,0],[1.12,1.6],[0,1.6]]
+
+Global $pacman_shape_margin = 0.35
+Global $pacman_stand_shape_vertice[4][2] = [[0 + $pacman_shape_margin, 0 + $pacman_shape_margin],[1.12, 0 + $pacman_shape_margin],[1.12, 1.6],[0 + $pacman_shape_margin, 1.6]]
 Global $pacman_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $pacman_stand_shape_vertice, @ScriptDir & "\pacman_stand.png")
-Global $sara_stand_shape_vertice[4][2] = [[0,0],[1.12,0],[1.12,1.6],[0,1.6]]
+
+Global $sara_shape_margin = 0.35
+Global $sara_stand_shape_vertice[4][2] = [[0 + $sara_shape_margin, 0 + $sara_shape_margin],[1.12, 0 + $sara_shape_margin],[1.12, 1.6],[0 + $sara_shape_margin, 1.6]]
 Global $sara_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $sara_stand_shape_vertice, @ScriptDir & "\sara_stand.png")
-Global $tux_stand_shape_vertice[4][2] = [[0,0],[1.12,0],[1.12,1.6],[0,1.6]]
+
+Global $tux_shape_margin = 0.35
+Global $tux_stand_shape_vertice[4][2] = [[0 + $tux_shape_margin, 0 + $tux_shape_margin],[1.12, 0 + $tux_shape_margin],[1.12, 1.6],[0 + $tux_shape_margin, 1.6]]
 Global $tux_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $tux_stand_shape_vertice, @ScriptDir & "\tux_stand.png")
-Global $wilbur_stand_shape_vertice[4][2] = [[0,0],[1.12,0],[1.12,1.6],[0,1.6]]
+
+Global $wilbur_shape_margin = 0.35
+Global $wilbur_stand_shape_vertice[4][2] = [[0 + $wilbur_shape_margin, 0 + $wilbur_shape_margin],[1.12, 0 + $wilbur_shape_margin],[1.12, 1.6],[0 + $wilbur_shape_margin, 1.6]]
 Global $wilbur_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $wilbur_stand_shape_vertice, @ScriptDir & "\wilbur_stand.png")
 
 ; Setup the Box2D Body Definitions
@@ -71,7 +93,7 @@ Global $wilbur_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $
 ;		#4 - the body's initial angular position / rotation (in Box2D world coordinates) - use the degrees_to_radians function, as below, if convenient
 
 Global $background_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_staticBody, 0, 0, 0)
-Global $ground_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_staticBody, 0, -5.45, 0)
+Global $ground_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_staticBody, 0, -5.4, 0)
 Global $player_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, -4, 4, 0)
 Global $plank_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, 4, 4, 0)
 Global $enemy_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, 4, 4, 0)
@@ -91,23 +113,28 @@ Global $enemy_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, 4
 ;				2 = bounce the linear velocity of the body / sprite (like bouncing off a wall)
 ;				3 = stop the linear velocity of the body / sprite (like hitting a wall)
 
-Local $background_body_index = _Box2C_b2Body_ArrayAdd_SFML($background_bodydef_index, $background_shape_index, 0, 0, 1, "", "", "", 0)
+Global $background_body_index = _Box2C_b2Body_ArrayAdd_SFML($background_bodydef_index, $background_shape_index, 0, 0, 1, "", "", "", 0)
 
 ; Ensure the background is inactive from physics operations
 _Box2C_b2Body_SetActive($__body_struct_ptr[$background_body_index], False)
 
 Local $ground_body_index = _Box2C_b2Body_ArrayAdd_SFML($ground_bodydef_index, $ground_shape_index, 0, 0, 1, "", "", "", 0)
-Local $player_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 0.2, 1, -4, -4.2, degrees_to_radians(0), 0)
+
+
+;Local $player_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 0.2, 1, -4, -4.2, degrees_to_radians(0), 0)
 
 ; construct the village to knock down
-_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4, -4.2, degrees_to_radians(0), 0)
-_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 3.2, -3.0, degrees_to_radians(90), 0)
-_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4.8, -3.0, degrees_to_radians(90), 0)
-_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4, -2.15, degrees_to_radians(0), 0)
+;_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4, -4.2, degrees_to_radians(0), 0)
+;_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 3.2, -3.0, degrees_to_radians(90), 0)
+;_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4.8, -3.0, degrees_to_radians(90), 0)
+;_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4, -2.15, degrees_to_radians(0), 0)
 
-_Box2C_b2Body_ArrayAdd_SFML($enemy_bodydef_index, $droid_stand_shape_index, 1, 0.2, 1, 4, 4, degrees_to_radians(0), 0)
+;_Box2C_b2Body_ArrayAdd_SFML($enemy_bodydef_index, $droid_stand_shape_index, 1, 0.2, 1, 4, 4, degrees_to_radians(0), 0)
 
+Global $player_body_index
+Global $level_num = 1
 
+restart_level()
 
 ;Local $box_body_index = _Box2C_b2Body_ArrayAdd_SFML($box_bodydef_index, $box_shape_index, 1, 0.2, 1, "", "", "", 0)
 ;Local $triangle_plank_body_index = _Box2C_b2Body_ArrayAdd_SFML($triangle_plank_bodydef_index, $triangle_plank_shape_index, 1, 0.2, 1, "", "", "", 0)
@@ -166,8 +193,8 @@ While true
 		; If the "R" key is pressed
 		if _CSFML_sfKeyboard_isKeyPressed(17) = True Then
 
-			; Restart the level, by destroying all bodies from index 2 and re-creating them
-			_Box2C_b2Body_DestroyAll_SFML(2)
+			restart_level()
+
 		EndIf
 
 		; If the "Enter" key is pressed
@@ -210,10 +237,10 @@ While true
 
 				; if a key was pressed
 
-				Case $CSFML_sfEvtKeyPressed
+;				Case $CSFML_sfEvtKeyPressed
 
-					Local $key_code = DllStructGetData($__event, 2)
-					ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $key_code = ' & $key_code & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;					Local $key_code = DllStructGetData($__event, 2)
+;					ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $key_code = ' & $key_code & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
 			EndSwitch
 		WEnd
@@ -239,7 +266,7 @@ While true
 									"FPS = " & $fps
 
 		; Animate the frame
-		_Box2C_b2World_Animate_SFML($window_ptr, $__white, $info_text_ptr, $info_text_string)
+		_Box2C_b2World_Animate_SFML($window_ptr, $__white, $info_text_ptr, $info_text_string, 3)
 
 		$num_frames = $num_frames + 1
 	EndIf
@@ -262,3 +289,40 @@ Func update_fps($hWnd, $iMsg, $iIDTimer, $iTime)
 	$fps = $num_frames
 	$num_frames = 0
 EndFunc
+
+Func restart_level()
+
+	; Restart the level, by destroying all bodies from index 2 and re-creating them
+	_Box2C_b2Body_DestroyAll_SFML(2)
+
+	; Recreate the bodies for the level
+	Switch $level_num
+
+		Case 1
+
+			$player_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 0.2, 1, -7, -3.9, degrees_to_radians(0), 0)
+
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $cross1_plank_shape_index, 1, 0.2, 1, 1, -4.075, degrees_to_radians(0), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $cross1_plank_shape_index, 1, 0.2, 1, 3, -4.075, degrees_to_radians(0), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin2_plank_shape_index, 1, 0.2, 1, 0.2, -3.54, degrees_to_radians(90), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin2_plank_shape_index, 1, 0.2, 1, 3.8, -3.54, degrees_to_radians(90), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 2, -3.65, degrees_to_radians(0), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 1.6, -3, degrees_to_radians(90), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 2.4, -3, degrees_to_radians(90), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 2, -2.36, degrees_to_radians(0), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 1.1, -2.78, degrees_to_radians(90), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 2.9, -2.78, degrees_to_radians(90), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 2, -1.62, degrees_to_radians(0), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin2_plank_shape_index, 1, 0.2, 1, 2, -1.36, degrees_to_radians(0), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 1.5, -0.5, degrees_to_radians(90), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 2.5, -0.5, degrees_to_radians(90), 2)
+
+			_Box2C_b2Body_ArrayAdd_SFML($enemy_bodydef_index, $droid_stand_shape_index, 1, 0.2, 0.01, 2, -0.73, degrees_to_radians(0), 2)
+
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 2, 0.65, degrees_to_radians(0), 2)
+			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin2_plank_shape_index, 1, 0.2, 1, 2, 1, degrees_to_radians(90), 2)
+
+	EndSwitch
+
+EndFunc
+
