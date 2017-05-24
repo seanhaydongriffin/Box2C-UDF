@@ -2,6 +2,12 @@
 #include <Array.au3>
 #include "Box2CEx.au3"
 
+
+
+
+
+
+
 ; Setup SFML
 
 _Box2C_Setup_SFML()
@@ -47,6 +53,10 @@ Global $thin4_plank_shape_vertice[4][2] = [[0,0],[2,0],[2,0.25],[0,0.25]]
 Global $thin4_plank_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $thin4_plank_shape_vertice, @ScriptDir & "\angry_nerds_thin_plank4.png")
 
 Global $earth_ball_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_circle, (0.5 / 2), @ScriptDir & "\earth_ball.png")
+Global $black_arrow_shape_vertice[4][2] = [[0,0],[0.5,0],[0.5,0.12],[0,0.12]]
+Global $black_arrow_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $black_arrow_shape_vertice, @ScriptDir & "\arrow_black.png")
+Global $red_arrow_shape_vertice[4][2] = [[0,0],[0.5,0],[0.5,0.12],[0,0.12]]
+Global $red_arrow_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $red_arrow_shape_vertice, @ScriptDir & "\arrow_red.png")
 
 ;Global $droid_shape_margin = 0.35
 ;Global $droid_stand_shape_vertice[4][2] = [[0 + $droid_shape_margin, 0 + $droid_shape_margin],[1.12, 0 + $droid_shape_margin],[1.12, 1.6],[0 + $droid_shape_margin, 1.6]]
@@ -95,6 +105,7 @@ Global $wilbur_stand_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $
 Global $background_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_staticBody, 0, 0, 0)
 Global $ground_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_staticBody, 0, -5.4, 0)
 Global $player_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, -4, 4, 0)
+Global $player_arrow_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_kinematicBody, -4, 4, 0)
 Global $plank_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, 4, 4, 0)
 Global $enemy_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, 4, 4, 0)
 
@@ -121,17 +132,8 @@ _Box2C_b2Body_SetActive($__body_struct_ptr[$background_body_index], False)
 Local $ground_body_index = _Box2C_b2Body_ArrayAdd_SFML($ground_bodydef_index, $ground_shape_index, 0, 0, 1, "", "", "", 0)
 
 
-;Local $player_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 0.2, 1, -4, -4.2, degrees_to_radians(0), 0)
 
-; construct the village to knock down
-;_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4, -4.2, degrees_to_radians(0), 0)
-;_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 3.2, -3.0, degrees_to_radians(90), 0)
-;_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4.8, -3.0, degrees_to_radians(90), 0)
-;_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 4, -2.15, degrees_to_radians(0), 0)
-
-;_Box2C_b2Body_ArrayAdd_SFML($enemy_bodydef_index, $droid_stand_shape_index, 1, 0.2, 1, 4, 4, degrees_to_radians(0), 0)
-
-Global $player_body_index
+Global $player_body_index, $player_arrow_body_index, $player_arrow2_body_index, $throwing_ball = False, $throwing_angle, $red_arrow_velocity = 0, $num_throws_left = 1
 Global $level_num = 1
 
 restart_level()
@@ -198,32 +200,71 @@ While true
 		EndIf
 
 		; If the "Enter" key is pressed
-		if _CSFML_sfKeyboard_isKeyPressed(58) = True Then
+		if _CSFML_sfKeyboard_isKeyPressed(58) = True and $num_throws_left > 0 Then
 
-			; Apply a linear force to the player body
-			_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$player_body_index], 20, 10)
+			if $throwing_ball = False Then
+
+				$throwing_ball = True
+				$red_arrow_velocity = 0
+
+				Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$player_arrow_body_index])
+				_Box2C_b2Body_SetPosition($__body_struct_ptr[$player_arrow2_body_index], $body_position[0], $body_position[1])
+				$throwing_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$player_arrow_body_index])
+				_Box2C_b2Body_SetAngle($__body_struct_ptr[$player_arrow2_body_index], $throwing_angle)
+				$__body_draw[$player_arrow2_body_index] = True
+			EndIf
+
+			; move the red arrow a small distance in the same direction as the black arrow
+
+			Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$player_arrow2_body_index])
+			$red_arrow_velocity = $red_arrow_velocity + 0.001
+			Local $tmp_x = $body_position[0] + ($red_arrow_velocity * Cos($throwing_angle))
+			Local $tmp_y = $body_position[1] + ($red_arrow_velocity * Sin($throwing_angle))
+			_Box2C_b2Body_SetPosition($__body_struct_ptr[$player_arrow2_body_index], $tmp_x, $tmp_y)
+		Else
+
+			if $throwing_ball = True Then
+
+				$throwing_ball = False
+				$num_throws_left = $num_throws_left - 1
+
+				_Box2C_b2Body_SetAngle($__body_struct_ptr[$player_body_index], $throwing_angle)
+				_Box2C_b2Body_ApplyDirectionalForceAtBody($__body_struct_ptr[$player_body_index], $red_arrow_velocity * 3000)
+
+				_Box2C_b2Fixture_SetSensor($__fixture_struct_ptr[$player_arrow_body_index], True)
+				_Box2C_b2Fixture_SetSensor($__fixture_struct_ptr[$player_arrow2_body_index], True)
+				$__body_draw[$player_arrow_body_index] = False
+				$__body_draw[$player_arrow2_body_index] = False
+
+			EndIf
+
 		EndIf
 
 		; If the "A" key is pressed
 		if _CSFML_sfKeyboard_isKeyPressed(0) = True Then
 
-			; Apply a leftwards linear force to the player body
-;			_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$player_body_index], -8, 0)
+			Local $tmp_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$player_arrow_body_index])
+			$tmp_angle = $tmp_angle + degrees_to_radians(5);
+			_Box2C_b2Body_SetAngle($__body_struct_ptr[$player_arrow_body_index], $tmp_angle)
 		EndIf
 
 		; If the "D" key is pressed
 		if _CSFML_sfKeyboard_isKeyPressed(3) = True Then
 
-			; Apply a rightwards linear force to the player body
-;			_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$player_body_index], 8, 0)
+			Local $tmp_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$player_arrow_body_index])
+			$tmp_angle = $tmp_angle + degrees_to_radians(-5);
+			_Box2C_b2Body_SetAngle($__body_struct_ptr[$player_arrow_body_index], $tmp_angle)
 		EndIf
 
 		; If the "W" key is pressed
-		if _CSFML_sfKeyboard_isKeyPressed(22) = True Then
+;		if _CSFML_sfKeyboard_isKeyPressed(22) = True Then
 
-			; Apply an upwards linear force to the player body
-;			_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$player_body_index], 0, 10)
-		EndIf
+;		EndIf
+
+		; If the "S" key is pressed
+;		if _CSFML_sfKeyboard_isKeyPressed(18) = True Then
+
+;		EndIf
 
 		; While other SFML events
 		While _CSFML_sfRenderWindow_pollEvent($window_ptr, $__event_ptr) = True
@@ -247,26 +288,24 @@ While true
 
 		Local $info_text_string = 	"Keys" & @LF & _
 									"----" & @LF & _
-									"Press ""A"" to push the crate left with a linear force" & @LF & _
-									"Press ""D"" to push the crate right with a linear force" & @LF & _
-									"Press ""W"" to push the crate up with a linear force" & @LF & _
-									"" & @LF & _
-									"" & @LF & _
-									"" & @LF & _
-									"" & @LF & _
-									"" & @LF & _
-									"" & @LF & _
-									"" & @LF & _
-									"" & @LF & _
-									"" & @LF & _
+									"Press ""A"" or ""D"" to change the throwing angle" & @LF & _
+									"Press and hold ""Enter"" to increase the throwing power" & @LF & _
+									"Release ""Enter"" to throw the ball" & @LF & _
+									"Press ""R"" to restart the level" & @LF & _
 									"" & @LF & _
 									"Stats" & @LF & _
 									"-----" & @LF & _
 									"Number of bodies = " & UBound($__body_struct_ptr) & @LF & _
 									"FPS = " & $fps
 
-		; Animate the frame
-		_Box2C_b2World_Animate_SFML($window_ptr, $__white, $info_text_ptr, $info_text_string, 3)
+
+		; Transform all the Box2D bodies to SFML sprites
+
+		_Box2C_b2Body_ArrayTransform_SFML()
+
+		; Draw and display all the SFML sprites (including background) with information text
+
+		_Box2C_b2Body_ArrayDrawDisplay_SFML($window_ptr, $info_text_ptr, $info_text_string, 2)
 
 		$num_frames = $num_frames + 1
 	EndIf
@@ -300,7 +339,13 @@ Func restart_level()
 
 		Case 1
 
-			$player_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 0.2, 1, -7, -3.9, degrees_to_radians(0), 0)
+;			$player_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 0.2, 1, -7, -3.9, degrees_to_radians(0), 0)
+			$player_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 0.2, 1, -7, 0, degrees_to_radians(0), 0)
+			_Box2C_b2Body_SetAwake($__body_struct_ptr[$player_body_index], False)
+
+			$player_arrow2_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_arrow_bodydef_index, $red_arrow_shape_index, 1, 0.2, 1, -6, -0.25, degrees_to_radians(0), 0)
+			$__body_draw[$player_arrow2_body_index] = False
+			$player_arrow_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_arrow_bodydef_index, $black_arrow_shape_index, 1, 0.2, 1, -6, -0.25, degrees_to_radians(0), 0)
 
 			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $cross1_plank_shape_index, 1, 0.2, 1, 1, -4.075, degrees_to_radians(0), 2)
 			_Box2C_b2Body_ArrayAdd_SFML($plank_bodydef_index, $cross1_plank_shape_index, 1, 0.2, 1, 3, -4.075, degrees_to_radians(0), 2)
@@ -324,5 +369,6 @@ Func restart_level()
 
 	EndSwitch
 
+	$num_throws_left = 1
 EndFunc
 

@@ -48,6 +48,7 @@ Global $__body_prev_angle_degrees[0]
 Global $__body_curr_angle_degrees[0]
 Global $__body_gui_pos[0][2]
 Global $__body_shape_index[0]
+Global $__body_draw[0]
 Global $__body_out_of_bounds_behaviour[0]
 
 Global $__world_ptr
@@ -979,6 +980,7 @@ Func _Box2C_b2Body_ArrayAdd_GDIPlus($bodydef_index, $shape_index, $density, $res
 	_ArrayAdd($__body_width, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 0))
 	_ArrayAdd($__body_height, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 1))
 	_ArrayAdd($__body_out_of_bounds_behaviour, 0)
+	_ArrayAdd($__body_draw, True)
 
 	; create a new Box2C Fixture for the index of the body created, and the index of the shape supplied, and other attributes supplied (density, restitution and friction), add it to the internal array of fixture structures
 	Local $fixture_struct_ptr_index = _ArrayAdd($__fixture_struct_ptr, _Box2C_b2World_CreateFixture($__body_struct_ptr[$body_struct_ptr_index], $__shape_struct_ptr[$shape_index], $density, $restitution, $friction))
@@ -1053,6 +1055,7 @@ Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restit
 	_ArrayAdd($__body_width, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 0))
 	_ArrayAdd($__body_height, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 1))
 	_ArrayAdd($__body_out_of_bounds_behaviour, $out_of_bounds_behaviour)
+	_ArrayAdd($__body_draw, True)
 
 	; create a new Box2C Fixture for the index of the body created, and the index of the shape supplied, and other attributes supplied (density, restitution and friction), add it to the internal array of fixture structures
 	Local $fixture_struct_ptr_index = _ArrayAdd($__fixture_struct_ptr, _Box2C_b2World_CreateFixture($__body_struct_ptr[$body_struct_ptr_index], $__shape_struct_ptr[$shape_index], $density, $restitution, $friction))
@@ -1123,6 +1126,7 @@ Func _Box2C_b2Body_ArrayAdd_Irrlicht($bodydef_index, $shape_index, $density, $re
 	_ArrayAdd($__body_width, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 0))
 	_ArrayAdd($__body_height, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 1))
 	_ArrayAdd($__body_out_of_bounds_behaviour, 0)
+	_ArrayAdd($__body_draw, True)
 
 	; create a new Box2C Fixture for the index of the body created, and the index of the shape supplied, and other attributes supplied (density, restitution and friction), add it to the internal array of fixture structures
 	Local $fixture_struct_ptr_index = _ArrayAdd($__fixture_struct_ptr, _Box2C_b2World_CreateFixture($__body_struct_ptr[$body_struct_ptr_index], $__shape_struct_ptr[$shape_index], $density, $restitution, $friction))
@@ -1136,6 +1140,160 @@ Func _Box2C_b2Body_ArrayAdd_Irrlicht($bodydef_index, $shape_index, $density, $re
 
 	; return the index to the new body
 	Return $body_struct_ptr_index
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_ArrayTransform_SFML
+; Description ...: A convenience function for SFML that transforms all bodies (b2Body) in the internal array to SFML sprite positions and rotations
+; Syntax.........: _Box2C_b2Body_ArrayTransform_SFML()
+; Parameters ....:
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_ArrayTransform_SFML()
+
+
+	; Transform the Box2D bodies and draw SFML sprites
+
+	Local $body_num = -1
+
+	While True
+
+		$body_num = $body_num + 1
+
+		if $body_num > (UBound($__body_struct_ptr) - 1) Then
+
+			ExitLoop
+		EndIf
+
+;		if $body_num = $draw_info_text_before_body Then
+
+			; Draw the info text
+
+;			_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
+;		EndIf
+
+		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_num])
+
+		if $body_position[0] < -8 or $body_position[0] > 8 or $body_position[1] < -6 or $body_position[1] > 6 Then
+
+			if $__body_out_of_bounds_behaviour[$body_num] = 2 Then
+
+				Local $velocity = _Box2C_b2Body_GetLinearVelocity($__body_struct_ptr[$body_num])
+
+				if $body_position[0] < -8 or $body_position[0] > 8 Then
+
+					_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_num], $body_position[0] * 0.99, $body_position[1])
+					_Box2C_b2Body_SetLinearVelocity($__body_struct_ptr[$body_num], 0 - $velocity[0], $velocity[1])
+				EndIf
+
+				if $body_position[1] < -6 or $body_position[1] > 6 Then
+
+					_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_num], $body_position[0], $body_position[1] * 0.99)
+					_Box2C_b2Body_SetLinearVelocity($__body_struct_ptr[$body_num], $velocity[0], 0 - $velocity[1])
+				EndIf
+			EndIf
+
+			if $__body_out_of_bounds_behaviour[$body_num] = 1 Then
+
+				_Box2C_b2Body_Destroy_SFML($body_num)
+				_CSFML_sfSprite_destroy($__sprite_ptr[$body_num])
+				_ArrayDelete($__sprite_ptr, $body_num)
+			EndIf
+		Else
+
+			; Update sprite position
+
+			; converting the below to C might improve animations by a further 500 frames per seconds
+
+			$__body_curr_screen_x[$body_num] = $__gui_center_x + ($body_position[0] * $__pixels_per_metre)
+;				$__body_curr_screen_x[$body_num] = x_metres_to_gui_x($body_position[0], $tmp_gui_center_x)
+
+			$__body_curr_screen_y[$body_num] = $__gui_center_y - ($body_position[1] * $__pixels_per_metre)
+;				$__body_curr_screen_y[$body_num] = y_metres_to_gui_y($body_position[1], $tmp_gui_center_y)
+
+
+			_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+
+			; Update sprite rotation
+
+			Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
+			$__body_curr_angle_degrees[$body_num] = 0 - radians_to_degrees($body_angle)
+			_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+		EndIf
+	WEnd
+
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_ArrayDraw_SFML
+; Description ...: A convenience function for SFML that draws all the SFML sprites in the internal array
+; Syntax.........: _Box2C_b2Body_ArrayDraw_SFML()
+; Parameters ....:
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_ArrayDraw_SFML($window_ptr, $info_text_ptr = -1, $info_text_string = "", $draw_info_text_before_body = -1)
+
+	Local $body_num = -1
+
+	While True
+
+		$body_num = $body_num + 1
+
+		if $body_num > (UBound($__body_struct_ptr) - 1) Then
+
+			ExitLoop
+		EndIf
+
+		if $draw_info_text_before_body > -1 And $body_num = $draw_info_text_before_body Then
+
+			; Draw the info text
+
+			_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
+		EndIf
+
+		if $__body_draw[$body_num] = True Then
+
+			_CSFML_sfRenderWindow_drawSprite($window_ptr, $__sprite_ptr[$body_num], Null)
+		EndIf
+	WEnd
+
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_ArrayDrawDisplay_SFML
+; Description ...: A convenience function for SFML that draws and displays all the SFML sprites in the internal array
+; Syntax.........: _Box2C_b2Body_ArrayDrawDisplay_SFML()
+; Parameters ....:
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_ArrayDrawDisplay_SFML($window_ptr, $info_text_ptr = -1, $info_text_string = "", $draw_info_text_before_body = -1)
+
+	; Draw all sprites in the array
+
+	_Box2C_b2Body_ArrayDraw_SFML($window_ptr, $info_text_ptr, $info_text_string, $draw_info_text_before_body)
+
+	; Render all the sprites to the Render Window
+
+	_CSFML_sfRenderWindow_display($window_ptr)
+
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1251,6 +1409,7 @@ Func _Box2C_b2Body_Destroy($body_index)
 	_ArrayDelete($__body_gui_pos, $body_index)
 	_ArrayDelete($__body_shape_index, $body_index)
 	_ArrayDelete($__body_out_of_bounds_behaviour, $body_index)
+	_ArrayDelete($__body_draw, $body_index)
 
 	; destroy the graphics
 
@@ -1294,6 +1453,8 @@ Func _Box2C_b2Body_Destroy_SFML($body_index)
 	_ArrayDelete($__body_height, $body_index)
 	_ArrayDelete($__body_gui_pos, $body_index)
 	_ArrayDelete($__body_shape_index, $body_index)
+	_ArrayDelete($__body_out_of_bounds_behaviour, $body_index)
+	_ArrayDelete($__body_draw, $body_index)
 
 	; destroy the graphics
 

@@ -324,6 +324,7 @@ Func _Box2C_b2World_Step($world_ptr, $timeStep, $velocityIterations, $positionIt
 EndFunc
 
 
+
 ; #B2POLYGONSHAPE FUNCTIONS# =====================================================================================================
 
 
@@ -1564,6 +1565,55 @@ Func _Box2C_b2Body_ApplyForceAtBody($body_ptr, $force_x, $force_y, $offset_point
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Body_ApplyDirectionalForceAtBody
+; Description ...: A convenience function to apply a force of a given magnitude to a body relative to it's centroid (b2Body) and angle
+; Syntax.........: _Box2C_b2Body_ApplyDirectionalForceAtBody($body_ptr, $force_magnitude, $offset_point_x, $offset_point_y)
+; Parameters ....: $body_ptr - a pointer to the body (b2Body)
+;				   $force_magnitude - the size of the force
+;				   $offset_point_x - the horizontal component of an offset point from the centroid (defaults to 0 for no offset)
+;				   $offset_point_y - the vertical component of offset point from the centroid (defaults to 0 for no offset)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Body_ApplyDirectionalForceAtBody($body_ptr, $force_magnitude, $offset_point_x = 0, $offset_point_y = 0)
+
+	Local $tmp_angle = _Box2C_b2Body_GetAngle($body_ptr)
+	Local $force_x = $force_magnitude * Cos($tmp_angle)
+	Local $force_y = $force_magnitude * Sin($tmp_angle)
+
+	local $force = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($force, 1, $force_x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($force, 2, $force_y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $body_position = _Box2C_b2Body_GetPosition($body_ptr)
+
+	local $point = DllStructCreate("STRUCT;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($point, 1, $body_position[0] + $offset_point_x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($point, 2, $body_position[1] + $offset_point_y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2body_applyforce", "PTR", $body_ptr, "STRUCT", $force, "STRUCT", $point)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Body_ApplyTorque
 ; Description ...: Applies a torque on a body (b2Body)
 ; Syntax.........: _Box2C_b2Body_ApplyTorque($body_ptr, $torque)
@@ -1654,6 +1704,29 @@ EndFunc
 Func _Box2C_b2Fixture_SetRestitution($fixture_ptr, $value)
 
 	Local $restitution = DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2fixture_setrestitution", "PTR", $fixture_ptr, "FLOAT", $value)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Fixture_SetSensor
+; Description ...: Sets the sensor of a fixture (b2Fixture)
+; Syntax.........: _Box2C_b2Fixture_SetSensor($fixture_ptr, $value)
+; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
+;				   $value - True will turn the sensor on, False will turn the sensor off
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Fixture_SetSensor($fixture_ptr, $value)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2fixture_setsensor", "PTR", $fixture_ptr, "BOOL", $value)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True
