@@ -13,24 +13,24 @@ _Box2C_b2World_Setup(50, 800, 600, 0.000000000, -10.0000000)
 ; Setup the Box2D Shapes
 
 Global $platform_shape_vertice[4][2] = [[0,0],[5,0],[5,1],[0,1]]
-Global $platform_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $platform_shape_vertice, @ScriptDir & "\platform.gif")
+Global $platform_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, $platform_shape_vertice, @ScriptDir & "\platform.gif")
 
 Global $crate_shape_vertice[4][2] = [[0,0],[0.25,0],[0.25,0.25],[0,0.25]]
-Global $crate_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $crate_shape_vertice, @ScriptDir & "\smallest_crate.gif")
+Global $crate_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, $crate_shape_vertice, @ScriptDir & "\smallest_crate.gif")
 
 ; Setup the Box2D Body Definitions
 
-Global $platform_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, 0, -4, 0)
-Global $platform2_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, -4.5, -2, -0.785398)
-Global $platform3_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, +4.5, -2, +0.785398)
-Global $falling_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(2, 0, 4, 0)
+Global $platform_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, 0, -4, 0)
+Global $platform2_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, -4.5, -2, -0.785398)
+Global $platform3_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, +4.5, -2, +0.785398)
+Global $falling_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, 0, 4, 0)
 
 ; Setup the Box2D Bodies and SFML Sprites
 
-Local $platform_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform_bodydef_index, $platform_shape_index, 0, 0, 0, 0, -4)
-Local $platform2_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform2_bodydef_index, $platform_shape_index, 0, 0, 0, -4.5, -2)
-Local $platform3_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform3_bodydef_index, $platform_shape_index, 0, 0, 0, +4.5, -2)
-Local $falling_body_index = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, 0, 4)
+Local $platform_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0)
+Local $platform2_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform2_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0)
+Local $platform3_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform3_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0)
+Local $falling_body_index = _Box2C_b2BodyArray_AddItem_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, "", "", "", 0)
 
 ; Setup the GUI for SFML inside the AutoIT GUI
 
@@ -59,7 +59,7 @@ While true
 ;		_Box2C_b2World_Step($__world_ptr, (1.0 / 60.0), 6, 2)
 
 		; The followsing b2World Step compensates well for a large number of bodies
-		_Box2C_b2World_Step($__world_ptr, (0.6 + (UBound($__body_struct_ptr) / 200)) / 60.0, 6, 2)
+		_Box2C_b2World_Step_Ex((0.6 + (UBound($__body_struct_ptr) / 200)) / 60.0)
 
 		; Check for events
 
@@ -90,26 +90,26 @@ While true
 
 						case 0 ; A
 
-							Local $new_body_num = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, $crate_shape_vertice, 0, 4)
+							Local $new_body_num = _Box2C_b2BodyArray_AddItem_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, "", "", "", 0)
 ;							Local $new_body_num = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 0.1, 1.2, 1, $crate_shape_vertice, 0, 4)
 
 						; if "E" was pressed then rotate the center platform clockwise
 
 						Case 4 ; E
 
-							Local $curr_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[0])
+							Local $curr_angle = _Box2C_b2BodyArray_GetItemAngle(0)
 							Local $curr_angle_degrees2 = radians_to_degrees($curr_angle)
 							$curr_angle_degrees2 = $curr_angle_degrees2 - 5
-							_Box2C_b2Body_SetAngle($__body_struct_ptr[0], degrees_to_radians($curr_angle_degrees2))
+							_Box2C_b2BodyArray_SetItemAngle(0, degrees_to_radians($curr_angle_degrees2))
 
 						; if "Q" was pressed then rotate the center platform counter-clockwise
 
 						Case 16 ; Q
 
-							Local $curr_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[0])
+							Local $curr_angle = _Box2C_b2BodyArray_GetItemAngle(0)
 							Local $curr_angle_degrees2 = radians_to_degrees($curr_angle)
 							$curr_angle_degrees2 = $curr_angle_degrees2 + 5
-							_Box2C_b2Body_SetAngle($__body_struct_ptr[0], degrees_to_radians($curr_angle_degrees2))
+							_Box2C_b2BodyArray_SetItemAngle(0, degrees_to_radians($curr_angle_degrees2))
 
 					EndSwitch
 			EndSwitch
@@ -123,12 +123,21 @@ While true
 									"" & @LF & _
 									"Stats" & @LF & _
 									"-----" & @LF & _
-									"Number of bodies = " & UBound($__body_struct_ptr) & @LF & _
+									"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
 									"FPS = " & $fps
 
-		; Animate the frame
 
-		_Box2C_b2World_Animate_SFML($window_ptr, $__white, $info_text_ptr, $info_text_string)
+		; Transform all the Box2D bodies to SFML sprites
+
+		_Box2C_b2Body_ArrayTransform_SFML()
+
+		; Clear the animation frame
+
+		_CSFML_sfRenderWindow_clear($window_ptr, $__white)
+
+		; Draw and display all the SFML sprites (including background) with information text
+
+		_Box2C_b2Body_ArrayDrawDisplay_SFML($window_ptr, $info_text_ptr, $info_text_string, 2)
 
 		$num_frames = $num_frames + 1
 	EndIf

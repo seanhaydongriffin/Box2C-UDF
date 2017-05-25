@@ -487,6 +487,24 @@ Func _Box2C_b2World_Create($gravity_x, $gravity_y)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2World_Step_Ex
+; Description ...: A convenience function that steps a frame of animation in the internally defined world (b2World).
+; Syntax.........: _Box2C_b2World_Step_Ex()
+; Parameters ....:
+; Return values .: None
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2World_Step_Ex($timeStep, $velocityIterations = 6, $positionIterations = 2)
+
+	_Box2C_b2World_Step($__world_ptr, $timeStep, $velocityIterations, $positionIterations)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2World_GDIPlusSetup
 ; Description ...: A setup routine specifically for GDI+ (not Box2D)
 ; Syntax.........: _Box2C_b2World_GDIPlusSetup($g_hGUI)
@@ -699,9 +717,9 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2Shape_ArrayAdd_SFML
+; Name...........: _Box2C_b2ShapeArray_AddItem_SFML
 ; Description ...: A convenience function for SFML that adds a polygon shape (b2PolygonShape) to an internal array of shapes.
-; Syntax.........: _Box2C_b2Shape_ArrayAdd_SFML($type, $radius_vertice, $shape_image_file_path)
+; Syntax.........: _Box2C_b2ShapeArray_AddItem_SFML($type, $radius_vertice, $shape_image_file_path)
 ; Parameters ....: $type - the type of shape:
 ;						$Box2C_e_circle (0) = a circle shape
 ;						$Box2C_e_edge (1) = an edge shape
@@ -719,7 +737,7 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Shape_ArrayAdd_SFML($type, $radius_vertice, $shape_image_file_path)
+Func _Box2C_b2ShapeArray_AddItem_SFML($type, $radius_vertice, $shape_image_file_path)
 
 	; add the new vertices to the internal array of shape vertices
 	Local $shape_vertice_index = _ArrayAdd($__shape_vertice, Null)
@@ -864,9 +882,9 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2BodyDef_ArrayAdd
+; Name...........: _Box2C_b2BodyDefArray_AddItem
 ; Description ...: A convenience function that adds a body definition (b2BodyDef) to an internal array of body definitions.
-; Syntax.........: _Box2C_b2BodyDef_ArrayAdd($body_type, $initial_x, $initial_y, $initial_angle, $linearDamping, $angularDamping)
+; Syntax.........: _Box2C_b2BodyDefArray_AddItem($body_type, $initial_x, $initial_y, $initial_angle, $linearDamping, $angularDamping)
 ; Parameters ....: $body_type
 ;				   $initial_x
 ;				   $initial_y
@@ -881,7 +899,7 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyDef_ArrayAdd($body_type, $initial_x = 0, $initial_y = 0, $initial_angle = 0, $linearDamping = 0, $angularDamping = 0)
+Func _Box2C_b2BodyDefArray_AddItem($body_type, $initial_x = 0, $initial_y = 0, $initial_angle = 0, $linearDamping = 0, $angularDamping = 0)
 
 	; create a new Box2C Body Definition for the body type, initial x and y and angles, and add it to the internal array of body definition structures
 	Local $bodydef_struct_index = _ArrayAdd($__bodydef_struct, _Box2C_b2BodyDef_Constructor($body_type, $initial_x, $initial_y, $initial_angle, 0, 0, 0, $linearDamping, $angularDamping, True, True, False, False, True, Null, 1))
@@ -938,6 +956,32 @@ Func _Box2C_b2BodyDef_ArrayAdd($body_type, $initial_x = 0, $initial_y = 0, $init
 ;	$__body_def[$tmp_index][$hImage] = $__shape_image[$initial_shape_vertice_index]
 
 EndFunc
+
+
+; #B2FIXTURE FUNCTIONS# =====================================================================================================
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2FixtureArray_SetItemSensor
+; Description ...: A convenience function to set the sensor of a fixture (b2Fixture) based on it's index within the internal fixture array
+; Syntax.........: _Box2C_b2FixtureArray_SetItemSensor($fixture_index, $value)
+; Parameters ....: $fixture_index - the index of the fixture
+;				   $value - True will turn the sensor on, False will turn the sensor off
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2FixtureArray_SetItemSensor($fixture_index, $value)
+
+	_Box2C_b2Fixture_SetSensor($__fixture_struct_ptr[$fixture_index], $value)
+EndFunc
+
+
 
 
 ; #B2BODY FUNCTIONS# =====================================================================================================
@@ -1001,9 +1045,9 @@ Func _Box2C_b2Body_ArrayAdd_GDIPlus($bodydef_index, $shape_index, $density, $res
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2Body_ArrayAdd_SFML
+; Name...........: _Box2C_b2BodyArray_AddItem_SFML
 ; Description ...: A convenience function for SFML that adds a body (b2Body) and sprite to an internal (PTR) array of bodies and sprites.
-; Syntax.........: _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $vertice, $initial_x, $initial_y)
+; Syntax.........: _Box2C_b2BodyArray_AddItem_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $vertice, $initial_x, $initial_y)
 ; Parameters ....: $bodydef_index - the index of the body definition within the internal array of body definitions to create the body with
 ;				   $shape_index - the index of the shape within the internal arrays of shapes to create the body with
 ;				   $density - the density of the new body
@@ -1029,7 +1073,7 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_ArrayAdd_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $x = "", $y = "", $angle = "", $out_of_bounds_behaviour = 0)
+Func _Box2C_b2BodyArray_AddItem_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $x = "", $y = "", $angle = "", $out_of_bounds_behaviour = 0)
 
 	; create a new Box2C Body for the index of the body definition supplied, and add it to the internal array of body structures
 	Local $body_struct_ptr_index = _ArrayAdd($__body_struct_ptr, _Box2C_b2World_CreateBody($__world_ptr, $__bodydef_struct_ptr[$bodydef_index]))
@@ -1141,6 +1185,230 @@ Func _Box2C_b2Body_ArrayAdd_Irrlicht($bodydef_index, $shape_index, $density, $re
 	; return the index to the new body
 	Return $body_struct_ptr_index
 EndFunc
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetItemActive
+; Description ...: A convenience function that activates or deactivates a body based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_SetItemActive($body_index, $active)
+; Parameters ....: $body_index - the index of the body
+;				   $active - True to activate, False to deactivate
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetItemActive($body_index, $active)
+
+	_Box2C_b2Body_SetActive($__body_struct_ptr[$body_index], $active)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_GetItemPosition
+; Description ...: A convenience function that gets the position (vector) of a body (b2Body) based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_GetItemPosition($body_index)
+; Parameters ....: $body_index - the index of the body
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_GetItemPosition($body_index)
+
+	Return _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_index])
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetItemPosition
+; Description ...: A convenience function that sets the position (vector) of a body (b2Body) based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_SetItemPosition($body_index)
+; Parameters ....: $body_index - the index of the body
+;				   $x -
+;				   $y -
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetItemPosition($body_index, $x, $y)
+
+	_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_index], $x, $y)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_GetItemAngle
+; Description ...: A convenience function that gets the angle (radians) of a body (b2Body) based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_GetItemAngle($body_index)
+; Parameters ....: $body_index - the index of the body
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_GetItemAngle($body_index)
+
+	Return _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_index])
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetItemAngle
+; Description ...: A convenience function that sets the angle (radians) of a body (b2Body) based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_SetItemAngle($body_index, $angle)
+; Parameters ....: $body_index - the index of the body
+;				   $angle - the angle to set the body to
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetItemAngle($body_index, $angle)
+
+	_Box2C_b2Body_SetAngle($__body_struct_ptr[$body_index], $angle)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_GetItemLinearVelocity
+; Description ...: A convenience function that gets the linear velocity of a body (b2Body) based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_GetItemLinearVelocity($body_index)
+; Parameters ....: $body_index - the index of the body
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_GetItemLinearVelocity($body_index)
+
+	Return _Box2C_b2Body_GetLinearVelocity($__body_struct_ptr[$body_index])
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetItemAwake
+; Description ...: A convenience function that sets the awake state of a body (b2Body) based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_SetItemAwake($body_index, $awake)
+; Parameters ....: $body_index - the index of the body
+;				   $awake - True for awake, False for sleep
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetItemAwake($body_index, $awake)
+
+	_Box2C_b2Body_SetAwake($__body_struct_ptr[$body_index], $awake)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_ApplyItemForceAtBody
+; Description ...: A convenience function to apply a linear force of a given magnitude to a body based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_ApplyItemForceAtBody($body_index)
+; Parameters ....: $body_index - the index of the body
+;				   $force_x - the horizontal component of the force
+;				   $force_y - the vertical component of the force
+;				   $offset_point_x - the horizontal component of an offset point from the centroid (defaults to 0 for no offset)
+;				   $offset_point_y - the vertical component of offset point from the centroid (defaults to 0 for no offset)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_ApplyItemForceAtBody($body_index, $force_x, $force_y, $offset_point_x = 0, $offset_point_y = 0)
+
+	_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$body_index], $force_x, $force_y, $offset_point_x, $offset_point_y)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_ApplyItemDirectionalForceAtBody
+; Description ...: A convenience function to apply a force of a given magnitude to a body, based on it's index within the internal body array, and relative to it's centroid (b2Body) and angle
+; Syntax.........: _Box2C_b2BodyArray_ApplyItemDirectionalForceAtBody($body_index)
+; Parameters ....: $body_index - the index of the body
+;				   $force_magnitude - the size of the force
+;				   $offset_point_x - the horizontal component of an offset point from the centroid (defaults to 0 for no offset)
+;				   $offset_point_y - the vertical component of offset point from the centroid (defaults to 0 for no offset)
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_ApplyItemDirectionalForceAtBody($body_index, $force_magnitude, $offset_point_x = 0, $offset_point_y = 0)
+
+	_Box2C_b2Body_ApplyDirectionalForceAtBody($__body_struct_ptr[$body_index], $force_magnitude, $offset_point_x, $offset_point_y)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_GetItemCount
+; Description ...: A convenience function that gets the number of bodies within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_GetItemCount()
+; Parameters ....:
+; Return values .: Success - the number of bodies
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_GetItemCount()
+
+	Return UBound($__body_struct_ptr)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetItemDraw
+; Description ...: A convenience function that sets the draw state of a body based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_SetItemDraw($draw)
+; Parameters ....: $body_index - the index of the body
+;				   $draw - True to draw the body / sprite, False to not draw the body / sprite
+; Return values .: Success - the number of bodies
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetItemDraw($body_index, $draw = True)
+
+	$__body_draw[$body_index] = $draw
+EndFunc
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Body_ArrayTransform_SFML

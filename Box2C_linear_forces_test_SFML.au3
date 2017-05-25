@@ -18,10 +18,10 @@ _Box2C_b2World_Setup(50, 800, 600, 0.000000000, -10.0000000)
 ;		#3 - the path and name of the file of the texture / image of the shape
 
 Global $girder_shape_vertice[4][2] = [[0,0],[11,0],[11,1],[0,1]]
-Global $girder_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $girder_shape_vertice, @ScriptDir & "\girder.png")
+Global $girder_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, $girder_shape_vertice, @ScriptDir & "\girder.png")
 Global $crate_shape_vertice[4][2] = [[0,0],[0.5,0],[0.5,0.5],[0,0.5]]
-Global $crate_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_edge, $crate_shape_vertice, @ScriptDir & "\small_crate.gif")
-Global $eight_ball_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_circle, (0.5 / 2), @ScriptDir & "\eight_ball_small.png")
+Global $crate_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, $crate_shape_vertice, @ScriptDir & "\small_crate.gif")
+Global $eight_ball_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_circle, (0.5 / 2), @ScriptDir & "\eight_ball_small.png")
 
 ; Setup the Box2D Body Definitions
 ;
@@ -31,11 +31,11 @@ Global $eight_ball_shape_index = _Box2C_b2Shape_ArrayAdd_SFML($Box2C_e_circle, (
 ;		#3 - the body's initial vertical position (in Box2D world coordinates)
 ;		#4 - the body's initial angular position / rotation (in Box2D world coordinates) - use the degrees_to_radians function, as below, if convenient
 
-Global $girder1_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_staticBody, -2, 2, degrees_to_radians(-5))
-Global $girder2_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_staticBody, 2, -1, degrees_to_radians(10))
-Global $girder3_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_staticBody, -2, -4, degrees_to_radians(-5))
-Global $player_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, 0, 4, 0)
-Global $enemy_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, -2, 4, 0)
+Global $girder1_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, -2, 2, degrees_to_radians(-5))
+Global $girder2_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, 2, -1, degrees_to_radians(10))
+Global $girder3_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, -2, -4, degrees_to_radians(-5))
+Global $player_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, 0, 4, 0)
+Global $enemy_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, -2, 4, 0)
 
 ; Setup the Box2D Bodies and SFML Sprites
 ;
@@ -54,10 +54,10 @@ Global $enemy_bodydef_index = _Box2C_b2BodyDef_ArrayAdd($Box2C_b2_dynamicBody, -
 ;				2 = bounce the linear velocity of the body / sprite (like bouncing off a wall)
 ;				3 = stop the linear velocity of the body / sprite (like hitting a wall)
 
-Local $girder1_body_index = _Box2C_b2Body_ArrayAdd_SFML($girder1_bodydef_index, $girder_shape_index, 0, 0, 1, -2, 2, 0)
-Local $girder2_body_index = _Box2C_b2Body_ArrayAdd_SFML($girder2_bodydef_index, $girder_shape_index, 0, 0, 1, 2, -1, 0)
-Local $girder3_body_index = _Box2C_b2Body_ArrayAdd_SFML($girder3_bodydef_index, $girder_shape_index, 0, 0, 1, -2, -4, 0)
-Local $player_body_index = _Box2C_b2Body_ArrayAdd_SFML($player_bodydef_index, $crate_shape_index, 1, 0.2, 1, 0, 4, 2)
+Local $girder1_body_index = _Box2C_b2BodyArray_AddItem_SFML($girder1_bodydef_index, $girder_shape_index, 0, 0, 1, "", "", "", 0)
+Local $girder2_body_index = _Box2C_b2BodyArray_AddItem_SFML($girder2_bodydef_index, $girder_shape_index, 0, 0, 1, "", "", "", 0)
+Local $girder3_body_index = _Box2C_b2BodyArray_AddItem_SFML($girder3_bodydef_index, $girder_shape_index, 0, 0, 1, "", "", "", 0)
+Local $player_body_index = _Box2C_b2BodyArray_AddItem_SFML($player_bodydef_index, $crate_shape_index, 1, 0.2, 1, "", "", "", 2)
 
 ; Setup the GUI for SFML inside the AutoIT GUI
 
@@ -88,12 +88,12 @@ While true
 		; randomly add enemies to the world
 		if Random(1, 500, 1) = 1 Then
 
-			_Box2C_b2Body_ArrayAdd_SFML($enemy_bodydef_index, $eight_ball_shape_index, 1, 0.2, 1, -2, 4, 1)
+			_Box2C_b2BodyArray_AddItem_SFML($enemy_bodydef_index, $eight_ball_shape_index, 1, 0.2, 1, "", "", "", 1)
 		EndIf
 
 
 		; The followsing b2World Step compensates well for a large number of bodies
-		_Box2C_b2World_Step($__world_ptr, (0.6 + (UBound($__body_struct_ptr) / 200)) / 60.0, 6, 2)
+		_Box2C_b2World_Step_Ex((0.6 + (UBound($__body_struct_ptr) / 200)) / 60.0)
 
 		; Check for "ESC" key press
 
@@ -106,27 +106,21 @@ While true
 		if _CSFML_sfKeyboard_isKeyPressed(0) = True Then
 
 			; Apply a leftwards linear force to the player body
-			_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$player_body_index], -8, 0)
-
-;			_Box2C_b2Body_ApplyTorque($__body_struct_ptr[$player_body_index], 4)
-
+			_Box2C_b2BodyArray_ApplyItemForceAtBody($player_body_index, -8, 0)
 		EndIf
 
 		; If the "D" key is pressed
 		if _CSFML_sfKeyboard_isKeyPressed(3) = True Then
 
 			; Apply a rightwards linear force to the player body
-			_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$player_body_index], 8, 0)
-
-;			_Box2C_b2Body_ApplyTorque($__body_struct_ptr[$player_body_index], -4)
-
+			_Box2C_b2BodyArray_ApplyItemForceAtBody($player_body_index, 8, 0)
 		EndIf
 
 		; If the "W" key is pressed
 		if _CSFML_sfKeyboard_isKeyPressed(22) = True Then
 
 			; Apply an upwards linear force to the player body
-			_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$player_body_index], 0, 10)
+			_Box2C_b2BodyArray_ApplyItemForceAtBody($player_body_index, 0, 10)
 		EndIf
 
 		; While other SFML events
@@ -158,11 +152,20 @@ While true
 									"" & @LF & _
 									"Stats" & @LF & _
 									"-----" & @LF & _
-									"Number of bodies = " & UBound($__body_struct_ptr) & @LF & _
+									"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
 									"FPS = " & $fps
 
-		; Animate the frame
-		_Box2C_b2World_Animate_SFML($window_ptr, $__white, $info_text_ptr, $info_text_string)
+		; Transform all the Box2D bodies to SFML sprites
+
+		_Box2C_b2Body_ArrayTransform_SFML()
+
+		; Clear the animation frame
+
+		_CSFML_sfRenderWindow_clear($window_ptr, $__white)
+
+		; Draw and display all the SFML sprites (including background) with information text
+
+		_Box2C_b2Body_ArrayDrawDisplay_SFML($window_ptr, $info_text_ptr, $info_text_string, 2)
 
 		$num_frames = $num_frames + 1
 	EndIf
