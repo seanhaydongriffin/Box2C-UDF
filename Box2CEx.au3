@@ -810,7 +810,9 @@ Func _Box2C_b2ShapeArray_SetItem_SFML($shape_index, $type, $radius_vertice, $sha
 	$__shape_image[$shape_index] = _CSFML_sfTexture_createFromFile($shape_image_file_path, Null)
 
 	; create a new Box2C Polygone Shape for the new vertices and add it to the internal array of shape structures
-	Local $shape_struct_index
+
+	; deallocated existing struct / memory
+	$__shape_struct[$shape_index] = 0
 
 	Switch $type
 
@@ -823,11 +825,6 @@ Func _Box2C_b2ShapeArray_SetItem_SFML($shape_index, $type, $radius_vertice, $sha
 			$__shape_struct[$shape_index] = _Box2C_b2PolygonShape_Constructor($radius_vertice)
 	EndSwitch
 
-;	_ArrayAdd($__shape_struct_ptr, DllStructGetPtr($__shape_struct[$shape_struct_index]))
-
-
-	; return the index of the new shape within the internal arrays of shapes
-	Return $shape_struct_index
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================

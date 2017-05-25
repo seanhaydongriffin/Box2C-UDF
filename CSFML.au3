@@ -855,6 +855,28 @@ Func  _CSFML_sfTexture_createFromFile($filename, $area)
 	Return $sfTexture_ptr
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfTexture_destroy
+; Description ...: Destroys a texture.
+; Syntax.........: _CSFML_sfTexture_destroy($texture)
+; Parameters ....: $texture - pointer
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfTexture_destroy($texture)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfTexture_destroy", "PTR", $texture)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
 
 ; #SFSPRITE FUNCTIONS# =====================================================================================================
 
