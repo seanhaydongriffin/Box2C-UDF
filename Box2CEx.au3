@@ -29,6 +29,7 @@ Global $__shape_vertice_struct_size[0]
 
 Global $__shape_vertice[0]
 Global $__shape_image[0]
+Global $__shape_image_file_path[0]
 Global $__shape_struct[0]
 Global $__shape_struct_ptr[0]
 
@@ -748,6 +749,9 @@ Func _Box2C_b2ShapeArray_AddItem_SFML($type, $radius_vertice, $shape_image_file_
 	EndIf
 
 	; add the new sfTexture to the internal array of shape images
+
+	_ArrayAdd($__shape_image_file_path, $shape_image_file_path)
+
 	Local $struct_image_array_index = _ArrayAdd($__shape_image, _CSFML_sfTexture_createFromFile($shape_image_file_path, Null))
 
 	; create a new Box2C Polygone Shape for the new vertices and add it to the internal array of shape structures
@@ -770,6 +774,79 @@ Func _Box2C_b2ShapeArray_AddItem_SFML($type, $radius_vertice, $shape_image_file_
 	Return $shape_struct_index
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2ShapeArray_SetItem_SFML
+; Description ...: A convenience function for SFML that sets the type, vertices and image of a polygon shape (b2PolygonShape) in the internal array of shapes.
+; Syntax.........: _Box2C_b2ShapeArray_SetItem_SFML($shape_index, $type, $radius_vertice, $shape_image_file_path)
+; Parameters ....: $shape_index - the index of the shape
+;				   $type - the type of shape:
+;						$Box2C_e_circle (0) = a circle shape
+;						$Box2C_e_edge (1) = an edge shape
+;						$Box2C_e_polygon (2) = a polygon shape
+;						$Box2C_e_chain (3) = a chain shape
+;				   $radius_vertice:
+;						for a $type of $Box2C_e_circle this is the radius of the circle
+;						for a $type of $Box2C_e_edge this is a two dimensional vector array of the edges of the polygon
+;				   $shape_image_file_path - the path to the image file of the shape to add
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2ShapeArray_SetItem_SFML($shape_index, $type, $radius_vertice, $shape_image_file_path)
+
+	; add the new vertices to the internal array of shape vertices
+	if $type = $Box2C_e_edge Then
+
+		$__shape_vertice[$shape_index] = $radius_vertice
+	EndIf
+
+	; add the new sfTexture to the internal array of shape images
+
+	$__shape_image_file_path[$shape_index] = $shape_image_file_path
+	$__shape_image[$shape_index] = _CSFML_sfTexture_createFromFile($shape_image_file_path, Null)
+
+	; create a new Box2C Polygone Shape for the new vertices and add it to the internal array of shape structures
+	Local $shape_struct_index
+
+	Switch $type
+
+		case $Box2C_e_circle
+
+			$__shape_struct[$shape_index] = _Box2C_b2CircleShape_Constructor($radius_vertice)
+
+		case $Box2C_e_edge
+
+			$__shape_struct[$shape_index] = _Box2C_b2PolygonShape_Constructor($radius_vertice)
+	EndSwitch
+
+;	_ArrayAdd($__shape_struct_ptr, DllStructGetPtr($__shape_struct[$shape_struct_index]))
+
+
+	; return the index of the new shape within the internal arrays of shapes
+	Return $shape_struct_index
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2ShapeArray_GetItemImagePath_SFML
+; Description ...: A convenience function for SFML that gets the image file path of a polygon shape (b2PolygonShape) from the internal array of shapes.
+; Syntax.........: _Box2C_b2ShapeArray_GetItemImagePath_SFML($shape_index, $type, $radius_vertice, $shape_image_file_path)
+; Parameters ....: $shape_index - the index of the shape
+; Return values .: the path of the image
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2ShapeArray_GetItemImagePath_SFML($shape_index)
+
+	Return $__shape_image_file_path[$shape_index]
+EndFunc
 
 ; #B2POLYGONSHAPE FUNCTIONS# =====================================================================================================
 
@@ -1186,6 +1263,32 @@ Func _Box2C_b2Body_ArrayAdd_Irrlicht($bodydef_index, $shape_index, $density, $re
 	Return $body_struct_ptr_index
 EndFunc
 
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetItemImage_SFML
+; Description ...: A convenience function for SFML that sets the image for a body (b2Body) and sprite to an internal (PTR) array of bodies and sprites.
+; Syntax.........: _Box2C_b2BodyArray_SetItemImage_SFML($body_index, $shape_index)
+; Parameters ....: $body_index - the index of the body
+;				   $shape_index - the index of the shape
+; Return values .: The index of the body within the internal array of bodies.
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetItemImage_SFML($body_index, $shape_index)
+
+
+	; Add the SFML sprite
+
+;	_ArrayAdd($__sprite_ptr, Null)
+;	$__sprite_ptr[$body_struct_ptr_index] = _CSFML_sfSprite_create()
+	_CSFML_sfSprite_setTexture($__sprite_ptr[$body_index], $__shape_image[$shape_index], $CSFML_sfTrue)
+	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_index], _CSFML_sfVector2f_Constructor(($__body_width[$body_index] / 2) * $__pixels_per_metre, ($__body_height[$body_index] / 2) * $__pixels_per_metre))
+
+EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2BodyArray_SetItemActive

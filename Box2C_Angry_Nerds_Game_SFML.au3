@@ -256,7 +256,17 @@ While true
 			EndSwitch
 		WEnd
 
+		Local $filepath = _Box2C_b2ShapeArray_GetItemImagePath_SFML($droid_stand_shape_index)
 		Local $droid_velocity = _Box2C_b2BodyArray_GetItemLinearVelocity($droid_body_index)
+
+		if $droid_velocity[0] > 2 And StringInStr($filepath, "droid_stand") > 0 Then
+
+			_Box2C_b2ShapeArray_SetItem_SFML($droid_stand_shape_index, $Box2C_e_edge, $droid_stand_shape_vertice, @ScriptDir & "\droid_dead.png")
+;			_Box2C_b2Body_DestroyFixture($__body_struct_ptr[$droid_body_index], $__fixture_struct_ptr[$droid_body_index])
+;			$__fixture_struct_ptr[$droid_body_index] = _Box2C_b2World_CreateFixture($__body_struct_ptr[$droid_body_index], $__shape_struct_ptr[$droid_stand_shape_index], 1, 0.2, 0.01)
+			_Box2C_b2BodyArray_SetItemImage_SFML($droid_body_index, $droid_stand_shape_index)
+
+		EndIf
 
 		Local $info_text_string = 	"Keys" & @LF & _
 									"----" & @LF & _
