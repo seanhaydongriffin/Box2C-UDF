@@ -934,6 +934,40 @@ Func  _CSFML_sfSprite_setTexture($sprite, $texture, $resetRect)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfSprite_setTextureRect
+; Description ...: Set the sub-rectangle of the texture that a sprite will display.
+;				   The texture rect is useful when you don't want to display the whole texture, but rather a part of it.
+;				   By default, the texture rect covers the entire texture.
+; Syntax.........: _CSFML_sfSprite_setTextureRect($sprite, $left, $top, $width, $height)
+; Parameters ....: $sprite - Sprite to delete
+;				   $left
+;				   $top
+;				   $width
+;				   $height
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......: _CSFML_sfSprite_create
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfSprite_setTextureRect($sprite, $left, $top, $width, $height)
+
+	local $rectangle = DllStructCreate("STRUCT;int;int;int;int;ENDSTRUCT")
+	DllStructSetData($rectangle, 1, $left)
+	DllStructSetData($rectangle, 2, $top)
+	DllStructSetData($rectangle, 3, $width)
+	DllStructSetData($rectangle, 4, $height)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfSprite_setTextureRect", "PTR", $sprite, "STRUCT", $rectangle)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _CSFML_sfSprite_setPosition
 ; Description ...: Set the position of a sprite, with a sfVector2f structure.
 ;				   This function completely overwrites the previous position. See sfSprite_move to apply an offset based

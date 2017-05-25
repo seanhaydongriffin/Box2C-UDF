@@ -155,6 +155,28 @@ Func _Box2C_b2Vec2_Length($x, $y)
 	Return Sqrt($x * $x + $y * $y)
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Vec2_Distance
+; Description ...: Gets the distance between two vectors.
+; Syntax.........: _Box2C_b2Vec2_Distance($x1, $y1, $x2, $y2)
+; Parameters ....: $x1 - horizontal component (pixel position) of the vector
+;				   $y1 - vertical component (pixel position) of the vector
+;				   $x2 - horizontal component (pixel position) of the vector
+;				   $y3 - vertical component (pixel position) of the vector
+; Return values .: Success - the length of the vector
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Vec2_Distance($x1, $y1, $x2, $y2)
+
+	Return Sqrt((($x1 - $x2) * ($x1 - $x2)) + (($y1 - $y2) * ($y1 - $y2)))
+EndFunc
+
 
 ; #B2WORLD FUNCTIONS# =====================================================================================================
 

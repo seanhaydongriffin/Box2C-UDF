@@ -1329,6 +1329,28 @@ Func _Box2C_b2BodyArray_GetItemPosition($body_index)
 	Return _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_index])
 EndFunc
 
+Func _Box2C_b2BodyArray_GetItemGUIPosition($body_index)
+
+	Local $position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_index])
+
+	Local $gui_pos[2]
+
+	; get the GUI center
+	Local $gui_x_center = $__GUI_Area[0] / 2
+	Local $gui_y_center = $__GUI_Area[1] / 2
+
+	$gui_pos[0] = $gui_x_center + ($position[0] * $__pixels_per_metre)
+	$gui_pos[1] = $gui_y_center - ($position[1] * $__pixels_per_metre)
+
+
+	return $gui_pos
+EndFunc
+
+
+
+
+
+
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2BodyArray_SetItemPosition
 ; Description ...: A convenience function that sets the position (vector) of a body (b2Body) based on it's index within the internal body array
