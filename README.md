@@ -25,7 +25,11 @@ Click **Clone or download** above, then **Download ZIP**, then download and extr
 
 ## Usage
 
-You can run any of the executables (exe files) above to test the UDF.
+You can run any of the executables (exe files) above to test the UDF. The Angry Nerds game demo should play similar to this YouTube video:
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=h5QH1O63Wik
+" target="_blank"><img src="http://img.youtube.com/vi/h5QH1O63Wik/0.jpg" 
+alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
 
 The four speed tests will test the performance of the UDF against four popular graphics engines, as follows.
 
