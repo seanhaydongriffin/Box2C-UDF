@@ -32,34 +32,22 @@ Local $tmp_gui_center_y = _Box2C_b2World_GetGUIAreaCenter(1)
 
 ; Setup the Box2D Shapes
 
-Global $platform_shape_vertice[4][2] = [[0,0],[5,0],[5,1],[0,1]]
-Local $platform_shape_index = _Box2C_b2PolygonShape_ArrayAdd_SFML($platform_shape_vertice, @ScriptDir & "\platform.gif")
-
-Global $crate_shape_vertice[4][2] = [[0,0],[0.25,0],[0.25,0.25],[0,0.25]]
-Local $crate_shape_index = _Box2C_b2PolygonShape_ArrayAdd_SFML($crate_shape_vertice, @ScriptDir & "\smallest_crate.gif")
+Local $platform_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|5,0|5,1|0,1"), @ScriptDir & "\platform.gif")
+Global $crate_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|0.25,0|0.25,0.25|0,0.25"), @ScriptDir & "\smallest_crate.gif")
 
 ; Setup the Box2D Body Definitions
 
-Local $platform_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, 0, -4, 0)
-Local $platform2_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, -4.5, -2, -0.785398)
-Local $platform3_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, +4.5, -2, +0.785398)
-Local $falling_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(2, 0, 4, 0)
+Local $platform_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, 0, -4, 0)
+Local $platform2_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, -4.5, -2, -0.785398)
+Local $platform3_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, +4.5, -2, +0.785398)
+Local $falling_bodydef_index = _Box2C_b2BodyDefArray_AddItem(2, 0, 4, 0)
 
 ; Setup the Box2D Bodies
 
-Local $platform_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform_bodydef_index, $platform_shape_index, 0, 0, 0, $platform_shape_index, 0, -4)
-Local $platform2_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform2_bodydef_index, $platform_shape_index, 0, 0, 0, $platform_shape_index, -4.5, -2)
-Local $platform3_body_index = _Box2C_b2Body_ArrayAdd_SFML($platform3_bodydef_index, $platform_shape_index, 0, 0, 0, $platform_shape_index, +4.5, -2)
-Local $falling_body_index = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, $crate_shape_index, 0, 4)
-
-; Setup basic variables for SFML
-
-;Local $event = _CSFML_sfEvent_Constructor()
-;Local $event_ptr = DllStructGetPtr($event)
-;Local $black = _CSFML_sfColor_Constructor(0,0,0,0)
-;Local $white = _CSFML_sfColor_Constructor(255,255,255,0)
-;Local $pos = _CSFML_sfVector2f_Constructor(1,1)
-;Local $pos_ptr = DllStructGetPtr($pos)
+Local $platform_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0)
+Local $platform2_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform2_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0)
+Local $platform3_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform3_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0)
+Local $falling_body_index = _Box2C_b2BodyArray_AddItem_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, "", "", "", 1)
 
 ; Setup D2D
 
@@ -68,36 +56,22 @@ Global $oD2D_Factory = _D2D_Factory1_Create()
 
 ; Setup the GUI for D2D
 
-;$video_mode = _CSFML_sfVideoMode_Constructor(800, 600, 16)
-;Local $window_ptr = _CSFML_sfRenderWindow_create($video_mode, "SFML window", $CSFML_sfWindowStyle_sfResize + $CSFML_sfWindowStyle_sfClose, Null)
-;_CSFML_sfRenderWindow_setVerticalSyncEnabled($window_ptr, False)
-
 Global $hGui = GUICreate("Box2C Speed Test for the Direct2D Renderer", 800, 600)
-
 Global $create_body_button = GUICtrlCreateButton("Add Body (&a)", 10, 10, 80, 20)
 GUICtrlSetOnEvent($create_body_button, "create_body_button")
-
-
 
 GUISetOnEvent($GUI_EVENT_CLOSE, "_Exit")
 _D2D_CreateHWNDContext($oD2D_Factory, $hGui, $oD2D_DeviceContext, $oID3D11SwapChain)
 ;_D2D_Factory_CreateHwndRenderTarget($oD2D_Factory, $oD2D_DeviceContext, 0, 0, $D2D1_PRESENT_OPTIONS_IMMEDIATELY)
 GUISetState(@SW_SHOW)
 
-
 ; Attach an AutoIT GUI for reporting
 
-;Local $irr_win_pos = WinGetPos("Direct2D")
 Global $g_hGUI = GUICreate("Stats", 300, 400);, $irr_win_pos[0] + $irr_win_pos[2], $irr_win_pos[1])
-;Global $number_of_bodies_label = GUICtrlCreateLabel("Number of bodies = ", 20, 80, 160, 20)
-;Global $b2world_step_time_label = GUICtrlCreateLabel("b2World_Step runtime = ", 20, 100, 160, 20)
-;Global $CSFML_clear_transform_display_runtime_label = GUICtrlCreateLabel("CSFML_clear_tranform_display runtime = ", 20, 120, 260, 20)
 GUICtrlCreateLabel("Press ""A"" to add (drop) a new box / body to the world", 20, 60, 160, 40)
 Global $number_of_bodies_label = GUICtrlCreateLabel("Number of bodies = ", 20, 100, 160, 20)
 Global $fps_label = GUICtrlCreateLabel("FPS = ", 20, 120, 160, 20)
 GUISetState(@SW_SHOW)
-;WinActivate( "SFML window" )
-
 
 ; Setup the initial 4 D2D sprites
 
@@ -143,13 +117,6 @@ Next
 
 
 ; Setup the Box2D animation, including the clocks (timers) and animation rate
-
-;Local $clock_ptr = _CSFML_sfClock_create()
-;Local $b2World_Step_clock_ptr = _CSFML_sfClock_create()
-;Local $b2World_Step_runtime_clock_ptr = _CSFML_sfClock_create()
-;Local $CSFML_clear_transform_display_runtime_clock_ptr = _CSFML_sfClock_create()
-;Local $fps_clock_ptr = _CSFML_sfClock_create()
-;Local $fps = 0
 
 ; in microseconds (i.e. 1 60th of a second times 1,000,000 microseconds in a second)
 Local $animation_rate = Int(1 / 60 * 1000000)
@@ -233,23 +200,12 @@ While True
 		$fps = $fps + 1
 WEnd
 
-; Shutdown SFML
-;_CSFML_Shutdown()
-
 
 
 Func create_body_button()
 
-
-	Local $new_body_num = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, $crate_shape_vertice, 0, 4)
-
+	Local $new_body_num = _Box2C_b2BodyArray_AddItem_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, "", "", "", 1)
 	D2D_sprite_arrayadd(@ScriptDir & "\smallest_crate.gif")
-
-;	_ArrayAdd($sprite_ptr, Null)
-;	$sprite_ptr[$new_body_num] = _CSFML_sfSprite_create()
-;	_CSFML_sfSprite_setTexture($sprite_ptr[$new_body_num], $__shape_image[$crate_shape_index], $CSFML_sfTrue)
-;	_CSFML_sfSprite_setOrigin($sprite_ptr[$new_body_num], _CSFML_sfVector2f_Constructor(($__body_width[$new_body_num] / 2) * $__pixels_per_metre, ($__body_height[$new_body_num] / 2) * $__pixels_per_metre))
-
 EndFunc
 
 

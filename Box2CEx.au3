@@ -2062,3 +2062,42 @@ Func _Box2C_b2Body_Rotate_GDIPlus($gfx_buffer, $body_center_x, $body_center_y, $
 EndFunc
 
 
+
+func _StringSplit2d($str,$delimiter = ",")
+
+    ; #FUNCTION# ======================================================================================
+    ; Name ................:    _DBG_StringSplit2D($str,$delimiter)
+    ; Description .........:    Create 2d array from delimited string
+    ; Syntax ..............:    _DBG_StringSplit2D($str, $delimiter)
+    ; Parameters ..........:    $str        - pipe (|) delimited string to split
+    ;                           $delimiter  - Delimter for columns
+    ; Return values .......:    2D array
+    ; Author ..............:    kylomas
+    ; =================================================================================================
+
+    local $a1 = stringregexp($str,'.*?(?:\||$)',3), $a2
+
+    local $rows = ubound($a1) - 1, $cols = 0
+
+    ; determine max number of columns by splitting each row and keeping highest ubound value
+
+    for $i = 0 to ubound($a1) - 1
+        $a2 = stringsplit($a1[$i],$delimiter,1)
+        if ubound($a2) > $cols then $cols = ubound($a2)
+    next
+
+    ; define and populate array
+
+    local $aRET[$rows][$cols-1]
+
+    for $i = 0 to $rows - 1
+        $a2 = stringsplit($a1[$i],$delimiter,3)
+        for $j = 0 to ubound($a2) - 1
+            $aRET[$i][$j] = StringReplace($a2[$j], "|", "")
+        Next
+    next
+
+    return $aRET
+
+endfunc
+

@@ -40,10 +40,10 @@ Local $small_crate_shape_index = _Box2C_b2PolygonShape_ArrayAdd_Irrlicht($small_
 
 ; Setup the Box2D Body Definitions
 
-Local $platform_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, 0, -13, 0)
-Local $platform2_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, -12, -8, -0.785398)
-Local $platform3_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, +12, -8, +0.785398)
-Local $falling_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(2, 0, 4, 0)
+Local $platform_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, 0, -13, 0)
+Local $platform2_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, -12, -8, -0.785398)
+Local $platform3_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, +12, -8, +0.785398)
+Local $falling_bodydef_index = _Box2C_b2BodyDefArray_AddItem(2, 0, 4, 0)
 
 ; Setup the Box2D Bodies
 

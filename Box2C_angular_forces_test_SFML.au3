@@ -156,7 +156,7 @@ While true
 
 		; Transform all the Box2D bodies to SFML sprites
 
-		_Box2C_b2Body_ArrayTransform_SFML()
+		_Box2C_b2BodyArray_Transform_SFML()
 
 		; Clear the animation frame
 

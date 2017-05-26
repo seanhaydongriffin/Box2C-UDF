@@ -54,12 +54,6 @@ _Box2C_b2World_GDIPlusSetup($g_hGUI)
 Global $platform_shape_vertice[4][2] = [[0,0],[5,0],[5,1],[0,1]]
 Local $platform_shape_index = _Box2C_b2PolygonShape_ArrayAdd_GDIPlus($platform_shape_vertice, @ScriptDir & "\platform.gif")
 
-;Global $platform_shape_vertice[4][2] = [[0,0],[10,0],[10,4],[0,4]]
-;Local $platform_shape_index = _Box2C_b2PolygonShape_ArrayAdd_GDIPlus($platform_shape_vertice, @ScriptDir & "\groundbox.gif")
-
-;Global $crate_shape_vertice[4][2] = [[0,0],[2,0],[2,2],[0,2]]
-;Local $crate_shape_index = _Box2C_b2PolygonShape_ArrayAdd_GDIPlus($crate_shape_vertice, @ScriptDir & "\crate.gif")
-
 Global $small_crate_shape_vertice[4][2] = [[0,0],[0.5,0],[0.5,0.5],[0,0.5]]
 Local $small_crate_shape_index = _Box2C_b2PolygonShape_ArrayAdd_GDIPlus($small_crate_shape_vertice, @ScriptDir & "\small_crate.gif")
 
@@ -68,10 +62,11 @@ Local $triangle_shape_index = _Box2C_b2PolygonShape_ArrayAdd_GDIPlus($triangle_s
 
 ; Box2C body definitions
 
-Local $platform_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, 0, -4, 0)
-Local $platform2_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, -5, -3.2, -0.261799)
-Local $platform3_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(0, +5, -3.2, +0.261799)
-Local $falling_bodydef_index = _Box2C_b2BodyDef_ArrayAdd(2, 0, 4, 0)
+
+Local $platform_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, 0, -4, 0)
+Local $platform2_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, -5, -3.2, -0.261799)
+Local $platform3_bodydef_index = _Box2C_b2BodyDefArray_AddItem(0, +5, -3.2, +0.261799)
+Local $falling_bodydef_index = _Box2C_b2BodyDefArray_AddItem(2, 0, 4, 0)
 
 ; Box2C Bodies
 
@@ -82,9 +77,6 @@ Local $falling_body_index = _Box2C_b2Body_ArrayAdd_GDIPlus($falling_bodydef_inde
 
 ; Animation loop
 
-;$__body_hGfx_Buffer[0]
-;ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $__body_hGfx_Buffer[0] = ' & $__body_hGfx_Buffer[0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
-;Exit
 
 Local $fps = 0
 Local $fps_timer = _Timer_Init()
@@ -133,8 +125,6 @@ While True
 
 	_GDIPlus_GraphicsClear($__body_hGfx_Buffer[0], 0xFFFFFFFF)
 
-
-
 	Local $body_num = -1
 
 	While True
@@ -158,18 +148,6 @@ While True
 WEnd
 
 
-
-
-
-
-
-;_Box2C_b2World_StartAnimation($g_hGUI, 5)
-;Local $fff = _Timer_SetTimer($g_hGUI, 1000, "update_gui")
-
-;While sleep(10)
-;WEnd
-
-
 ; Functions
 
 Func _Exit()
@@ -191,7 +169,6 @@ Func _Exit()
 		_ArrayDelete($__shape_image, 0)
 	WEnd
 
-
 ;    _GDIPlus_ImageDispose($__shape_image[$platform_shape_index])
 ;    _GDIPlus_ImageDispose($__shape_image[$crate_shape_index])
 ;	_ArrayDelete($__shape_image, $crate_shape_index)
@@ -200,7 +177,6 @@ Func _Exit()
 
 	_GDIPlus_BitmapDispose($__g_hBmp_Buffer)
     _GDIPlus_GraphicsDispose($__g_hGraphics)
-
 	_GDIPlus_Shutdown()
 
 	GUIDelete($g_hGUI)
@@ -209,13 +185,9 @@ Func _Exit()
 EndFunc   ;==>_Exit
 
 
-
-
-
 Func increase_platform_angle()
 
 	Local $curr_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$platform_body_index])
-;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $curr_angle = ' & $curr_angle & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 	Local $curr_angle_degrees = radians_to_degrees($curr_angle)
 	$curr_angle_degrees = $curr_angle_degrees + 5
 	_Box2C_b2Body_SetAngle($__body_struct_ptr[$platform_body_index], degrees_to_radians($curr_angle_degrees))
@@ -224,7 +196,6 @@ EndFunc
 Func decrease_platform_angle()
 
 	Local $curr_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$platform_body_index])
-;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $curr_angle = ' & $curr_angle & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 	Local $curr_angle_degrees = radians_to_degrees($curr_angle)
 	$curr_angle_degrees = $curr_angle_degrees - 5
 	_Box2C_b2Body_SetAngle($__body_struct_ptr[$platform_body_index], degrees_to_radians($curr_angle_degrees))
