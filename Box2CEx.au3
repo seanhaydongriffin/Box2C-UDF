@@ -1285,6 +1285,7 @@ Func _Box2C_b2BodyArray_SetItemImage_SFML($body_index, $shape_index)
 	_CSFML_sfSprite_setTexture($__sprite_ptr[$body_index], $__shape_image[$shape_index], $CSFML_sfTrue)
 	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_index], _CSFML_sfVector2f_Constructor(($__body_width[$body_index] / 2) * $__pixels_per_metre, ($__body_height[$body_index] / 2) * $__pixels_per_metre))
 
+	$__body_shape_index[$body_index] = $shape_index
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
