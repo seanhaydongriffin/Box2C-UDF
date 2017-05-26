@@ -11,6 +11,7 @@ Click **Clone or download** above, then **Download ZIP**, then download and extr
 
 ## Contents
 
+- **Box2C_Angry_Nerds_Game_SFML_installer.exe** is an installer for Angry Nerds, the best demo so far for the UDF
 - **Box2C.au3** is the Box2D UDF itself, containing the Box2D / Box2C functions for AutoIT
 - **Box2C_linear_forces_test_SFML.exe** is a test of Box2D linear forces using AutoIT and SFML
 - **Box2C_angular_forces_test_SFML.exe** is a test of Box2D angular forces using AutoIT and SFML
