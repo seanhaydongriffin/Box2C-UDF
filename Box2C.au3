@@ -28,6 +28,7 @@ Global Enum $Box2C_e_circle, $Box2C_e_edge, $Box2C_e_polygon, $Box2C_e_chain, $B
 ; _Box2C_Shutdown
 ; _Box2C_b2Vec2_Constructor
 ; _Box2C_b2Vec2_Length
+; _Box2C_b2Vec2_Distance
 ; _Box2C_b2World_Constructor
 ; _Box2C_b2World_CreateBody
 ; _Box2C_b2World_DestroyBody
@@ -35,6 +36,7 @@ Global Enum $Box2C_e_circle, $Box2C_e_edge, $Box2C_e_polygon, $Box2C_e_chain, $B
 ; _Box2C_b2World_CreateFixtureFromShape
 ; _Box2C_b2World_Step
 ; _Box2C_b2BoxShape_Constructor
+; _Box2C_b2CircleShape_Constructor
 ; _Box2C_b2PolygonShape_Constructor
 ; _Box2C_b2PolygonShape_Set
 ; _Box2C_b2PolygonShape_CrossProductVectorScalar
@@ -49,9 +51,22 @@ Global Enum $Box2C_e_circle, $Box2C_e_edge, $Box2C_e_polygon, $Box2C_e_chain, $B
 ; _Box2C_b2Body_SetAngle
 ; _Box2C_b2Body_SetAwake
 ; _Box2C_b2Body_SetTransform
+; _Box2C_b2Body_GetLinearVelocity
+; _Box2C_b2Body_SetLinearVelocity
+; _Box2C_b2Body_GetAngularVelocity
+; _Box2C_b2Body_SetAngularVelocity
+; _Box2C_b2Body_ApplyForce
+; _Box2C_b2Body_ApplyForceAtBody
+; _Box2C_b2Body_ApplyDirectionalForceAtBody
+; _Box2C_b2Body_ApplyTorque
 ; _Box2C_b2Fixture_GetShape
+; _Box2C_b2Fixture_GetDensity
+; _Box2C_b2Fixture_SetDensity
 ; _Box2C_b2Fixture_GetRestitution
 ; _Box2C_b2Fixture_SetRestitution
+; _Box2C_b2Fixture_GetFriction
+; _Box2C_b2Fixture_SetFriction
+; _Box2C_b2Fixture_SetSensor
 ; ===============================================================================================================================
 
 

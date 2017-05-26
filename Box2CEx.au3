@@ -80,24 +80,54 @@ Global Enum $width, $height, $origin_x, $origin_y, $origin_angle_degrees, $origi
 ; atan2
 ; radians_to_degrees
 ; degrees_to_radians
+; _Box2C_Setup_SFML
 ; _Box2C_b2Vec2_GetGUIPosition
+; _Box2C_b2World_Setup
+; _Box2C_b2World_GDIPlusSetup
 ; _Box2C_b2World_SetPixelsPerMetre
 ; _Box2C_b2World_SetGUIArea
 ; _Box2C_b2World_GetGUIArea
 ; _Box2C_b2World_GetGUIAreaCenter
-; _Box2C_b2World_StartAnimation
-; _Box2C_b2World_Setup
-; _Box2C_b2World_GDIPlusSetup
 ; _Box2C_b2World_Create
+; _Box2C_b2World_Step_Ex
+; _Box2C_b2World_StartAnimation
+; _Box2C_b2World_Animate_SFML
 ; _Box2C_b2World_Animate_GDIPlus
 ; _Box2C_b2World_WaitForAnimateEnd
-; _Box2C_b2PolygonShape_ArrayAdd
-; _Box2C_b2PolygonShape_ArrayAdd_SFML
-; _Box2C_b2BodyDef_ArrayAdd
-; _Box2C_b2Body_ArrayAdd
-; _Box2C_b2Body_ArrayAdd_SFML
+; _Box2C_b2ShapeArray_AddItem_SFML
+; _Box2C_b2ShapeArray_SetItem_SFML
+; _Box2C_b2ShapeArray_GetItemImagePath_SFML
+; _Box2C_b2PolygonShape_ArrayAdd_Irrlicht
+; _Box2C_b2PolygonShape_ArrayAdd_GDIPlus
+; _Box2C_b2BodyDefArray_AddItem
+; _Box2C_b2FixtureArray_SetItemSensor
+; _Box2C_b2FixtureArray_GetItemDensity
+; _Box2C_b2FixtureArray_SetItemDensity
+; _Box2C_b2FixtureArray_GetItemRestitution
+; _Box2C_b2FixtureArray_SetItemRestitution
+; _Box2C_b2FixtureArray_GetItemFriction
+; _Box2C_b2FixtureArray_SetItemFriction
+; _Box2C_b2BodyArray_AddItem_SFML
+; _Box2C_b2Body_ArrayAdd_Irrlicht
+; _Box2C_b2Body_ArrayAdd_GDIPlus
+; _Box2C_b2BodyArray_GetItemCount
+; _Box2C_b2BodyArray_GetItemPosition
+; _Box2C_b2BodyArray_SetItemPosition
+; _Box2C_b2BodyArray_GetItemAngle
+; _Box2C_b2BodyArray_SetItemAngle
+; _Box2C_b2BodyArray_GetItemLinearVelocity
+; _Box2C_b2BodyArray_SetItemActive
+; _Box2C_b2BodyArray_SetItemAwake
+; _Box2C_b2BodyArray_SetItemImage_SFML
+; _Box2C_b2BodyArray_SetItemDraw
+; _Box2C_b2BodyArray_ApplyItemForceAtBody
+; _Box2C_b2BodyArray_ApplyItemDirectionalForceAtBody
+; _Box2C_b2BodyArray_Transform_SFML
 ; _Box2C_b2Body_Transform_GDIPlus
+; _Box2C_b2BodyArray_Draw_SFML
+; _Box2C_b2Body_ArrayDrawDisplay_SFML
 ; _Box2C_b2Body_Destroy
+; _Box2C_b2Body_Destroy_SFML
 ; _Box2C_b2Body_Rotate_GDIPlus
 ; ===============================================================================================================================
 
@@ -322,30 +352,6 @@ Func _Box2C_b2World_SetPixelsPerMetre($pixels_per_metre = 50)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2World_SetGUIArea
-; Description ...: Define the width and height (area) of the GUI that the Box2D world is within
-; Syntax.........: _Box2C_b2World_SetGUIArea($x, $y)
-; Parameters ....: $x - the width of the GUI area in pixels
-;				   $y - the height of the GUI area in pixels
-; Return values .: None
-; Author ........: Sean Griffin
-; Modified.......:
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......:
-; ===============================================================================================================================
-Func _Box2C_b2World_SetGUIArea($x, $y)
-
-	$__GUI_Area[0] = $x
-	$__GUI_Area[1] = $y
-EndFunc
-
-; $flag = 0 (get width)
-; $flag = 1 (get height)
-; $flag = 2 (get array of width and height)
-
-; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2World_GetGUIArea
 ; Description ...: Get the defined area of the GUI for Box2D
 ; Syntax.........: _Box2C_b2World_GetGUIArea($flag)
@@ -379,6 +385,10 @@ Func _Box2C_b2World_GetGUIArea($flag = 2)
 
 	Return -1
 EndFunc
+
+; $flag = 0 (get width)
+; $flag = 1 (get height)
+; $flag = 2 (get array of width and height)
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2World_GetGUIAreaCenter
@@ -416,6 +426,26 @@ Func _Box2C_b2World_GetGUIAreaCenter($flag = 2)
 
 	EndSwitch
 
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2World_SetGUIArea
+; Description ...: Define the width and height (area) of the GUI that the Box2D world is within
+; Syntax.........: _Box2C_b2World_SetGUIArea($x, $y)
+; Parameters ....: $x - the width of the GUI area in pixels
+;				   $y - the height of the GUI area in pixels
+; Return values .: None
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2World_SetGUIArea($x, $y)
+
+	$__GUI_Area[0] = $x
+	$__GUI_Area[1] = $y
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
