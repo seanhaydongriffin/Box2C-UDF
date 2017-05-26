@@ -1686,6 +1686,52 @@ Func _Box2C_b2Fixture_GetShape($fixture_ptr, $shape_ptr)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Fixture_GetDensity
+; Description ...: Gets the density of a fixture (b2Fixture)
+; Syntax.........: _Box2C_b2Fixture_GetDensity($fixture_ptr)
+; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
+; Return values .: Success - the density
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Fixture_GetDensity($fixture_ptr)
+
+	Local $density = DllCall($__Box2C_Box2C_DLL, "FLOAT:cdecl", "b2fixture_getdensity", "PTR", $fixture_ptr)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $density_val = $density[0]
+	Return $density_val
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Fixture_SetDensity
+; Description ...: Sets the density of a fixture (b2Fixture)
+; Syntax.........: _Box2C_b2Fixture_SetDensity($fixture_ptr, $value)
+; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
+;				   $value - the density value
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Fixture_SetDensity($fixture_ptr, $value)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2fixture_setdensity", "PTR", $fixture_ptr, "FLOAT", $value)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Fixture_GetRestitution
 ; Description ...: Gets the restitution of a fixture (b2Fixture)
 ; Syntax.........: _Box2C_b2Fixture_GetRestitution($fixture_ptr)
@@ -1713,7 +1759,7 @@ EndFunc
 ; Description ...: Sets the restitution of a fixture (b2Fixture)
 ; Syntax.........: _Box2C_b2Fixture_SetRestitution($fixture_ptr, $value)
 ; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
-;				   $vlue - the restitution value
+;				   $value - the restitution value
 ; Return values .: Success - True
 ;				   Failure - False
 ; Author ........: Sean Griffin
@@ -1725,7 +1771,53 @@ EndFunc
 ; ===============================================================================================================================
 Func _Box2C_b2Fixture_SetRestitution($fixture_ptr, $value)
 
-	Local $restitution = DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2fixture_setrestitution", "PTR", $fixture_ptr, "FLOAT", $value)
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2fixture_setrestitution", "PTR", $fixture_ptr, "FLOAT", $value)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Fixture_GetFriction
+; Description ...: Gets the density of a fixture (b2Fixture)
+; Syntax.........: _Box2C_b2Fixture_GetFriction($fixture_ptr)
+; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
+; Return values .: Success - the friction
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Fixture_GetFriction($fixture_ptr)
+
+	Local $friction = DllCall($__Box2C_Box2C_DLL, "FLOAT:cdecl", "b2fixture_getfriction", "PTR", $fixture_ptr)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Local $friction_val = $friction[0]
+	Return $friction_val
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Fixture_SetFriction
+; Description ...: Sets the friction of a fixture (b2Fixture)
+; Syntax.........: _Box2C_b2Fixture_SetFriction($fixture_ptr, $value)
+; Parameters ....: $fixture_ptr - a pointer to the fixture (b2Fixture)
+;				   $value - the friction value
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Fixture_SetFriction($fixture_ptr, $value)
+
+	DllCall($__Box2C_Box2C_DLL, "NONE:cdecl", "b2fixture_setfriction", "PTR", $fixture_ptr, "FLOAT", $value)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True

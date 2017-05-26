@@ -1055,6 +1055,150 @@ Func _Box2C_b2FixtureArray_SetItemSensor($fixture_index, $value)
 	_Box2C_b2Fixture_SetSensor($__fixture_struct_ptr[$fixture_index], $value)
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2FixtureArray_GetItemDensity
+; Description ...: A convenience function to get the density of a fixture (b2Fixture) based on it's index within the internal fixture array
+; Syntax.........: _Box2C_b2FixtureArray_GetItemDensity($fixture_index)
+; Parameters ....: $fixture_index - the index of the fixture
+; Return values .: Success - the density
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2FixtureArray_GetItemDensity($fixture_index)
+
+	Return _Box2C_b2Fixture_GetDensity($__fixture_struct_ptr[$fixture_index])
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2FixtureArray_SetItemDensity
+; Description ...: A convenience function to set the density of a fixture (b2Fixture) based on it's index within the internal fixture array
+; Syntax.........: _Box2C_b2FixtureArray_SetItemDensity($fixture_index, $value)
+; Parameters ....: $fixture_index - the index of the fixture, or -1 for all items
+;				   $value - the density
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2FixtureArray_SetItemDensity($fixture_index, $value)
+
+	if $fixture_index < 0 Then
+
+		for $i = 0 to (UBound($__fixture_struct_ptr) - 1)
+
+			_Box2C_b2Fixture_SetDensity($__fixture_struct_ptr[$i], $value)
+		Next
+	Else
+
+		_Box2C_b2Fixture_SetDensity($__fixture_struct_ptr[$fixture_index], $value)
+	EndIf
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2FixtureArray_GetItemRestitution
+; Description ...: A convenience function to get the restitution of a fixture (b2Fixture) based on it's index within the internal fixture array
+; Syntax.........: _Box2C_b2FixtureArray_GetItemRestitution($fixture_index)
+; Parameters ....: $fixture_index - the index of the fixture
+; Return values .: Success - the restitution
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2FixtureArray_GetItemRestitution($fixture_index)
+
+	Return _Box2C_b2Fixture_GetRestitution($__fixture_struct_ptr[$fixture_index])
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2FixtureArray_SetItemRestitution
+; Description ...: A convenience function to set the restitution of a fixture (b2Fixture) based on it's index within the internal fixture array
+; Syntax.........: _Box2C_b2FixtureArray_SetItemRestitution($fixture_index, $value)
+; Parameters ....: $fixture_index - the index of the fixture, or -1 for all items
+;				   $value - the restitution
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2FixtureArray_SetItemRestitution($fixture_index, $value)
+
+	if $fixture_index < 0 Then
+
+		for $i = 0 to (UBound($__fixture_struct_ptr) - 1)
+
+			_Box2C_b2Fixture_SetRestitution($__fixture_struct_ptr[$i], $value)
+		Next
+	Else
+
+		_Box2C_b2Fixture_SetRestitution($__fixture_struct_ptr[$fixture_index], $value)
+	EndIf
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2FixtureArray_GetItemFriction
+; Description ...: A convenience function to get the friction of a fixture (b2Fixture) based on it's index within the internal fixture array
+; Syntax.........: _Box2C_b2FixtureArray_GetItemFriction($fixture_index)
+; Parameters ....: $fixture_index - the index of the fixture
+; Return values .: Success - the friction
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2FixtureArray_GetItemFriction($fixture_index)
+
+	Return _Box2C_b2Fixture_GetFriction($__fixture_struct_ptr[$fixture_index])
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2FixtureArray_SetItemFriction
+; Description ...: A convenience function to set the friction of a fixture (b2Fixture) based on it's index within the internal fixture array
+; Syntax.........: _Box2C_b2FixtureArray_SetItemFriction($fixture_index, $value)
+; Parameters ....: $fixture_index - the index of the fixture, or -1 for all items
+;				   $value - the friction
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2FixtureArray_SetItemFriction($fixture_index, $value)
+
+	if $fixture_index < 0 Then
+
+		for $i = 0 to (UBound($__fixture_struct_ptr) - 1)
+
+			_Box2C_b2Fixture_SetFriction($__fixture_struct_ptr[$i], $value)
+		Next
+	Else
+
+		_Box2C_b2Fixture_SetFriction($__fixture_struct_ptr[$fixture_index], $value)
+	EndIf
+EndFunc
+
 
 
 
@@ -1139,6 +1283,7 @@ EndFunc
 ;						1 = destroy the body / sprite
 ;						2 = bounce the linear velocity of the body / sprite (like bouncing off a wall)
 ;						3 = stop the linear velocity of the body / sprite (like hitting a wall)
+;						4 = hide the sprite (do not draw) and sleep the body (stops moving in Box2D)
 ; Return values .: The index of the body within the internal array of bodies.
 ; Author ........: Sean Griffin
 ; Modified.......:
@@ -1534,9 +1679,9 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2Body_ArrayTransform_SFML
+; Name...........: _Box2C_b2BodyArray_Transform_SFML
 ; Description ...: A convenience function for SFML that transforms all bodies (b2Body) in the internal array to SFML sprite positions and rotations
-; Syntax.........: _Box2C_b2Body_ArrayTransform_SFML()
+; Syntax.........: _Box2C_b2BodyArray_Transform_SFML()
 ; Parameters ....:
 ; Return values .:
 ; Author ........: Sean Griffin
@@ -1546,7 +1691,7 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_ArrayTransform_SFML()
+Func _Box2C_b2BodyArray_Transform_SFML()
 
 
 	; Transform the Box2D bodies and draw SFML sprites
@@ -1573,6 +1718,12 @@ Func _Box2C_b2Body_ArrayTransform_SFML()
 
 		if $body_position[0] < -8 or $body_position[0] > 8 or $body_position[1] < -6 or $body_position[1] > 6 Then
 
+			if $__body_out_of_bounds_behaviour[$body_num] = 4 Then
+
+				_Box2C_b2BodyArray_SetItemAwake($body_num, False)
+				$__body_draw[$body_num] = False
+			EndIf
+
 			if $__body_out_of_bounds_behaviour[$body_num] = 2 Then
 
 				Local $velocity = _Box2C_b2Body_GetLinearVelocity($__body_struct_ptr[$body_num])
@@ -1593,8 +1744,7 @@ Func _Box2C_b2Body_ArrayTransform_SFML()
 			if $__body_out_of_bounds_behaviour[$body_num] = 1 Then
 
 				_Box2C_b2Body_Destroy_SFML($body_num)
-				_CSFML_sfSprite_destroy($__sprite_ptr[$body_num])
-				_ArrayDelete($__sprite_ptr, $body_num)
+				$body_num = $body_num - 1
 			EndIf
 		Else
 
@@ -1607,7 +1757,6 @@ Func _Box2C_b2Body_ArrayTransform_SFML()
 
 			$__body_curr_screen_y[$body_num] = $__gui_center_y - ($body_position[1] * $__pixels_per_metre)
 ;				$__body_curr_screen_y[$body_num] = y_metres_to_gui_y($body_position[1], $tmp_gui_center_y)
-
 
 			_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
 
@@ -1622,9 +1771,9 @@ Func _Box2C_b2Body_ArrayTransform_SFML()
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2Body_ArrayDraw_SFML
+; Name...........: _Box2C_b2BodyArray_Draw_SFML
 ; Description ...: A convenience function for SFML that draws all the SFML sprites in the internal array
-; Syntax.........: _Box2C_b2Body_ArrayDraw_SFML()
+; Syntax.........: _Box2C_b2BodyArray_Draw_SFML()
 ; Parameters ....:
 ; Return values .:
 ; Author ........: Sean Griffin
@@ -1634,7 +1783,7 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_ArrayDraw_SFML($window_ptr, $info_text_ptr = -1, $info_text_string = "", $draw_info_text_before_body = -1)
+Func _Box2C_b2BodyArray_Draw_SFML($window_ptr, $info_text_ptr = -1, $info_text_string = "", $draw_info_text_before_body = -1)
 
 	Local $body_num = -1
 
@@ -1679,7 +1828,7 @@ Func _Box2C_b2Body_ArrayDrawDisplay_SFML($window_ptr, $info_text_ptr = -1, $info
 
 	; Draw all sprites in the array
 
-	_Box2C_b2Body_ArrayDraw_SFML($window_ptr, $info_text_ptr, $info_text_string, $draw_info_text_before_body)
+	_Box2C_b2BodyArray_Draw_SFML($window_ptr, $info_text_ptr, $info_text_string, $draw_info_text_before_body)
 
 	; Render all the sprites to the Render Window
 
