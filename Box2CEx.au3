@@ -1604,6 +1604,26 @@ Func _Box2C_b2BodyArray_GetItemLinearVelocity($body_index)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetItemLinearVelocity
+; Description ...: A convenience function that sets the linear velocity of a body (b2Body) based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_SetItemLinearVelocity($body_index)
+; Parameters ....: $body_index - the index of the body
+;				   $velocity
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetItemLinearVelocity($body_index, $velocity)
+
+	Return _Box2C_b2Body_SetLinearVelocity($__body_struct_ptr[$body_index], $velocity[0], $velocity[1])
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2BodyArray_SetItemAwake
 ; Description ...: A convenience function that sets the awake state of a body (b2Body) based on it's index within the internal body array
 ; Syntax.........: _Box2C_b2BodyArray_SetItemAwake($body_index, $awake)
@@ -1799,6 +1819,72 @@ Func _Box2C_b2BodyArray_Transform_SFML()
 	WEnd
 
 EndFunc
+
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_ScrollerTransform_SFML
+; Description ...: A convenience function for SFML that transforms all bodies (b2Body) in the internal array to SFML sprite positions and rotations for a scroller
+; Syntax.........: _Box2C_b2BodyArray_ScrollerTransform_SFML()
+; Parameters ....:
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos)
+
+
+	; Transform the Box2D bodies and draw SFML sprites
+
+	Local $body_num = 0
+
+	While True
+
+		$body_num = $body_num + 1
+
+		if $body_num > (UBound($__body_struct_ptr) - 1) Then
+
+			ExitLoop
+		EndIf
+
+;		if $body_num = $draw_info_text_before_body Then
+
+			; Draw the info text
+
+;			_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
+;		EndIf
+
+		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_num])
+
+
+		; Update sprite position
+
+		; converting the below to C might improve animations by a further 500 frames per seconds
+
+		$__body_curr_screen_x[$body_num] = (8 + ($body_position[0] - $view_centre_pos[0])) * $__pixels_per_metre
+		$__body_curr_screen_y[$body_num] = (6 + ($body_position[1] - $view_centre_pos[1])) * $__pixels_per_metre
+
+;$__GUI_Area[0]
+;ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $__GUI_Area[0] = ' & $__GUI_Area[0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+		_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+
+		; Update sprite rotation
+
+;		Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
+;		$__body_curr_angle_degrees[$body_num] = 0 - radians_to_degrees($body_angle)
+;		_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+	WEnd
+
+EndFunc
+
+
+
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2BodyArray_Draw_SFML
