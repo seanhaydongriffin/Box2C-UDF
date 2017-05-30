@@ -9,6 +9,7 @@
 ; ===============================================================================================================================
 
 #include-once
+#include <Math.au3>
 #include <Array.au3>
 #include <GDIPlus.au3>
 #include <Timers.au3>
@@ -58,7 +59,16 @@ Global $__world_animation_timer
 Global $__g_hGraphics
 Global $__g_hBmp_Buffer
 
+Global $__convex_shape_ptr[0]
+Global $__convex_shape_draw_lower_index
+Global $__convex_shape_draw_upper_index
+
 Global $__sprite_ptr[0]
+Global $__sprite_screen_x_offset[0]
+Global $__sprite_screen_y_offset[0]
+Global $__sprite_draw_lower_index
+Global $__sprite_draw_upper_index
+Global $__body_curr_screen_y[0]
 Global $__gui_center_x
 Global $__gui_center_y
 
@@ -210,42 +220,6 @@ Func atan2($y, $x)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: radians_to_degrees
-; Description ...: Convert (Box2D) radians to (SFML) degrees
-; Syntax.........: radians_to_degrees($radians)
-; Parameters ....: $radians - the number of radians (in the Box2D world)
-; Return values .: the number of degrees (in SFML)
-; Author ........: Sean Griffin
-; Modified.......:
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......:
-; ===============================================================================================================================
-Func radians_to_degrees($radians)
-
-	Return $radians / 0.01745329252
-EndFunc
-
-; #FUNCTION# ====================================================================================================================
-; Name...........: degrees_to_radians
-; Description ...: Convert (SFML) degrees to (Box2D) radians
-; Syntax.........: degrees_to_radians($degrees)
-; Parameters ....: $degrees - the number of degrees (in SFML)
-; Return values .: the number of radians (in Box2D)
-; Author ........: Sean Griffin
-; Modified.......:
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......:
-; ===============================================================================================================================
-Func degrees_to_radians($degrees)
-
-	Return $degrees * 0.01745329252
-EndFunc
-
-; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_Setup_SFML
 ; Description ...: A convenience function that sets up SFML for Box2D rendering.
 ; Syntax.........: _Box2C_Setup_SFML()
@@ -328,6 +302,27 @@ Func _Box2C_b2Vec2_GetGUIPosition($world_x, $world_y, $vertices)
 	return $gui_pos
 
 endFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Vec2_GetAngleBetweenTwoVectors
+; Description ...:
+; Syntax.........: _Box2C_b2Vec2_GetAngleBetweenTwoVectors($x1, $y1, $x2, $y2)
+; Parameters ....: $y -
+;				   $x -
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Vec2_GetAngleBetweenTwoVectors($x1, $y1, $x2, $y2)
+
+	;Local $angle = atan2($y2, $x2) - atan2($y1, $x1);
+	Local $angle = atan2($y1 - $y2, $x1 - $x2)
+	Return $angle
+EndFunc
 
 
 ; #B2WORLD FUNCTIONS# =====================================================================================================
@@ -718,18 +713,21 @@ Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $
 			; converting the below to C might improve animations by a further 500 frames per seconds
 
 			$__body_curr_screen_x[$body_num] = $__gui_center_x + ($body_position[0] * $__pixels_per_metre)
+			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_position[0] = ' & $body_position[0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 ;				$__body_curr_screen_x[$body_num] = x_metres_to_gui_x($body_position[0], $tmp_gui_center_x)
 
 			$__body_curr_screen_y[$body_num] = $__gui_center_y - ($body_position[1] * $__pixels_per_metre)
+			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_position[1] = ' & $body_position[1] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 ;				$__body_curr_screen_y[$body_num] = y_metres_to_gui_y($body_position[1], $tmp_gui_center_y)
 
+			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_num = ' & $body_num & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
 			_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
 
 			; Update sprite rotation
 
 			Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
-			$__body_curr_angle_degrees[$body_num] = 0 - radians_to_degrees($body_angle)
+			$__body_curr_angle_degrees[$body_num] = 0 - _Degree($body_angle)
 			_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
 
 			_CSFML_sfRenderWindow_drawSprite($window_ptr, $__sprite_ptr[$body_num], Null)
@@ -1260,7 +1258,7 @@ Func _Box2C_b2Body_ArrayAdd_GDIPlus($bodydef_index, $shape_index, $density, $res
 	; create a new Box2C Body for the index of the body definition supplied, and add it to the internal array of body structures
 	Local $body_struct_ptr_index = _ArrayAdd($__body_struct_ptr, _Box2C_b2World_CreateBody($__world_ptr, $__bodydef_struct_ptr[$bodydef_index]))
 	_Box2C_b2Body_SetAwake($__body_struct_ptr[$body_struct_ptr_index], True)
-;	_Box2C_b2Body_SetAngle($__body_struct_ptr[$body_struct_ptr_index], degrees_to_radians($__body_def[0][$origin_angle_degrees]))
+;	_Box2C_b2Body_SetAngle($__body_struct_ptr[$body_struct_ptr_index],  _Radian($__body_def[0][$origin_angle_degrees]))
 
 	; add other attributes, such as the initial positions, angles and body widths and heights to the internal arrays for bodies
 	_ArrayAdd($__body_prev_screen_x, -1)
@@ -1301,7 +1299,6 @@ EndFunc
 ;				   $density - the density of the new body
 ;				   $restitution - the $restitution of the new body
 ;				   $friction - the $friction of the new body
-;				   $vertice - the index of the shape containing the vertices for the new body
 ;				   $x - the horizontal position of the new body (overriding the position from the BodyDef)
 ;						use blank string to skip
 ;				   $y - the vertical position of the new body (overriding the position from the BodyDef)
@@ -1314,15 +1311,23 @@ EndFunc
 ;						2 = bounce the linear velocity of the body / sprite (like bouncing off a wall)
 ;						3 = stop the linear velocity of the body / sprite (like hitting a wall)
 ;						4 = hide the sprite (do not draw) and sleep the body (stops moving in Box2D)
+;				   $shape_x_pixel_offset - an offset for the sprite in relation to the Box2D body (in pixels), see remarks below
+;				   $shape_y_pixel_offset - an offset for the sprite in relation to the Box2D body (in pixels), see remarks below
 ; Return values .: The index of the body within the internal array of bodies.
 ; Author ........: Sean Griffin
 ; Modified.......:
-; Remarks .......:
+; Remarks .......: The SFML SetPosition functions will by default draw the top-left corner of the sprite at the location
+;				   you specify in those calls.  But Box2D will by default calculate a body with the centroid at this position
+;				   (not the top-left of the body, like SFML).  Therefore, when the location of a Box2D body is passed into
+;				   the SFML SetPosition functions, the sprite is drawn with it's top-left corner at the centre of the Box2D body.
+;				   Usually this is not the desired behaviour.
+;				   If you want to position the sprite properly over the centroid of the Box2D body then use the
+;				   $shape_x_pixel_offset and $shape_y_pixel_offset parameters above.
 ; Related .......:
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_AddItem_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $x = "", $y = "", $angle = "", $out_of_bounds_behaviour = 0)
+Func _Box2C_b2BodyArray_AddItem_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $x = "", $y = "", $angle = "", $out_of_bounds_behaviour = 0, $shape_x_pixel_offset = 0, $shape_y_pixel_offset = 0)
 
 	; create a new Box2C Body for the index of the body definition supplied, and add it to the internal array of body structures
 	Local $body_struct_ptr_index = _ArrayAdd($__body_struct_ptr, _Box2C_b2World_CreateBody($__world_ptr, $__bodydef_struct_ptr[$bodydef_index]))
@@ -1373,9 +1378,29 @@ Func _Box2C_b2BodyArray_AddItem_SFML($bodydef_index, $shape_index, $density, $re
 	_ArrayAdd($__sprite_ptr, Null)
 	$__sprite_ptr[$body_struct_ptr_index] = _CSFML_sfSprite_create()
 	_CSFML_sfSprite_setTexture($__sprite_ptr[$body_struct_ptr_index], $__shape_image[$shape_index], $CSFML_sfTrue)
-	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(($__body_width[$body_struct_ptr_index] / 2) * $__pixels_per_metre, ($__body_height[$body_struct_ptr_index] / 2) * $__pixels_per_metre))
+;	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor((($__body_width[$body_struct_ptr_index] / 2) * $__pixels_per_metre) + $shape_x_pixel_offset, (($__body_height[$body_struct_ptr_index] / 2) * $__pixels_per_metre) + $shape_y_pixel_offset))
+	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(-$shape_x_pixel_offset, -$shape_y_pixel_offset))
+	_ArrayAdd($__sprite_screen_x_offset, $shape_x_pixel_offset)
+	_ArrayAdd($__sprite_screen_y_offset, $shape_y_pixel_offset)
 
+	; Add the SFML convex shape
 
+	Local $tmp_shape_vertice_arr = $__shape_vertice[$shape_index]
+
+	_ArrayAdd($__convex_shape_ptr, Null)
+	$__convex_shape_ptr[$body_struct_ptr_index] = _CSFML_sfConvexShape_Create()
+	_CSFML_sfConvexShape_setPointCount($__convex_shape_ptr[$body_struct_ptr_index], UBound($tmp_shape_vertice_arr))
+
+;_ArrayDisplay($tmp_shape_vertice_arr)
+
+	for $i = 0 to (UBound($tmp_shape_vertice_arr) - 1)
+
+		_CSFML_sfConvexShape_setPoint($__convex_shape_ptr[$body_struct_ptr_index], $i, $tmp_shape_vertice_arr[$i][0] * 50, $tmp_shape_vertice_arr[$i][1] * 50)
+	Next
+
+;	_CSFML_sfConvexShape_setOrigin($__convex_shape_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(($__body_width[$body_struct_ptr_index] / 2) * $__pixels_per_metre, ($__body_height[$body_struct_ptr_index] / 2) * $__pixels_per_metre))
+	_CSFML_sfConvexShape_setOrigin($__convex_shape_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(0, 0))
+	_CSFML_sfConvexShape_setFillColor($__convex_shape_ptr[$body_struct_ptr_index], _CSFML_sfColor_Constructor(255, 255, 255, 128))
 
 
 
@@ -1729,6 +1754,40 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_RotateItemTowardAngle
+; Description ...: A convenience function that sets the angle (radians) of a body (b2Body) based on it's index within the internal body array
+; Syntax.........: _Box2C_b2BodyArray_RotateItemTowardAngle($body_index, $angle, $rate)
+; Parameters ....: $body_index - the index of the body
+;				   $angle - the angle to rotate the body towards (must be between 0 and 360)
+;				   $rate - the rate to rotate
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_RotateItemTowardAngle($body_index, $angle, $rate)
+
+	Local $body_angle = _Degree(_Box2C_b2BodyArray_GetItemAngle($body_index))
+
+	Local $diff_angle1 = $angle - $body_angle
+	Local $diff_angle2 = $angle - 360 - $body_angle
+	Local $diff_angle = $diff_angle2
+
+	if abs($diff_angle1) < Abs($diff_angle2) Then
+
+		$diff_angle = $diff_angle1
+	EndIf
+
+	Local $new_angle = $body_angle + (($diff_angle) * 0.08)
+	_Box2C_b2BodyArray_SetItemAngle($body_index, _Radian($new_angle))
+EndFunc
+
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2BodyArray_Transform_SFML
 ; Description ...: A convenience function for SFML that transforms all bodies (b2Body) in the internal array to SFML sprite positions and rotations
 ; Syntax.........: _Box2C_b2BodyArray_Transform_SFML()
@@ -1803,18 +1862,24 @@ Func _Box2C_b2BodyArray_Transform_SFML()
 			; converting the below to C might improve animations by a further 500 frames per seconds
 
 			$__body_curr_screen_x[$body_num] = $__gui_center_x + ($body_position[0] * $__pixels_per_metre)
+			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_position[0] = ' & $body_position[0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 ;				$__body_curr_screen_x[$body_num] = x_metres_to_gui_x($body_position[0], $tmp_gui_center_x)
 
 			$__body_curr_screen_y[$body_num] = $__gui_center_y - ($body_position[1] * $__pixels_per_metre)
+			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_position[1] = ' & $body_position[1] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 ;				$__body_curr_screen_y[$body_num] = y_metres_to_gui_y($body_position[1], $tmp_gui_center_y)
 
 			_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_num = ' & $body_num & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+			_CSFML_sfConvexShape_setPosition($__convex_shape_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+
 
 			; Update sprite rotation
 
 			Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
-			$__body_curr_angle_degrees[$body_num] = 0 - radians_to_degrees($body_angle)
+			$__body_curr_angle_degrees[$body_num] = _Degree($body_angle)
 			_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+			_CSFML_sfConvexShape_setRotation($__convex_shape_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
 		EndIf
 	WEnd
 
@@ -1835,7 +1900,7 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos)
+Func _Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos, $player_body_index)
 
 
 	; Transform the Box2D bodies and draw SFML sprites
@@ -1865,25 +1930,131 @@ Func _Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos)
 
 		; converting the below to C might improve animations by a further 500 frames per seconds
 
-		$__body_curr_screen_x[$body_num] = (8 + ($body_position[0] - $view_centre_pos[0])) * $__pixels_per_metre
-		$__body_curr_screen_y[$body_num] = (6 + ($body_position[1] - $view_centre_pos[1])) * $__pixels_per_metre
+		if $body_num = $player_body_index And $body_position[0] < 8 Then
 
-;$__GUI_Area[0]
-;ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $__GUI_Area[0] = ' & $__GUI_Area[0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+			$__body_curr_screen_x[$body_num] = $body_position[0] * $__pixels_per_metre
+		Else
 
+			if $body_num = $player_body_index And $body_position[0] > 150 Then
+
+				$__body_curr_screen_x[$body_num] = 400 + (($body_position[0] - 150) * $__pixels_per_metre)
+			Else
+
+				$__body_curr_screen_x[$body_num] = ($body_position[0] - ($view_centre_pos[0] - 8)) * $__pixels_per_metre
+			EndIf
+		EndIf
+
+
+		if $body_num = $player_body_index And $body_position[1] < -6 Then
+
+			$__body_curr_screen_y[$body_num] = ($body_position[1] + 12) * $__pixels_per_metre
+		Else
+
+			if $body_num = $player_body_index And $body_position[1] > 37 Then
+
+				$__body_curr_screen_y[$body_num] = 300 + (($body_position[1] - 37) * $__pixels_per_metre)
+			Else
+
+				$__body_curr_screen_y[$body_num] = ($body_position[1] - ($view_centre_pos[1] - 6)) * $__pixels_per_metre
+			EndIf
+		EndIf
+
+
+;		_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_num], _CSFML_sfVector2f_Constructor(0, 0))
 		_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+;		_CSFML_sfConvexShape_setOrigin($__convex_shape_ptr[$body_num], _CSFML_sfVector2f_Constructor(0, 0))
+		_CSFML_sfConvexShape_setPosition($__convex_shape_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
 
 		; Update sprite rotation
 
-;		Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
-;		$__body_curr_angle_degrees[$body_num] = 0 - radians_to_degrees($body_angle)
-;		_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+		Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
+		$__body_curr_angle_degrees[$body_num] = _Degree($body_angle)
+		_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+		_CSFML_sfConvexShape_setRotation($__convex_shape_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
 	WEnd
 
 EndFunc
 
 
 
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_GetDrawSpriteRange_SFML
+; Description ...: A convenience function for SFML that gets the range of sprites to draw
+; Syntax.........: _Box2C_b2BodyArray_GetDrawSpriteRange_SFML()
+; Parameters ....:
+; Return values .: a two dimensional array of the range
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_GetDrawSpriteRange_SFML()
+
+	Local $range[2] = [$__sprite_draw_lower_index, $__sprite_draw_upper_index]
+	return $range
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetDrawSpriteRange_SFML
+; Description ...: A convenience function for SFML that sets a range of sprites to draw
+; Syntax.........: _Box2C_b2BodyArray_SetDrawSpriteRange_SFML($lower_index, $upper_index)
+; Parameters ....: $lower_index
+;				   $upper_index
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetDrawSpriteRange_SFML($lower_index, $upper_index)
+
+	$__sprite_draw_lower_index = $lower_index
+	$__sprite_draw_upper_index = $upper_index
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_GetDrawConvexShapeRange_SFML
+; Description ...: A convenience function for SFML that gets the range of convex shapes to draw
+; Syntax.........: _Box2C_b2BodyArray_GetDrawConvexShapeRange_SFML()
+; Parameters ....:
+; Return values .: a two dimensional array of the range
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_GetDrawConvexShapeRange_SFML()
+
+	Local $range[2] = [$__convex_shape_draw_lower_index, $__convex_shape_draw_upper_index]
+	return $range
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML
+; Description ...: A convenience function for SFML that sets a range of convex shapes to draw
+; Syntax.........: _Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML($lower_index, $upper_index)
+; Parameters ....: $lower_index
+;				   $upper_index
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML($lower_index, $upper_index)
+
+	$__convex_shape_draw_lower_index = $lower_index
+	$__convex_shape_draw_upper_index = $upper_index
+EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
@@ -1921,7 +2092,15 @@ Func _Box2C_b2BodyArray_Draw_SFML($window_ptr, $info_text_ptr = -1, $info_text_s
 
 		if $__body_draw[$body_num] = True Then
 
-			_CSFML_sfRenderWindow_drawSprite($window_ptr, $__sprite_ptr[$body_num], Null)
+			if $body_num >= $__sprite_draw_lower_index and $body_num <= $__sprite_draw_upper_index Then
+
+				_CSFML_sfRenderWindow_drawSprite($window_ptr, $__sprite_ptr[$body_num], Null)
+			EndIf
+
+			if $body_num >= $__convex_shape_draw_lower_index and $body_num <= $__convex_shape_draw_upper_index Then
+
+				_CSFML_sfRenderWindow_drawConvexShape($window_ptr, $__convex_shape_ptr[$body_num], Null)
+			EndIf
 		EndIf
 	WEnd
 
@@ -1973,7 +2152,7 @@ Func _Box2C_b2Body_Transform_GDIPlus($body_index)
 
 ;	if $body_index = 0 Then
 
-;		ConsoleWrite(StringFormat("%4.2f", $body_position[0]) & " " & StringFormat("%4.2f", $body_position[1]) & " " & StringFormat("%4.2f", $body_angle) & " " & StringFormat("%4.2f", radians_to_degrees($body_angle)) & @CRLF)
+;		ConsoleWrite(StringFormat("%4.2f", $body_position[0]) & " " & StringFormat("%4.2f", $body_position[1]) & " " & StringFormat("%4.2f", $body_angle) & " " & StringFormat("%4.2f", _Degree($body_angle)) & @CRLF)
 ;	EndIf
 
 	Local $tmp_gui_center_x = _Box2C_b2World_GetGUIAreaCenter(0)
@@ -2008,7 +2187,7 @@ Func _Box2C_b2Body_Transform_GDIPlus($body_index)
 		$__body_prev_screen_y[$body_index] = $__body_curr_screen_y[$body_index]
 	EndIf
 
-	$__body_curr_angle_degrees[$body_index] = radians_to_degrees($body_angle)
+	$__body_curr_angle_degrees[$body_index] = _Degree($body_angle)
 
 	; if no previous angle then do the initial / first time rotation
 

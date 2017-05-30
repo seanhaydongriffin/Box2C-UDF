@@ -1050,7 +1050,42 @@ Func _Box2C_b2PolygonShape_ComputeCentroid($vertices)
 EndFunc
 
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2PolygonShape_MoveToZeroCentroid
+; Description ...: Computes the centroid of the shape and moves the vertices such that the centroid becomes 0,0.
+; Syntax.........: _Box2C_b2PolygonShape_MoveToZeroCentroid($vertices)
+; Parameters ....: $vertices
+;				   $format - a StringFormat string to make a vertices smaller.  Try "%4.2f".
+; Return values .: the centroid
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......: In the calling script you can apply the returned centroid to understand where the shap has moved to.
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2PolygonShape_MoveToZeroCentroid(ByRef $vertices, $format = "%4.2f", $first_vertex_x = 0, $first_vertex_y = 0)
 
+	; Compute the polygon centroid.
+
+	Local $centroid = _Box2C_b2PolygonShape_ComputeCentroid($vertices)
+
+	; Shift the shape, meaning it's center and therefore it's centroid, to the world position of 0,0, such that rotations and calculations are easier
+
+	for $vertice_num = 0 to (UBound($vertices) - 1)
+
+		$vertices[$vertice_num][0] = StringFormat($format, $vertices[$vertice_num][0] - $centroid[0])
+		$vertices[$vertice_num][1] = StringFormat($format, $vertices[$vertice_num][1] - $centroid[1])
+	Next
+
+	; If the first vertex in $vertices is 0,0 then we can add the $centroid position above to the $first_vertex_x and $first_vertex_y
+	;	to arrive at the real-world centroid position, which is then returned
+
+	$centroid[0] = $first_vertex_x - $vertices[0][0]
+	$centroid[1] = $first_vertex_y + $vertices[0][1]
+
+	Return $centroid
+EndFunc
 
 
 ; #B2BODYDEF FUNCTIONS# =====================================================================================================

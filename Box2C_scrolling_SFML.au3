@@ -1,10 +1,11 @@
 #include-once
+#include <Math.au3>
 ;#include <Array.au3>
 #include "Box2CEx.au3"
 
 Global $tmp_body_index, $tmp_shape_vertice, $tmp_shape_index
 Global $droid_body_index_arr[0], $droid_body_velocity_arr[0][2], $droid_body_old_velocity_arr[0][2]
-Global $droid_shape_margin = 0.26
+Global $droid_shape_margin = 0.2
 Global $droid_stand_shape_index, $droid_dead_shape_index
 Global $you_win_sprite_index
 
@@ -26,6 +27,10 @@ Global $player_velocity_metres = 0.2
 
 Global $map_texture_rectangle_left
 Global $map_texture_rectangle_top
+Local $info_text_string, $info_text_num = 1
+Global $edited_convex_shape_vertices[0][2], $edited_box2d_vertices[0][2], $edited_convex_shape_ptr, $edited_convex_shape_x, $edited_convex_shape_y, $edited_box2d_first_x, $edited_box2d_first_y
+Global $edited_previous_angle = -1, $edited_angle = -1
+Global $view_centre_pos
 
 ; Setup SFML
 
@@ -64,8 +69,9 @@ _Box2C_b2World_Setup(50, 800, 600, 0, 0)
 ;		4 - the body's initial angular position / rotation (in Box2D world coordinates) - use the degrees_to_radians function, as below, if convenient
 
 Global $background_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, 0, 0, 0)
-Global $ground_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, 0, -5.4, 0)
-Global $player_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, -4, 4, 0, 2)
+;Global $ground_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, 0, 0, 0)
+Global $ground_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, 0, 0, 0)
+Global $player_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, -4, 4, 0, 2, 2)
 Global $player_arrow_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_kinematicBody, -4, 4, 0)
 Global $plank_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, 4, 4, 0)
 Global $enemy_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, 4, 4, 0, 1)
@@ -77,6 +83,9 @@ Local $level_num = 1
 Local $level_complete = False
 restart_level($level_num)
 
+_Box2C_b2BodyArray_SetDrawSpriteRange_SFML(0, 99999)
+_Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML(-1, -1)
+
 Global $current_density = StringFormat("%4.2f", _Box2C_b2FixtureArray_GetItemDensity($player_body_index))
 Global $current_restitution = StringFormat("%4.2f", _Box2C_b2FixtureArray_GetItemRestitution($player_body_index))
 Global $current_friction = StringFormat("%4.2f", _Box2C_b2FixtureArray_GetItemFriction($player_body_index))
@@ -86,13 +95,30 @@ Local $video_mode = _CSFML_sfVideoMode_Constructor(800, 600, 16)
 Global $window_ptr = _CSFML_sfRenderWindow_create($video_mode, "Box2D Angry Nerds Game using the SFML Engine", $CSFML_sfWindowStyle_sfResize + $CSFML_sfWindowStyle_sfClose, Null)
 Global $window_hwnd = _CSFML_sfRenderWindow_getSystemHandle($window_ptr)
 _CSFML_sfRenderWindow_setVerticalSyncEnabled($window_ptr, False)
-Local $info_text_ptr = _CSFML_sfText_create_and_set($__courier_new_font_ptr, 14, $__black, 10, 10)
+Local $info_text_ptr = _CSFML_sfText_create_and_set($__courier_new_font_ptr, 14, $__white, 10, 10)
 
 ; Setup the Box2D animation, including the clocks (timers) and animation rate
 Global $num_frames = 0
 Global $fps = 0
 Local $fps_timer = _Timer_SetTimer($window_hwnd, 1000, "update_fps")
 Local $frame_timer = _Timer_Init()
+
+;Local $vertex1 = _CSFML_sfVertex_Constructor(0, 0, 255, 255, 255, 255, 0, 0)
+;Local $vertex1 = _CSFML_sfVertex_Constructor(0, 0, 255, 255, 255, 255, 0, 0)
+
+
+;Local $vertex_array = _CSFML_sfVertexArray_Create()
+;_CSFML_sfVertexArray_Append($vertex_array, $vertex1)
+
+;Local $convex_shape = _CSFML_sfConvexShape_Create()
+;_CSFML_sfConvexShape_setPointCount($convex_shape, 4)
+;_CSFML_sfConvexShape_setPoint($convex_shape, 1, 0, 0)
+;_CSFML_sfConvexShape_setPoint($convex_shape, 2, 50, 0)
+;_CSFML_sfConvexShape_setPoint($convex_shape, 3, 50, 50)
+;_CSFML_sfConvexShape_setPoint($convex_shape, 4, 0, 50)
+;_CSFML_sfConvexShape_setPosition($convex_shape, 50, 50)
+
+
 
 
 ; The animation frame loop
@@ -131,6 +157,8 @@ While true
 
 				$player_velocity[1] = $player_velocity[1] * 0.99
 			EndIf
+
+			_Box2C_b2BodyArray_RotateItemTowardAngle($player_body_index, 270, 0.1)
 		EndIf
 
 		; If the "S" key is pressed
@@ -144,6 +172,7 @@ While true
 				$player_velocity[1] = $player_velocity[1] * 0.99
 			EndIf
 
+			_Box2C_b2BodyArray_RotateItemTowardAngle($player_body_index, 90, 0.1)
 		EndIf
 
 		; If the "A" key is pressed
@@ -157,6 +186,8 @@ While true
 				$player_velocity[0] = $player_velocity[0] * 0.99
 			EndIf
 
+			_Box2C_b2BodyArray_RotateItemTowardAngle($player_body_index, 180, 0.1)
+
 		EndIf
 
 		; If the "D" key is pressed
@@ -169,6 +200,61 @@ While true
 
 				$player_velocity[0] = $player_velocity[0] * 0.99
 			EndIf
+
+			_Box2C_b2BodyArray_RotateItemTowardAngle($player_body_index, 0, 0.1)
+		EndIf
+
+		; If the "O" key is pressed
+		if _CSFML_sfKeyboard_isKeyPressed(14) = True Then
+
+			_Box2C_b2BodyArray_SetDrawSpriteRange_SFML(0, 0)
+		EndIf
+
+		; If the "P" key is pressed
+		if _CSFML_sfKeyboard_isKeyPressed(15) = True Then
+
+			_Box2C_b2BodyArray_SetDrawSpriteRange_SFML(0, 99999)
+		EndIf
+
+		; If the "K" key is pressed
+		if _CSFML_sfKeyboard_isKeyPressed(10) = True Then
+
+			_Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML(-1, -1)
+		EndIf
+
+		; If the "L" key is pressed
+		if _CSFML_sfKeyboard_isKeyPressed(11) = True Then
+
+			_Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML(1, 99999)
+		EndIf
+
+		; If the "N" key is pressed
+		if _CSFML_sfKeyboard_isKeyPressed(13) = True Then
+
+			; Game mode
+			$info_text_num = 1
+		EndIf
+
+		; If the "M" key is pressed
+		if _CSFML_sfKeyboard_isKeyPressed(12) = True Then
+
+			; Box2D body edit mode
+			$info_text_num = 2
+		EndIf
+
+		; If the "C" key is pressed
+		if _CSFML_sfKeyboard_isKeyPressed(2) = True Then
+
+			; Move the vertices such that the centroid becomes 0,0
+			Local $centroid = _Box2C_b2PolygonShape_MoveToZeroCentroid($edited_box2d_vertices, "%4.2f", $edited_box2d_first_x, $edited_box2d_first_y)
+
+			; Note below that I need to add a small vertical offset of 0.7 metres to the body to ensure it's pixel location is correct in the window
+			;	Unsure why at this stage
+
+;			$clipboard_str = $centroid[0] & "," & ($centroid[1] + 0.7) & " " & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|")
+			$clipboard_str = $centroid[0] & "," & ($centroid[1]) & " " & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|")
+			ClipPut($clipboard_str)
+
 		EndIf
 
 		_Box2C_b2BodyArray_SetItemLinearVelocity($player_body_index, $player_velocity)
@@ -201,56 +287,222 @@ While true
 ;					Local $key_code = DllStructGetData($__event, 2)
 ;					ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $key_code = ' & $key_code & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
+				; if a mouse button is pressed
+
+				Case $CSFML_sfEvtMouseButtonPressed
+
+					; if we are in Box2D body edit mode
+
+					if $info_text_num = 2 Then
+
+						Local $mouse_data = _CSFML_sfMouseButtonEvent_GetData($__event_ptr)
+						Local $mouse_x = $mouse_data[2]
+						Local $mouse_y = $mouse_data[3]
+
+						if UBound($edited_convex_shape_vertices) < 1 Then
+
+							$edited_convex_shape_ptr = _CSFML_sfConvexShape_Create()
+							$edited_convex_shape_x = $mouse_x
+							$edited_convex_shape_y = $mouse_y
+							$edited_box2d_first_x = $mouse_x / 50
+							$edited_box2d_first_y = ($mouse_y / 50) - 12
+
+						EndIf
+
+				;		Local $angle = -1
+
+						if UBound($edited_box2d_vertices) = 1 Then
+
+							$edited_previous_angle = _Box2C_b2Vec2_GetAngleBetweenTwoVectors(($mouse_x - $edited_convex_shape_x) / 50, ($mouse_y - $edited_convex_shape_y) / 50, $edited_box2d_vertices[UBound($edited_box2d_vertices) - 1][0], $edited_box2d_vertices[UBound($edited_box2d_vertices) - 1][1])
+							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $edited_previous_angle = ' & $edited_previous_angle & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+							$edited_angle = $edited_previous_angle
+						EndIf
+
+						if UBound($edited_box2d_vertices) > 1 Then
+
+							$edited_angle = _Box2C_b2Vec2_GetAngleBetweenTwoVectors(($mouse_x - $edited_convex_shape_x) / 50, ($mouse_y - $edited_convex_shape_y) / 50, $edited_box2d_vertices[UBound($edited_box2d_vertices) - 1][0], $edited_box2d_vertices[UBound($edited_box2d_vertices) - 1][1])
+							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $edited_angle = ' & $edited_angle & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $edited_previous_angle = ' & $edited_previous_angle & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+							$deg = _Degree($edited_angle)
+							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $deg = ' & $deg & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+						EndIf
+
+
+						if $edited_angle >= $edited_previous_angle Then
+
+
+							_ArrayAdd($edited_convex_shape_vertices, ($mouse_x - $edited_convex_shape_x) & "|" & ($mouse_y - $edited_convex_shape_y))
+							_ArrayAdd($edited_box2d_vertices, (($mouse_x - $edited_convex_shape_x) / 50) & "|" & (($mouse_y - $edited_convex_shape_y) / 50))
+
+							_CSFML_sfConvexShape_setPointCount($edited_convex_shape_ptr, UBound($edited_convex_shape_vertices))
+
+							for $i = 0 to (UBound($edited_convex_shape_vertices) - 1)
+
+								_CSFML_sfConvexShape_setPoint($edited_convex_shape_ptr, $i, $edited_convex_shape_vertices[$i][0], $edited_convex_shape_vertices[$i][1])
+							Next
+
+							_CSFML_sfConvexShape_setOrigin($edited_convex_shape_ptr, _CSFML_sfVector2f_Constructor(0, 0))
+							_CSFML_sfConvexShape_setFillColor($edited_convex_shape_ptr, _CSFML_sfColor_Constructor(255, 255, 255, 128))
+							_CSFML_sfConvexShape_setPosition($edited_convex_shape_ptr, $edited_convex_shape_x, $edited_convex_shape_y)
+
+							$edited_previous_angle = $edited_angle
+
+						EndIf
+
+
+
+					EndIf
+
+					;if DllStructGetData($__event, 1)
+
 			EndSwitch
 		WEnd
 
-		Local $info_text_string = 	"Keys" & @LF & _
-									"----" & @LF & _
-									"Press ""A"" or ""D"" to change the throwing angle" & @LF & _
-									"Press and hold ""Enter"" to increase the throwing power" & @LF & _
-									"Release ""Enter"" to throw the ball" & @LF & _
-									"Press ""R"" to Restart the level" & @LF & _
-									"Press ""N"" for the Next level" & @LF & _
-									"Press ""P"" for the Previous level" & @LF & _
-									"Press ""1"" or ""2"" to change the current body density (see below)" & @LF & _
-									"Press ""3"" or ""4"" to change the current body restitution (see below)" & @LF & _
-									"Press ""5"" or ""6"" to change the current body friction (see below)" & @LF & _
-									"" & @LF & _
-									"Stats" & @LF & _
-									"-----" & @LF & _
-									"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
-									"Current body density = " & $current_density & @LF & _
-									"Current body restitution = " & $current_restitution & @LF & _
-									"Current body friction = " & $current_friction & @LF & _
-									"FPS = " & $fps
+		Switch $info_text_num
 
+			Case 1
+
+				$info_text_string = 	"Keys" & @LF & _
+										"----" & @LF & _
+										"Press ""O"" or ""P"" to toggle sprite draw" & @LF & _
+										"Press ""K"" or ""L"" to toggle polygon draw" & @LF & _
+										"Press ""M"" to edit Box2D bodies" & @LF & _
+										"" & @LF & _
+										"Stats" & @LF & _
+										"-----" & @LF & _
+										"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
+										"Current body density = " & $current_density & @LF & _
+										"Current body restitution = " & $current_restitution & @LF & _
+										"Current body friction = " & $current_friction & @LF & _
+										"FPS = " & $fps
+
+			Case 2
+
+				$info_text_string = 	"Keys" & @LF & _
+										"----" & @LF & _
+										"Press ""N"" to stop editing Box2D bodies" & @LF & _
+										"" & @LF & _
+										"Stats" & @LF & _
+										"-----" & @LF & _
+										"Current convex shape vertices = " & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|") & @LF & _
+										"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
+										"Current body density = " & $current_density & @LF & _
+										"Current body restitution = " & $current_restitution & @LF & _
+										"Current body friction = " & $current_friction & @LF & _
+										"FPS = " & $fps
+		EndSwitch
 
 		; set the texture rectangle of the background (the viewing area) to surround the player always (the effect of scrolling)
 		Local $player_pos = _Box2C_b2BodyArray_GetItemPosition($player_body_index)
-		$map_texture_rectangle_left = ($player_pos[0] * 50) - ($gui_width_pixels / 2)
-		$map_texture_rectangle_top = ($player_pos[1] * 50) + ($gui_height_pixels / 2)
+
+		$view_centre_pos = $player_pos
+
+
+		if $player_pos[0] < 0 Then
+
+			$player_velocity[0] = 0
+			_Box2C_b2BodyArray_SetItemLinearVelocity($player_body_index, $player_velocity)
+			$player_pos[0] = 0
+			_Box2C_b2BodyArray_SetItemPosition($player_body_index, $player_pos[0], $player_pos[1])
+		Else
+
+			if $player_pos[0] < 8 Then
+
+				$view_centre_pos[0] = 8
+				$map_texture_rectangle_left = 0
+			Else
+
+				if $player_pos[0] > 158 Then
+
+					$player_velocity[0] = 0
+					_Box2C_b2BodyArray_SetItemLinearVelocity($player_body_index, $player_velocity)
+					$player_pos[0] = 158
+					_Box2C_b2BodyArray_SetItemPosition($player_body_index, $player_pos[0], $player_pos[1])
+				Else
+
+					if $player_pos[0] > 150 Then
+
+						$view_centre_pos[0] = 150
+						$map_texture_rectangle_left = (150 - 8) * 50
+					Else
+
+						$map_texture_rectangle_left = ($player_pos[0] * 50) - ($gui_width_pixels / 2)
+					EndIf
+				EndIf
+			EndIf
+		EndIf
+
+
+
+		if $player_pos[1] < -12 Then
+
+			$player_velocity[1] = 0
+			_Box2C_b2BodyArray_SetItemLinearVelocity($player_body_index, $player_velocity)
+			$player_pos[1] = -12
+			_Box2C_b2BodyArray_SetItemPosition($player_body_index, $player_pos[0], $player_pos[1])
+		Else
+
+			if $player_pos[1] < -6 Then
+
+				$view_centre_pos[1] = -6
+				$map_texture_rectangle_top = 0
+			Else
+
+				if $player_pos[1] > 43 Then
+
+					$player_velocity[1] = 0
+					_Box2C_b2BodyArray_SetItemLinearVelocity($player_body_index, $player_velocity)
+					$player_pos[1] = 43
+					_Box2C_b2BodyArray_SetItemPosition($player_body_index, $player_pos[0], $player_pos[1])
+				Else
+
+					if $player_pos[1] > 37 Then
+
+						$view_centre_pos[1] = 37
+						$map_texture_rectangle_top = (37 + 6) * 50
+					Else
+
+						$map_texture_rectangle_top = ($player_pos[1] * 50) + ($gui_height_pixels / 2)
+					EndIf
+				EndIf
+			EndIf
+		EndIf
+
+;		ConsoleWrite($view_centre_pos[0] & "," & $view_centre_pos[1] & @CRLF)
 
 		; the background body / sprite is unique.  it is the only one that must always draw relative / fixed to the player's position, as below
 		_CSFML_sfSprite_setTextureRect($__sprite_ptr[0], $map_texture_rectangle_left, $map_texture_rectangle_top, $map_texture_rectangle_left + $gui_width_pixels, $map_texture_rectangle_top + $gui_height_pixels)
 		_CSFML_sfSprite_setPosition_xy($__sprite_ptr[0], ($gui_width_pixels / 2), ($gui_height_pixels / 2))
 
 		; Transform all other Box2D bodies (apart from the background) to SFML sprites
-		_Box2C_b2BodyArray_ScrollerTransform_SFML($player_pos)
+		_Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos, $player_body_index)
 
 		; Draw all Box2D bodies / SFML sprites in the array
 
 		_Box2C_b2BodyArray_Draw_SFML($window_ptr, $info_text_ptr, $info_text_string, 2)
 
-		; Draw (animate) all regular SFML sprites (and sprite sheets), which are outside of Box2D physics
 
-;_CSFML_sfSprite_CreateWithTexture($sprite_file_path)
 
-;		_CSFML_sfSpriteArray_Animate()
+		if $info_text_num = 2 and UBound($edited_convex_shape_vertices) > 2 Then
+
+			_CSFML_sfRenderWindow_drawConvexShape($window_ptr, $edited_convex_shape_ptr, Null)
+		EndIf
+
+
 
 		; Render all the sprites to the Render Window
 
 		_CSFML_sfRenderWindow_display($window_ptr)
 
+;		Local $tPoint2 = _WinAPI_GetMousePos(True, $window_hwnd)
+;		$mouse_x = DllStructGetData($tPoint2, "X")
+;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $mouse_x = ' & $mouse_x & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;		$mouse_y = DllStructGetData($tPoint2, "Y")
+;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $mouse_y = ' & $mouse_y & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+;$window_hwnd
+
+;		_CSFML_sfMouse_getPosition($window_ptr)
 
 		$num_frames = $num_frames + 1
 	EndIf
@@ -428,43 +680,38 @@ Func restart_level($level_num)
 	;		#3 - the path and name of the file of the texture / image of the shape
 
 
-			; Add the background and ensure it is inactive from physics operations
-			$tmp_body_index = _Box2C_b2BodyArray_AddItem_SFML($background_bodydef_index, _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|16,0|16,12|0,12"), @ScriptDir & "\melden_city_map2.png"), 0, 0, 1, "", "", "", 0)
-			_Box2C_b2BodyArray_SetItemActive($tmp_body_index, False)
+	; Add the background and ensure it is inactive from physics operations
+	$tmp_body_index = _Box2C_b2BodyArray_AddItem_SFML($background_bodydef_index, _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-8,-6|8,-6|8,6|-8,6"), @ScriptDir & "\melden_city_map2.png"), 0, 0, 1, "", "", "", 0, -400, -300)
+	_Box2C_b2BodyArray_SetItemActive($tmp_body_index, False)
 
 ;			_CSFML_sfSprite_setTextureRect($__sprite_ptr[0], 1, 1, 800, 600)
 
 
 
-#cs
-			; Add the invisible ground body to ensure bodies rest on the ground
-			_Box2C_b2BodyArray_AddItem_SFML($ground_bodydef_index, _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|16,0|16,2|0,2"), @ScriptDir & "\angry_nerds_ground.png"), 0, 0, 1, "", "", "", 0)
+	; IMPORTANT! -	Always ensure the vertices in the shapes (below) have a centroid of 0,0.
+	;				Use the last two parameters of _Box2C_b2BodyArray_AddItem_SFML to position the sprite correctly over the Box2D body.
+
+	$player_x_metres = 0 + ($gui_width_metres / 2)
+	$player_y_metres = 0 - ($gui_height_metres / 2)
+	Local $earth_ball_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-0.25,-0.175|0.25,-0.175|0.25,0.175|-0.25,0.175"), @ScriptDir & "\shooter_player_stand.png")
+	$player_body_index = _Box2C_b2BodyArray_AddItem_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 1, 1, $player_x_metres, $player_y_metres, _Radian(0), 0, -15, -10)
+	_Box2C_b2BodyArray_SetItemAwake($player_body_index, False)
+
+;3.15,0.99 -3.07,2.39|-3.07,-2.71|-2.61,-2.73|-2.27,-2.15|-2.35,-1.13|-1.89,-0.49|-0.53,-0.49|0.13,-1.23|0.17,-2.01|0.51,-2.45|0.47,-3.27|2.47,-3.27|2.51,-2.47|2.87,-2.17|2.87,0.59|0.83,2.65|-2.03,2.61|-2.31,2.27
+;4.71,-4.06 -1.41,0.90|-1.45,0.06|-1.11,-0.20|-1.13,-1.56|-0.65,-1.56|-0.55,-1.30|0.93,-1.28|0.97,-0.40|1.29,-0.14|1.29,0.56|1.61,0.90|1.21,1.40
+
+
+	Global $tmp_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-1.27,-1.16|-0.83,-2.74|0.81,-2.48|1.17,-1.48|1.27,1.82|-0.81,3.18"), @ScriptDir & "\empty.png")
+	_ArrayAdd($droid_body_index_arr, _Box2C_b2BodyArray_AddItem_SFML($ground_bodydef_index, $tmp_shape_index, 1, 0.2, 0.01, 4.63,-5.2, _Radian(0), 0, 0, 0))
+
+
+;	Global $droid_stand_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|0.6,0|0.6,1|0,1"), @ScriptDir & "\droid_stand.png")
+	Global $droid_stand_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-0.3,-0.5|0.3,-0.5|0.3,0.5|-0.3,0.5"), @ScriptDir & "\droid_stand.png")
+	_ArrayAdd($droid_body_index_arr, _Box2C_b2BodyArray_AddItem_SFML($enemy_bodydef_index, $droid_stand_shape_index, 1, 0.2, 0.01, 10, -4, _Radian(0), 0, -15, -26))
 
 
 
-	Local $cross1_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|2,0|2,0.6|0,0.6"), @ScriptDir & "\angry_nerds_crossed_plank1.png")
-
-	Local $box_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|1,0|1,1|0,1"), @ScriptDir & "\angry_nerds_box.png")
-	Local $triangle_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|1,0|0.5,1"), @ScriptDir & "\angry_nerds_triangle.png")
-	Local $triangle2_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|1,0|0,1"), @ScriptDir & "\angry_nerds_triangle2.png")
-	Local $circle_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_circle, (1 / 2), @ScriptDir & "\angry_nerds_circle.png")
-	Local $thick1_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|0.5,0|0.5,0.5|0,0.5"), @ScriptDir & "\angry_nerds_thick_plank1.png")
-	Local $thick2_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|1,0|1,0.5|0,0.5"), @ScriptDir & "\angry_nerds_thick_plank2.png")
-	Local $thin1_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|0.25,0|0.25,0.25|0,0.25"), @ScriptDir & "\angry_nerds_thin_plank1.png")
-	Local $thin2_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|0.5,0|0.5,0.25|0,0.25"), @ScriptDir & "\angry_nerds_thin_plank2.png")
-	Local $thin3_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|1,0|1,0.25|0,0.25"), @ScriptDir & "\angry_nerds_thin_plank3.png")
-	Local $thin4_plank_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|2,0|2,0.25|0,0.25"), @ScriptDir & "\angry_nerds_thin_plank4.png")
-#ce
-
-	Local $earth_ball_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_circle, (0.5 / 2), @ScriptDir & "\earth_ball.png")
-#cs
-	Local $black_arrow_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|0.5,0|0.5,0.12|0,0.12"), @ScriptDir & "\arrow_black.png")
-	Local $red_arrow_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|0.5,0|0.5,0.12|0,0.12"), @ScriptDir & "\arrow_red.png")
-#ce
-
-	Global $droid_stand_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d(0 + $droid_shape_margin & "," & 0 + $droid_shape_margin & "|0.84," & 0 + $droid_shape_margin & "|0.84,1.2|" & 0 + $droid_shape_margin & ",1.2"), @ScriptDir & "\droid_stand.png")
-#cs
-	Global $droid_dead_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d(0 + $droid_shape_margin & "," & 0 + $droid_shape_margin & "|0.84," & 0 + $droid_shape_margin & "|0.84,1.2|" & 0 + $droid_shape_margin & ",1.2"), @ScriptDir & "\droid_dead.png")
+;	Global $droid_dead_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d(0 + $droid_shape_margin & "," & 0 + $droid_shape_margin & "|0.84," & 0 + $droid_shape_margin & "|0.84,1.2|" & 0 + $droid_shape_margin & ",1.2"), @ScriptDir & "\droid_dead.png")
 
 	; (Re)create the Box2D Bodies and SFML Sprites
 	;
@@ -481,46 +728,10 @@ Func restart_level($level_num)
 	;				3 = stop the linear velocity of the body / sprite (like hitting a wall)
 
 	; Recreate the level-specific bodies
-#ce
-
-			$player_x_metres = 0 + ($gui_width_metres / 2)
-			$player_y_metres = 0 - ($gui_height_metres / 2)
-
-			$player_body_index = _Box2C_b2BodyArray_AddItem_SFML($player_bodydef_index, $earth_ball_shape_index, 1, 0.2, 1, $player_x_metres, $player_y_metres, degrees_to_radians(0), 0)
-			_Box2C_b2BodyArray_SetItemAwake($player_body_index, False)
-
-			_ArrayAdd($droid_body_index_arr, _Box2C_b2BodyArray_AddItem_SFML($enemy_bodydef_index, $droid_stand_shape_index, 1, 0.2, 0.01, 10, -4, degrees_to_radians(0), 0))
-
-#cs
-
-			$player_arrow2_body_index = _Box2C_b2BodyArray_AddItem_SFML($player_arrow_bodydef_index, $red_arrow_shape_index, 1, 0.2, 1, -6, -0.25, degrees_to_radians(0), 0)
-			_Box2C_b2BodyArray_SetItemDraw($player_arrow2_body_index, False)
-			$player_arrow_body_index = _Box2C_b2BodyArray_AddItem_SFML($player_arrow_bodydef_index, $black_arrow_shape_index, 1, 0.2, 1, -6, -0.25, degrees_to_radians(0), 0)
-
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $cross1_plank_shape_index, 1, 0.2, 1, 1, -4.075, degrees_to_radians(0), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $cross1_plank_shape_index, 1, 0.2, 1, 3, -4.075, degrees_to_radians(0), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin2_plank_shape_index, 1, 0.2, 1, 0.2, -3.54, degrees_to_radians(90), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin2_plank_shape_index, 1, 0.2, 1, 3.8, -3.54, degrees_to_radians(90), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 2, -3.65, degrees_to_radians(0), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 1.6, -3, degrees_to_radians(90), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 2.4, -3, degrees_to_radians(90), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 2, -2.36, degrees_to_radians(0), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 1.1, -2.78, degrees_to_radians(90), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 2.9, -2.78, degrees_to_radians(90), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 2, -1.62, degrees_to_radians(0), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin2_plank_shape_index, 1, 0.2, 1, 2, -1.36, degrees_to_radians(0), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 1.5, -0.5, degrees_to_radians(90), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin4_plank_shape_index, 1, 0.2, 1, 2.5, -0.5, degrees_to_radians(90), 2)
-
-			_ArrayAdd($droid_body_index_arr, _Box2C_b2BodyArray_AddItem_SFML($enemy_bodydef_index, $droid_stand_shape_index, 1, 0.2, 0.01, 2, -0.73, degrees_to_radians(0), 2))
-;			_Box2C_b2ShapeArray_SetItem_SFML($droid_stand_shape_index, $Box2C_e_edge, $droid_stand_shape_vertice, @ScriptDir & "\droid_stand.png")
-			_ArrayAdd($droid_body_velocity_arr, "0|0")
-			_ArrayAdd($droid_body_old_velocity_arr, "|")
 
 
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin3_plank_shape_index, 1, 0.2, 1, 2, 0.65, degrees_to_radians(0), 2)
-			_Box2C_b2BodyArray_AddItem_SFML($plank_bodydef_index, $thin2_plank_shape_index, 1, 0.2, 1, 2, 1, degrees_to_radians(90), 2)
-#ce
+
+
 
 
 	$num_throws_left = 1

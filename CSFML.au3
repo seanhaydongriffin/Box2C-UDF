@@ -1,4 +1,6 @@
 #include <Array.au3>
+#include <WinAPIDiag.au3>
+#include "Binary.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: CSFML
@@ -223,7 +225,9 @@ Func  _CSFML_sfClock_restart($clock)
 	Return $sfTime[0]
 EndFunc
 
+
 ; #SFVECTOR2F FUNCTIONS# =====================================================================================================
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _CSFML_sfVector2f_Constructor
@@ -315,6 +319,296 @@ Func _CSFML_sfVector2f_Move($vector, $x, $y)
 EndFunc
 
 
+; #SFVERTEX FUNCTIONS# =====================================================================================================
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfVertex_Constructor
+; Description ...: Constructs a sfVertex structure.
+; Syntax.........: _CSFML_sfVertex_Constructor($position_x, $position_y, $color, $texCoords_x, $texCoords_y)
+; Parameters ....: $position_x - horizontal component (pixel position) of the vertex
+;				   $position_y - vertical component (pixel position) of the vertex
+;				   $r - the red component (value) of the color
+;				   $g - the green component (value) of the color
+;				   $b - the blue component (value) of the color
+;				   $a - the alpha channel component (value) of the color
+;				   $texCoords_x
+;				   $texCoords_y
+; Return values .: Success - the sfVector2f structure (STRUCT).
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfVertex_Constructor($position_x, $position_y, $r, $g, $b, $a, $texCoords_x, $texCoords_y)
+
+	local $sfVertex = DllStructCreate("STRUCT;float;float;byte;byte;byte;byte;float;float;ENDSTRUCT")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($sfVertex, 1, $position_x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($sfVertex, 2, $position_y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($sfVertex, 3, $r)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($sfVertex, 4, $g)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($sfVertex, 5, $b)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($sfVertex, 6, $a)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($sfVertex, 7, $texCoords_x)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	DllStructSetData($sfVertex, 8, $texCoords_y)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return $sfVertex
+EndFunc
+
+
+; #SFVERTEXARRAY FUNCTIONS# =====================================================================================================
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfVertexArray_Create
+; Description ...: Creates a new vertex array (sfVertexArray).
+; Syntax.........: _CSFML_sfVertexArray_Create()
+; Parameters ....:
+; Return values .: Success - the vertex array
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfVertexArray_Create()
+
+	Local $sfVertexArray = DllCall($__CSFML_Graphics_DLL, "PTR:cdecl", "sfVertexArray_create")
+	If @error > 0 Then Return SetError(@error,0,0)
+		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : @error = ' & @error & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+	return $sfVertexArray[0]
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfVertexArray_Append
+; Description ...: Add a vertex (sfVertex) to a vertex array (sfVertexArray).
+; Syntax.........: _CSFML_sfVertexArray_Append($vertexArray, $vertex)
+; Parameters ....:
+; Return values .: Success - the vertex array
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfVertexArray_Append($vertexArray, $vertex)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfVertexArray_append", "PTR", $vertexArray, "STRUCT", $vertex)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	return True
+EndFunc
+
+
+; #SFCONVEXSHAPRE FUNCTIONS# =====================================================================================================
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfConvexShape_Create
+; Description ...: Create a new convex shape (sfConvexShape).
+; Syntax.........: _CSFML_sfConvexShape_Create()
+; Parameters ....:
+; Return values .: Success - the sfConvexShape object
+;				   Failure - Null
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfConvexShape_Create()
+
+	Local $sfConvexShape = DllCall($__CSFML_Graphics_DLL, "PTR:cdecl", "sfConvexShape_create")
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	return $sfConvexShape[0]
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfConvexShape_setPointCount
+; Description ...: Set the number of points of a convex shape. count must be greater than 2 to define a valid shape.
+; Syntax.........: _CSFML_sfConvexShape_setPointCount($shape, $count)
+; Parameters ....: $shape - Shape object
+;				   $count - New number of points of the shape
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfConvexShape_setPointCount($shape, $count)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfConvexShape_setPointCount", "PTR", $shape, "INT", $count)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfConvexShape_setPoint
+; Description ...: Set the position of a point in a convex shape.
+;					Don't forget that the polygon must remain convex, and the points need to stay ordered!
+;					setPointCount must be called first in order to set the total number of points.
+;					The result is undefined if index is out of the valid range.
+; Syntax.........: _CSFML_sfConvexShape_setPoint($shape, $index, $point_x, $point_y)
+; Parameters ....: $shape - Shape object
+;				   $index - Index of the point to change, in range [0 .. GetPointCount() - 1]
+;				   $point - New point
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfConvexShape_setPoint($shape, $index, $point_x, $point_y)
+
+	Local $point = _CSFML_sfVector2f_Constructor($point_x, $point_y)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfConvexShape_setPoint", "PTR", $shape, "INT", $index, "STRUCT", $point)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfConvexShape_setPosition
+; Description ...: Set the position of a convex shape.
+;					This function completely overwrites the previous position.
+;					See sfConvexShape_move to apply an offset based on the previous position instead.
+;					The default position of a circle Shape object is (0, 0).
+; Syntax.........: _CSFML_sfConvexShape_setPosition($shape, $position_x, $position_y)
+; Parameters ....: $shape - Shape object
+;				   $index - Index of the point to change, in range [0 .. GetPointCount() - 1]
+;				   $point - New point
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfConvexShape_setPosition($shape, $position_x, $position_y)
+
+	Local $position = _CSFML_sfVector2f_Constructor($position_x, $position_y)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfConvexShape_setPosition", "PTR", $shape, "STRUCT", $position)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfConvexShape_setRotation
+; Description ...: Set the orientation of a convex shape.
+;					This function completely overwrites the previous rotation.
+;					See sfConvexShape_rotate to add an angle based on the previous rotation instead.
+;					The default rotation of a circle Shape object is 0.
+; Syntax.........: _CSFML_sfConvexShape_setRotation($shape, $angle)
+; Parameters ....: $shape - Shape object
+;				   $angle - New rotation, in degrees
+; Return values .: Success - True
+;				   Failure - False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfConvexShape_setRotation($shape, $angle)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfConvexShape_setRotation", "PTR", $shape, "FLOAT", $angle)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfConvexShape_setOrigin
+; Description ...: Set the local origin of a convex shape.
+;					The origin of an object defines the center point for all transformations (position, scale, rotation).
+;					The coordinates of this point must be relative to the top-left corner of the object, and ignore all
+;					transformations (position, scale, rotation). The default origin of a circle Shape object is (0, 0).
+; Syntax.........: _CSFML_sfConvexShape_setOrigin($shape, $origin)
+; Parameters ....: $shape - Shape object
+;				   $origin - New origin (sfVector2f)
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfConvexShape_setOrigin($shape, $origin)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfConvexShape_setOrigin", "PTR", $shape, "STRUCT", $origin)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfConvexShape_setFillColor
+; Description ...: Set the fill color of a convex shape.
+;					This color is modulated (multiplied) with the shape's texture if any. It can be used to colorize the shape,
+;					or change its global opacity. You can use sfTransparent to make the inside of the shape transparent,
+;					and have the outline alone. By default, the shape's fill color is opaque white.
+; Syntax.........: _CSFML_sfConvexShape_setFillColor($shape, $origin)
+; Parameters ....: $shape - Shape object
+;				   $origin - New origin (sfVector2f)
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfConvexShape_setFillColor($shape, $color)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfConvexShape_setFillColor", "PTR", $shape, "STRUCT", $color)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
 ; #SFCOLOR FUNCTIONS# =====================================================================================================
 
 
@@ -396,7 +690,6 @@ EndFunc
 Func  _CSFML_sfColor_fromInteger($color)
 
 	Local $sfColor = DllCall($__CSFML_Graphics_DLL, "STRUCT:cdecl", "sfColor_fromInteger", "UINT", $color)
-		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : @error = ' & @error & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	return $sfColor[0]
@@ -499,6 +792,41 @@ Func _CSFML_sfEvent_Constructor()
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return $sfEvent
+EndFunc
+
+
+; #SFMOUSEBUTTONEVENT FUNCTIONS# =====================================================================================================
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfMouseButtonEvent_GetData
+; Description ...: Gets the data from a mouse button event.
+; Syntax.........: _CSFML_sfMouseButtonEvent_GetData()
+; Parameters ....: $ptr - the pointer to the mouse button event
+; Return values .: Success - the data as a two dimensional array:
+;								0 - event type
+;								1 - button
+;								2 - x position
+;								3 - y position
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _CSFML_sfMouseButtonEvent_GetData($ptr)
+
+	local $struct = DllStructCreate("STRUCT;int;int;int;int;ENDSTRUCT", $ptr)
+	Local $event_type = DllStructGetData($struct, 1)
+	Local $button = DllStructGetData($struct, 2)
+	Local $x = DllStructGetData($struct, 3)
+	Local $y = DllStructGetData($struct, 4)
+
+	Local $data[4] = [$event_type, $button, $x, $y]
+	Return $data
+
 EndFunc
 
 
@@ -784,6 +1112,30 @@ Func  _CSFML_sfRenderWindow_drawSprite($renderWindow, $object, $states)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfRenderWindow_drawConvexShape
+; Description ...: Draw a drawable object to the render-target.
+; Syntax.........: _CSFML_sfRenderWindow_drawConvexShape($renderWindow, $object, $states)
+; Parameters ....: $renderWindow - Render window object
+;				   $object - the convex shape to draw
+;				   $states - Render states to use for drawing (Null to use the default states)
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......: _CSFML_sfRenderWindow_create
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfRenderWindow_drawConvexShape($renderWindow, $object, $states)
+
+	DllCall($__CSFML_Graphics_DLL, "NONE:cdecl", "sfRenderWindow_drawConvexShape", "PTR", $renderWindow, "PTR", $object, "PTR", $states)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
 ; Name...........: _CSFML_sfRenderWindow_display
 ; Description ...: Display a render window on screen.
 ; Syntax.........: _CSFML_sfRenderWindow_display($renderWindow)
@@ -880,6 +1232,44 @@ EndFunc
 
 ; #SFSPRITE FUNCTIONS# =====================================================================================================
 
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfSpriteArray_GetItemRotation
+; Description ...: A convenience function that gets the rotation of a sprite based on it's index in the internal array
+; Syntax.........: _CSFML_sfSpriteArray_GetItemRotation($index)
+; Parameters ....:
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+;Func _CSFML_sfSpriteArray_GetItemRotation($index)
+
+;	Return _CSFML_sfSprite_getRotation($__sprite_ptr[$index])
+
+;EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfSpriteArray_SetItemRotation
+; Description ...: A convenience function that sets the rotation of a sprite based on it's index in the internal array
+; Syntax.........: _CSFML_sfSpriteArray_SetItemRotation()
+; Parameters ....:
+; Return values .:
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+;Func _CSFML_sfSpriteArray_SetItemRotation($index, $angle)
+
+;	_CSFML_sfSprite_setRotation($__sprite_ptr[$index], $angle)
+
+;EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _CSFML_sfSprite_create
@@ -1042,6 +1432,29 @@ Func  _CSFML_sfSprite_setPosition_xy($sprite, $x, $y)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfSprite_getRotation
+; Description ...: Get the orientation of a sprite.
+;					The rotation is always in the range [0, 360].
+; Syntax.........: _CSFML_sfSprite_getRotation($sprite)
+; Parameters ....: $sprite - Sprite object
+; Return values .: Success - Current rotation, in degrees
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......: _CSFML_sfSprite_create
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfSprite_getRotation($sprite)
+
+	Local $angle = DllCall($__CSFML_Graphics_DLL, "FLOAT:cdecl", "sfSprite_getRotation", "PTR", $sprite)
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	Return $angle[0]
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1360,5 +1773,46 @@ Func  _CSFML_sfText_setFillColor($text, $color)
 	If @error > 0 Then Return SetError(@error,0,0)
 
 	Return True
+EndFunc
+
+
+; #SFTEXT FUNCTIONS# =====================================================================================================
+
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _CSFML_sfMouse_getPosition
+; Description ...: Set the fill color of a text.
+;				   By default, the text's fill color is opaque white. Setting the fill color to a transparent color with an
+;				   outline will cause the outline to be displayed in the fill area of the text.
+; Syntax.........: _CSFML_sfMouse_getPosition($text, $color)
+; Parameters ....: $text - Text object
+;				   $color - New fill color of the text
+; Return values .: Success - True
+;				   Failure - 0
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......: I can't seem to get this function working.  In the interim use AutoIT's own mouse functions.
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func  _CSFML_sfMouse_getPosition($relativeTo)
+
+	Local $sfVector2i = DllCall($__CSFML_Window_DLL, "STRUCT:cdecl", "sfMouse_getPosition", "PTR", $relativeTo)
+		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : @error = ' & @error & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+	If @error > 0 Then Return SetError(@error,0,0)
+
+	local $sfVector2i_struct = DllStructCreate("STRUCT;uint;uint;ENDSTRUCT", DllStructGetPtr($sfVector2i[0]))
+
+	$rr = DllStructGetSize($sfVector2i_struct)
+	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $rr = ' & $rr & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+	Local $position_x = DllStructGetData($sfVector2i_struct, 1)
+	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $position_x = ' & $position_x & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+	Local $position_y = DllStructGetData($sfVector2i_struct, 2)
+	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $position_y = ' & $position_y & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+	Local $position[2] = [$position_x, $position_y]
+
+	Return $position
 EndFunc
 
