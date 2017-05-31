@@ -1,7 +1,12 @@
 #include-once
 #include <Math.au3>
+#include <File.au3>
 ;#include <Array.au3>
 #include "Box2CEx.au3"
+
+Global $sprite_filename = @ScriptDir & "\scrolling_sprite_data.txt"
+Global $sprite_data
+_FileReadToArray($sprite_filename, $sprite_data, 0)
 
 Global $tmp_body_index, $tmp_shape_vertice, $tmp_shape_index
 Global $droid_body_index_arr[0], $droid_body_velocity_arr[0][2], $droid_body_old_velocity_arr[0][2]
@@ -29,8 +34,10 @@ Global $map_texture_rectangle_left
 Global $map_texture_rectangle_top
 Local $info_text_string, $info_text_num = 1
 Global $edited_convex_shape_vertices[0][2], $edited_box2d_vertices[0][2], $edited_convex_shape_ptr, $edited_convex_shape_x, $edited_convex_shape_y, $edited_box2d_first_x, $edited_box2d_first_y
-Global $edited_previous_angle = -1, $edited_angle = -1
+Global $edited_previous_angle = -1, $edited_angle = -1, $edited_total_angles = 0
+Global $closest_shape_index_to_mouse
 Global $view_centre_pos
+Global $mouse_gui_x, $mouse_gui_y, $mouse_box2d_world_x, $mouse_box2d_world_y, $mouse_info
 
 ; Setup SFML
 
@@ -238,23 +245,10 @@ While true
 		; If the "M" key is pressed
 		if _CSFML_sfKeyboard_isKeyPressed(12) = True Then
 
+			_Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML(1, 99999)
+
 			; Box2D body edit mode
 			$info_text_num = 2
-		EndIf
-
-		; If the "C" key is pressed
-		if _CSFML_sfKeyboard_isKeyPressed(2) = True Then
-
-			; Move the vertices such that the centroid becomes 0,0
-			Local $centroid = _Box2C_b2PolygonShape_MoveToZeroCentroid($edited_box2d_vertices, "%4.2f", $edited_box2d_first_x, $edited_box2d_first_y)
-
-			; Note below that I need to add a small vertical offset of 0.7 metres to the body to ensure it's pixel location is correct in the window
-			;	Unsure why at this stage
-
-;			$clipboard_str = $centroid[0] & "," & ($centroid[1] + 0.7) & " " & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|")
-			$clipboard_str = $centroid[0] & "," & ($centroid[1]) & " " & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|")
-			ClipPut($clipboard_str)
-
 		EndIf
 
 		_Box2C_b2BodyArray_SetItemLinearVelocity($player_body_index, $player_velocity)
@@ -282,10 +276,53 @@ While true
 
 				; if a key was pressed
 
-;				Case $CSFML_sfEvtKeyPressed
+				Case $CSFML_sfEvtKeyPressed
 
-;					Local $key_code = DllStructGetData($__event, 2)
+					Local $key_code = DllStructGetData($__event, 2)
 ;					ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $key_code = ' & $key_code & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+					Switch $key_code
+
+						; if backspace was pressed
+						case 59
+
+							; if we are in Box2D body edit mode
+
+							if $info_text_num = 2 Then
+
+								_ArrayDelete($edited_convex_shape_vertices, UBound($edited_convex_shape_vertices) - 1)
+								_ArrayDelete($edited_box2d_vertices, UBound($edited_box2d_vertices) - 1)
+
+								edited_shape_transform()
+							EndIf
+
+						; If the "C" key is pressed
+						Case 2
+
+							$info_text_num = 3
+
+						; If the "F" key is pressed
+						Case 5
+
+							if $info_text_num = 3 Then
+
+								$info_text_num = 2
+
+								; Move the vertices such that the centroid becomes 0,0
+								Local $centroid = _Box2C_b2PolygonShape_MoveToZeroCentroid($edited_box2d_vertices, "%4.2f", $edited_box2d_first_x, $edited_box2d_first_y)
+
+								; Note below that I need to add a small vertical offset of 0.7 metres to the body to ensure it's pixel location is correct in the window
+								;	Unsure why at this stage
+
+								$clipboard_str = $centroid[0] & "," & $centroid[1] & "|" & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|")
+								ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $clipboard_str = ' & $clipboard_str & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+							;	ClipPut($clipboard_str)
+
+								_ArrayAdd($sprite_data, $clipboard_str, 0, "", "", 1)
+								_FileWriteFromArray($sprite_filename, $sprite_data, Default, Default, "")
+							EndIf
+
+					EndSwitch
 
 				; if a mouse button is pressed
 
@@ -293,63 +330,42 @@ While true
 
 					; if we are in Box2D body edit mode
 
-					if $info_text_num = 2 Then
+					if $info_text_num = 3 Then
 
 						Local $mouse_data = _CSFML_sfMouseButtonEvent_GetData($__event_ptr)
-						Local $mouse_x = $mouse_data[2]
-						Local $mouse_y = $mouse_data[3]
+						$mouse_gui_x = $mouse_data[2]
+						ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $mouse_gui_x = ' & $mouse_gui_x & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+						$mouse_gui_y = $mouse_data[3]
+						ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $mouse_gui_y = ' & $mouse_gui_y & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : UBound($edited_convex_shape_vertices) = ' & UBound($edited_convex_shape_vertices) & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
 						if UBound($edited_convex_shape_vertices) < 1 Then
 
 							$edited_convex_shape_ptr = _CSFML_sfConvexShape_Create()
-							$edited_convex_shape_x = $mouse_x
-							$edited_convex_shape_y = $mouse_y
-							$edited_box2d_first_x = $mouse_x / 50
-							$edited_box2d_first_y = ($mouse_y / 50) - 12
-
+							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $edited_convex_shape_ptr = ' & $edited_convex_shape_ptr & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+							$edited_convex_shape_x = $mouse_gui_x
+							$edited_convex_shape_y = $mouse_gui_y
+							$edited_box2d_first_x = $mouse_gui_x / 50
+							$edited_box2d_first_y = ($mouse_gui_y / 50) - 12
 						EndIf
 
-				;		Local $angle = -1
+						_ArrayAdd($edited_convex_shape_vertices, ($mouse_gui_x - $edited_convex_shape_x) & "|" & ($mouse_gui_y - $edited_convex_shape_y))
+						_ArrayAdd($edited_box2d_vertices, (($mouse_gui_x - $edited_convex_shape_x) / 50) & "|" & (($mouse_gui_y - $edited_convex_shape_y) / 50))
 
-						if UBound($edited_box2d_vertices) = 1 Then
+						Local $is_convex_and_clockwise = True
 
-							$edited_previous_angle = _Box2C_b2Vec2_GetAngleBetweenTwoVectors(($mouse_x - $edited_convex_shape_x) / 50, ($mouse_y - $edited_convex_shape_y) / 50, $edited_box2d_vertices[UBound($edited_box2d_vertices) - 1][0], $edited_box2d_vertices[UBound($edited_box2d_vertices) - 1][1])
-							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $edited_previous_angle = ' & $edited_previous_angle & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
-							$edited_angle = $edited_previous_angle
+						if UBound($edited_box2d_vertices) > 2 Then
+
+							$is_convex_and_clockwise = _Box2C_b2Vec2Array_IsConvexAndClockwise($edited_box2d_vertices)
 						EndIf
 
-						if UBound($edited_box2d_vertices) > 1 Then
+						if $is_convex_and_clockwise = False Then
 
-							$edited_angle = _Box2C_b2Vec2_GetAngleBetweenTwoVectors(($mouse_x - $edited_convex_shape_x) / 50, ($mouse_y - $edited_convex_shape_y) / 50, $edited_box2d_vertices[UBound($edited_box2d_vertices) - 1][0], $edited_box2d_vertices[UBound($edited_box2d_vertices) - 1][1])
-							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $edited_angle = ' & $edited_angle & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
-							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $edited_previous_angle = ' & $edited_previous_angle & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
-							$deg = _Degree($edited_angle)
-							ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $deg = ' & $deg & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+							_ArrayDelete($edited_convex_shape_vertices, UBound($edited_convex_shape_vertices) - 1)
+							_ArrayDelete($edited_box2d_vertices, UBound($edited_box2d_vertices) - 1)
 						EndIf
 
-
-						if $edited_angle >= $edited_previous_angle Then
-
-
-							_ArrayAdd($edited_convex_shape_vertices, ($mouse_x - $edited_convex_shape_x) & "|" & ($mouse_y - $edited_convex_shape_y))
-							_ArrayAdd($edited_box2d_vertices, (($mouse_x - $edited_convex_shape_x) / 50) & "|" & (($mouse_y - $edited_convex_shape_y) / 50))
-
-							_CSFML_sfConvexShape_setPointCount($edited_convex_shape_ptr, UBound($edited_convex_shape_vertices))
-
-							for $i = 0 to (UBound($edited_convex_shape_vertices) - 1)
-
-								_CSFML_sfConvexShape_setPoint($edited_convex_shape_ptr, $i, $edited_convex_shape_vertices[$i][0], $edited_convex_shape_vertices[$i][1])
-							Next
-
-							_CSFML_sfConvexShape_setOrigin($edited_convex_shape_ptr, _CSFML_sfVector2f_Constructor(0, 0))
-							_CSFML_sfConvexShape_setFillColor($edited_convex_shape_ptr, _CSFML_sfColor_Constructor(255, 255, 255, 128))
-							_CSFML_sfConvexShape_setPosition($edited_convex_shape_ptr, $edited_convex_shape_x, $edited_convex_shape_y)
-
-							$edited_previous_angle = $edited_angle
-
-						EndIf
-
-
+						edited_shape_transform()
 
 					EndIf
 
@@ -358,8 +374,11 @@ While true
 			EndSwitch
 		WEnd
 
+
+
 		Switch $info_text_num
 
+			; main info
 			Case 1
 
 				$info_text_string = 	"Keys" & @LF & _
@@ -370,20 +389,62 @@ While true
 										"" & @LF & _
 										"Stats" & @LF & _
 										"-----" & @LF & _
+										$mouse_info & @LF & _
 										"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
 										"Current body density = " & $current_density & @LF & _
 										"Current body restitution = " & $current_restitution & @LF & _
 										"Current body friction = " & $current_friction & @LF & _
 										"FPS = " & $fps
 
+			; edit body info
 			Case 2
 
 				$info_text_string = 	"Keys" & @LF & _
 										"----" & @LF & _
 										"Press ""N"" to stop editing Box2D bodies" & @LF & _
+										"Press ""C"" to start creating a new sprite" & @LF & _
+										"Press ""U"" to start updating sprite # " & $closest_shape_index_to_mouse & @LF & _
 										"" & @LF & _
 										"Stats" & @LF & _
 										"-----" & @LF & _
+										$mouse_info & @LF & _
+										"Closest sprite # = " & $closest_shape_index_to_mouse & @LF & _
+										"Current convex shape vertices = " & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|") & @LF & _
+										"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
+										"Current body density = " & $current_density & @LF & _
+										"Current body restitution = " & $current_restitution & @LF & _
+										"Current body friction = " & $current_friction & @LF & _
+										"FPS = " & $fps
+
+			; creating body info
+			Case 3
+
+				$info_text_string = 	"Keys" & @LF & _
+										"----" & @LF & _
+										"Press ""N"" to stop editing Box2D bodies" & @LF & _
+										"Press ""F"" to finish creating the sprite" & @LF & _
+										"" & @LF & _
+										"Stats" & @LF & _
+										"-----" & @LF & _
+										$mouse_info & @LF & _
+										"Current convex shape vertices = " & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|") & @LF & _
+										"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
+										"Current body density = " & $current_density & @LF & _
+										"Current body restitution = " & $current_restitution & @LF & _
+										"Current body friction = " & $current_friction & @LF & _
+										"FPS = " & $fps
+
+			; updating body info
+			Case 4
+
+				$info_text_string = 	"Keys" & @LF & _
+										"----" & @LF & _
+										"Press ""N"" to stop editing Box2D bodies" & @LF & _
+										"Press ""F"" to finish updating sprite # " & $closest_shape_index_to_mouse & @LF & _
+										"" & @LF & _
+										"Stats" & @LF & _
+										"-----" & @LF & _
+										$mouse_info & @LF & _
 										"Current convex shape vertices = " & _ArrayToString($edited_box2d_vertices, ",", -1, -1, "|") & @LF & _
 										"Number of bodies = " & _Box2C_b2BodyArray_GetItemCount() & @LF & _
 										"Current body density = " & $current_density & @LF & _
@@ -483,7 +544,7 @@ While true
 
 
 
-		if $info_text_num = 2 and UBound($edited_convex_shape_vertices) > 2 Then
+		if $info_text_num >= 2 and $info_text_num <= 4 and UBound($edited_convex_shape_vertices) > 2 Then
 
 			_CSFML_sfRenderWindow_drawConvexShape($window_ptr, $edited_convex_shape_ptr, Null)
 		EndIf
@@ -494,15 +555,44 @@ While true
 
 		_CSFML_sfRenderWindow_display($window_ptr)
 
-;		Local $tPoint2 = _WinAPI_GetMousePos(True, $window_hwnd)
-;		$mouse_x = DllStructGetData($tPoint2, "X")
-;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $mouse_x = ' & $mouse_x & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
-;		$mouse_y = DllStructGetData($tPoint2, "Y")
-;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $mouse_y = ' & $mouse_y & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
-
 ;$window_hwnd
 
 ;		_CSFML_sfMouse_getPosition($window_ptr)
+
+
+		; get the mouse position information
+
+		Local $tPoint2 = _WinAPI_GetMousePos(True, $window_hwnd)
+		$mouse_gui_x = DllStructGetData($tPoint2, "X")
+		$mouse_gui_y = DllStructGetData($tPoint2, "Y")
+		$mouse_box2d_world_x = $view_centre_pos[0] - ((400 - $mouse_gui_x) / 50)
+		$mouse_box2d_world_y = $view_centre_pos[1] - ((300 - $mouse_gui_y) / 50)
+		$mouse_info = "Mouse GUI pos = " & $mouse_gui_x & "," & $mouse_gui_y & " Box2D pos = " & StringFormat("%4.2f", $mouse_box2d_world_x) & "," & StringFormat("%4.2f", $mouse_box2d_world_y)
+
+		; determine which sprite the mouse is closest to
+
+		if $info_text_num = 2 Then
+
+			$closest_shape_index_to_mouse = -1
+			Local $closest_shape_distance = 9999
+
+			for $sprite_num = 0 to (UBound($sprite_data) - 1)
+
+				Local $sprite_pos_delimiter_pos = StringInStr($sprite_data[$sprite_num], "|")
+				Local $sprite_pos = StringLeft($sprite_data[$sprite_num], $sprite_pos_delimiter_pos - 1)
+				Local $sprite_pos_arr = StringSplit($sprite_pos, ",", 3)
+
+				Local $distance = _Box2C_b2Vec2_Distance($mouse_box2d_world_x, $mouse_box2d_world_y, $sprite_pos_arr[0], $sprite_pos_arr[1])
+;				ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $distance = ' & $distance & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+				if $distance < $closest_shape_distance Then
+
+					$closest_shape_distance = $distance
+					$closest_shape_index_to_mouse = $sprite_num
+				EndIf
+			Next
+		EndIf
+
 
 		$num_frames = $num_frames + 1
 	EndIf
@@ -684,6 +774,7 @@ Func restart_level($level_num)
 	$tmp_body_index = _Box2C_b2BodyArray_AddItem_SFML($background_bodydef_index, _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-8,-6|8,-6|8,6|-8,6"), @ScriptDir & "\melden_city_map2.png"), 0, 0, 1, "", "", "", 0, -400, -300)
 	_Box2C_b2BodyArray_SetItemActive($tmp_body_index, False)
 
+
 ;			_CSFML_sfSprite_setTextureRect($__sprite_ptr[0], 1, 1, 800, 600)
 
 
@@ -699,10 +790,23 @@ Func restart_level($level_num)
 
 ;3.15,0.99 -3.07,2.39|-3.07,-2.71|-2.61,-2.73|-2.27,-2.15|-2.35,-1.13|-1.89,-0.49|-0.53,-0.49|0.13,-1.23|0.17,-2.01|0.51,-2.45|0.47,-3.27|2.47,-3.27|2.51,-2.47|2.87,-2.17|2.87,0.59|0.83,2.65|-2.03,2.61|-2.31,2.27
 ;4.71,-4.06 -1.41,0.90|-1.45,0.06|-1.11,-0.20|-1.13,-1.56|-0.65,-1.56|-0.55,-1.30|0.93,-1.28|0.97,-0.40|1.29,-0.14|1.29,0.56|1.61,0.90|1.21,1.40
+;4.69,-4.51 -0.91,0.45|0.45,0.41|0.45,-0.87
+
+;	Global $tmp_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-0.91,0.45|0.45,0.41|0.45,-0.87"), @ScriptDir & "\empty.png")
+;	_ArrayAdd($droid_body_index_arr, _Box2C_b2BodyArray_AddItem_SFML($ground_bodydef_index, $tmp_shape_index, 1, 0.2, 0.01, 4.69,-4.51, _Radian(0), 0, 0, 0))
 
 
-	Global $tmp_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-1.27,-1.16|-0.83,-2.74|0.81,-2.48|1.17,-1.48|1.27,1.82|-0.81,3.18"), @ScriptDir & "\empty.png")
-	_ArrayAdd($droid_body_index_arr, _Box2C_b2BodyArray_AddItem_SFML($ground_bodydef_index, $tmp_shape_index, 1, 0.2, 0.01, 4.63,-5.2, _Radian(0), 0, 0, 0))
+	for $sprite_num = 0 to (UBound($sprite_data) - 1)
+
+		Local $sprite_pos_delimiter_pos = StringInStr($sprite_data[$sprite_num], "|")
+		Local $sprite_pos = StringLeft($sprite_data[$sprite_num], $sprite_pos_delimiter_pos - 1)
+		Local $sprite_pos_arr = StringSplit($sprite_pos, ",", 3)
+		Local $sprite_vertices = StringMid($sprite_data[$sprite_num], $sprite_pos_delimiter_pos + 1)
+
+		Global $tmp_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d($sprite_vertices), @ScriptDir & "\empty.png")
+		_ArrayAdd($droid_body_index_arr, _Box2C_b2BodyArray_AddItem_SFML($ground_bodydef_index, $tmp_shape_index, 1, 0.2, 0.01, Number($sprite_pos_arr[0]), Number($sprite_pos_arr[1]), _Radian(0), 0, 0, 0))
+
+	Next
 
 
 ;	Global $droid_stand_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("0,0|0.6,0|0.6,1|0,1"), @ScriptDir & "\droid_stand.png")
@@ -752,3 +856,18 @@ Func throw_the_ball()
 
 EndFunc
 
+Func edited_shape_transform()
+
+
+	_CSFML_sfConvexShape_setPointCount($edited_convex_shape_ptr, UBound($edited_convex_shape_vertices))
+
+	for $i = 0 to (UBound($edited_convex_shape_vertices) - 1)
+
+		_CSFML_sfConvexShape_setPoint($edited_convex_shape_ptr, $i, $edited_convex_shape_vertices[$i][0], $edited_convex_shape_vertices[$i][1])
+	Next
+
+	_CSFML_sfConvexShape_setOrigin($edited_convex_shape_ptr, _CSFML_sfVector2f_Constructor(0, 0))
+	_CSFML_sfConvexShape_setFillColor($edited_convex_shape_ptr, _CSFML_sfColor_Constructor(255, 255, 255, 128))
+	_CSFML_sfConvexShape_setPosition($edited_convex_shape_ptr, $edited_convex_shape_x, $edited_convex_shape_y)
+
+EndFunc

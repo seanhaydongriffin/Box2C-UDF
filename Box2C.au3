@@ -1082,7 +1082,9 @@ Func _Box2C_b2PolygonShape_MoveToZeroCentroid(ByRef $vertices, $format = "%4.2f"
 	;	to arrive at the real-world centroid position, which is then returned
 
 	$centroid[0] = $first_vertex_x - $vertices[0][0]
-	$centroid[1] = $first_vertex_y + $vertices[0][1]
+	$centroid[1] = $first_vertex_y - $vertices[0][1]
+	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $first_vertex_y = ' & $first_vertex_y & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $vertices[0][1] = ' & $vertices[0][1] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
 	Return $centroid
 EndFunc

@@ -324,6 +324,117 @@ Func _Box2C_b2Vec2_GetAngleBetweenTwoVectors($x1, $y1, $x2, $y2)
 	Return $angle
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Vec2_GetAngleBetweenThreePoints
+; Description ...:
+; Syntax.........: _Box2C_b2Vec2_GetAngleBetweenThreePoints($x1, $y1, $x2, $y2, $x3, $y3, ByRef $clockwise)
+; Parameters ....: $x1 - the first point
+;				   $y1 - the first point
+;				   $x2 - the second point
+;				   $y2 - the second point
+;				   $x3 - the third point
+;				   $y3 - the third point
+;				   $clockwise - returns True if the angle indicates a clockwise movement through the points, otherwise False
+; Return values .: The angle (degrees)
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Vec2_GetAngleBetweenThreePoints($x1, $y1, $x2, $y2, $x3, $y3, ByRef $clockwise)
+
+	Local $angle1 = atan2($y1 - $y2, $x1 - $x2)
+	Local $angle2 = atan2($y3 - $y2, $x3 - $x2)
+	Local $angle =  $angle1 - $angle2
+	Local $deg = _Degree($angle)
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $deg = ' & $deg & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+	$clockwise = True
+
+	if $deg < 0 Then
+
+		$deg = 360 + $deg
+	Else
+
+		if $deg > 180 Then
+
+			$clockwise = False
+		EndIf
+	EndIf
+
+;	if $deg > 180 Then
+
+;		$clockwise = False
+;		$deg = 360 - $deg
+;	Else
+
+;		if $deg < 0 Then
+
+;			$deg = 0 - $deg
+;		EndIf
+;	EndIf
+
+	Return $deg
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name...........: _Box2C_b2Vec2Array_IsConvexAndClockwise
+; Description ...: Check whether an array of vertices (a polygon) is convex and in a clockwise direction.
+;					This is a requirement for a the vertices of a Box2D shape.
+; Syntax.........: _Box2C_b2Vec2Array_IsConvexAndClockwise($vertices)
+; Parameters ....: $vertices - an array of vertices
+; Return values .: True if convex, otherwise False
+; Author ........: Sean Griffin
+; Modified.......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......:
+; ===============================================================================================================================
+Func _Box2C_b2Vec2Array_IsConvexAndClockwise($vertices)
+
+	Local $edited_angle, $angles = "", $edited_total_angles = 0, $clockwise
+
+	; angle at points #2 and more
+
+	for $i = 1 to (UBound($vertices) - 2)
+
+		$edited_angle = _Box2C_b2Vec2_GetAngleBetweenThreePoints($vertices[$i - 1][0], $vertices[$i - 1][1], $vertices[$i][0], $vertices[$i][1], $vertices[$i + 1][0], $vertices[$i + 1][1], $clockwise)
+
+		if $i = 1 and $clockwise = False Then
+
+			Return False
+		EndIf
+
+		$angles = $angles & ", #" & $i & " = " & $edited_angle
+		$edited_total_angles = $edited_total_angles + $edited_angle
+	Next
+
+	; angle at the last point
+
+	$edited_angle = _Box2C_b2Vec2_GetAngleBetweenThreePoints($vertices[UBound($vertices) - 2][0], $vertices[UBound($vertices) - 2][1], $vertices[UBound($vertices) - 1][0], $vertices[UBound($vertices) - 1][1], $vertices[0][0], $vertices[0][1], $clockwise)
+	$angles = $angles & ", last # = " & $edited_angle
+	$edited_total_angles = $edited_total_angles + $edited_angle
+
+	; angle at the first point
+
+	$edited_angle = _Box2C_b2Vec2_GetAngleBetweenThreePoints($vertices[UBound($vertices) - 1][0], $vertices[UBound($vertices) - 1][1], $vertices[0][0], $vertices[0][1], $vertices[1][0], $vertices[1][1], $clockwise)
+	$angles = "first # = " & $edited_angle & $angles
+	$edited_total_angles = $edited_total_angles + $edited_angle
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $edited_total_angles = ' & $edited_total_angles & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $angles = ' & $angles & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+	if Round($edited_total_angles) = ((UBound($vertices) - 2) * 180) Then
+
+		Return True
+	EndIf
+
+	Return False
+
+EndFunc
+
 
 ; #B2WORLD FUNCTIONS# =====================================================================================================
 
