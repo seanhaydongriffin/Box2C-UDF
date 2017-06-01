@@ -2,6 +2,8 @@
 #include <Math.au3>
 #include <File.au3>
 ;#include <Array.au3>
+#include <SQLite.au3>
+#include <SQLite.dll.au3>
 #include "Box2CEx.au3"
 
 Global $sprite_filename = @ScriptDir & "\scrolling_sprite_data.txt"
@@ -38,6 +40,12 @@ Global $edited_previous_angle = -1, $edited_angle = -1, $edited_total_angles = 0
 Global $closest_shape_index_to_mouse
 Global $view_centre_pos
 Global $mouse_gui_x, $mouse_gui_y, $mouse_box2d_world_x, $mouse_box2d_world_y, $mouse_info
+
+; Setup SQLite
+
+_SQLite_Startup()
+
+_SQLite_Open(@ScriptDir & "\Box2C_scrolling_SFML.sqlite")
 
 ; Setup SFML
 

@@ -28,30 +28,30 @@ Global $__shape_vertice_struct[0]
 Global $__shape_vertice_struct_ptr[0]
 Global $__shape_vertice_struct_size[0]
 
-Global $__shape_vertice_dict = ObjCreate("Scripting.Dictionary")
-Global $__shape_image_dict = ObjCreate("Scripting.Dictionary")
-Global $__shape_image_file_path_dict = ObjCreate("Scripting.Dictionary")
-Global $__shape_struct_dict = ObjCreate("Scripting.Dictionary")
-Global $__shape_struct_ptr_dict = ObjCreate("Scripting.Dictionary")
+Global $__shape_vertice[0]
+Global $__shape_image[0]
+Global $__shape_image_file_path[0]
+Global $__shape_struct[0]
+Global $__shape_struct_ptr[0]
 
-Global $__bodydef_struct_dict = ObjCreate("Scripting.Dictionary")
-;Global $__bodydef_struct_ptr[0]
+Global $__bodydef_struct[0]
+Global $__bodydef_struct_ptr[0]
 
-Global $__body_struct_ptr_dict = ObjCreate("Scripting.Dictionary")
-Global $__fixture_struct_ptr_dict = ObjCreate("Scripting.Dictionary")
+Global $__body_struct_ptr[0]
+Global $__fixture_struct_ptr[0]
 Global $__body_hGfx_Buffer[0]
-Global $__body_width_dict = ObjCreate("Scripting.Dictionary")
-Global $__body_height_dict = ObjCreate("Scripting.Dictionary")
-Global $__body_prev_screen_x_dict = ObjCreate("Scripting.Dictionary")
-Global $__body_prev_screen_y_dict = ObjCreate("Scripting.Dictionary")
-Global $__body_curr_screen_x_dict = ObjCreate("Scripting.Dictionary")
-Global $__body_curr_screen_y_dict = ObjCreate("Scripting.Dictionary")
-Global $__body_prev_angle_degrees_dict = ObjCreate("Scripting.Dictionary")
-Global $__body_curr_angle_degrees_dict = ObjCreate("Scripting.Dictionary")
+Global $__body_width[0]
+Global $__body_height[0]
+Global $__body_prev_screen_x[0]
+Global $__body_prev_screen_y[0]
+Global $__body_curr_screen_x[0]
+Global $__body_curr_screen_y[0]
+Global $__body_prev_angle_degrees[0]
+Global $__body_curr_angle_degrees[0]
 Global $__body_gui_pos[0][2]
-;Global $__body_shape_index[0]
-Global $__body_draw_dict = ObjCreate("Scripting.Dictionary")
-Global $__body_out_of_bounds_behaviour_dict = ObjCreate("Scripting.Dictionary")
+Global $__body_shape_index[0]
+Global $__body_draw[0]
+Global $__body_out_of_bounds_behaviour[0]
 
 Global $__world_ptr
 Global $__world_animation_timer
@@ -59,15 +59,16 @@ Global $__world_animation_timer
 Global $__g_hGraphics
 Global $__g_hBmp_Buffer
 
-Global $__convex_shape_ptr_dict = ObjCreate("Scripting.Dictionary")
+Global $__convex_shape_ptr[0]
 Global $__convex_shape_draw_lower_index
 Global $__convex_shape_draw_upper_index
 
-Global $__sprite_ptr_dict = ObjCreate("Scripting.Dictionary")
+Global $__sprite_ptr[0]
 Global $__sprite_screen_x_offset[0]
 Global $__sprite_screen_y_offset[0]
 Global $__sprite_draw_lower_index
 Global $__sprite_draw_upper_index
+Global $__body_curr_screen_y[0]
 Global $__gui_center_x
 Global $__gui_center_y
 
@@ -678,7 +679,6 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#cs
 Func _Box2C_b2World_Animate_GDIPlus($hWnd, $iMsg, $iIDTimer, $iTime)
     #forceref $hWnd, $iMsg, $iIDTimer, $iTime
 
@@ -724,7 +724,6 @@ Func _Box2C_b2World_Animate_GDIPlus($hWnd, $iMsg, $iIDTimer, $iTime)
 	EndIf
 
 EndFunc   ;==>PlayAnim
-#ce
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2World_WaitForAnimateEnd
@@ -765,7 +764,6 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#cs
 Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $info_text_ptr, ByRef $info_text_string, $draw_info_text_before_body = 0)
 
 	; Clear the animation frame
@@ -853,15 +851,15 @@ Func _Box2C_b2World_Animate_SFML(ByRef $window_ptr, ByRef $window_color, ByRef $
 	_CSFML_sfRenderWindow_display($window_ptr)
 
 EndFunc
-#ce
+
 
 ; #B2SHAPE FUNCTIONS# =====================================================================================================
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2ShapeDict_AddItem_SFML
+; Name...........: _Box2C_b2ShapeArray_AddItem_SFML
 ; Description ...: A convenience function for SFML that adds a polygon shape (b2PolygonShape) to an internal array of shapes.
-; Syntax.........: _Box2C_b2ShapeDict_AddItem_SFML($type, $radius_vertice, $shape_image_file_path)
+; Syntax.........: _Box2C_b2ShapeArray_AddItem_SFML($type, $radius_vertice, $shape_image_file_path)
 ; Parameters ....: $type - the type of shape:
 ;						$Box2C_e_circle (0) = a circle shape
 ;						$Box2C_e_edge (1) = an edge shape
@@ -879,42 +877,40 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2ShapeDict_AddItem_SFML($type, $radius_vertice, $shape_image_file_path)
+Func _Box2C_b2ShapeArray_AddItem_SFML($type, $radius_vertice, $shape_image_file_path)
+
+	; add the new vertices to the internal array of shape vertices
+	Local $shape_vertice_index = _ArrayAdd($__shape_vertice, Null)
+
+	if $type = $Box2C_e_edge Then
+
+		$__shape_vertice[$shape_vertice_index] = $radius_vertice
+	EndIf
+
+	; add the new sfTexture to the internal array of shape images
+
+	_ArrayAdd($__shape_image_file_path, $shape_image_file_path)
+
+	Local $struct_image_array_index = _ArrayAdd($__shape_image, _CSFML_sfTexture_createFromFile($shape_image_file_path, Null))
 
 	; create a new Box2C Polygone Shape for the new vertices and add it to the internal array of shape structures
-	Local $tmp_shape_struct
+	Local $shape_struct_index
 
 	Switch $type
 
 		case $Box2C_e_circle
 
-			$tmp_shape_struct = _Box2C_b2CircleShape_Constructor($radius_vertice)
+			$shape_struct_index = _ArrayAdd($__shape_struct, _Box2C_b2CircleShape_Constructor($radius_vertice))
 
 		case $Box2C_e_edge
 
-			$tmp_shape_struct = _Box2C_b2PolygonShape_Constructor($radius_vertice)
+			$shape_struct_index = _ArrayAdd($__shape_struct, _Box2C_b2PolygonShape_Constructor($radius_vertice))
 	EndSwitch
 
-	Local $tmp_shape_struct_ptr = DllStructGetPtr($tmp_shape_struct)
-	Local $tmp_shape_struct_ptr_str = String($tmp_shape_struct_ptr)
-	$__shape_struct_ptr_dict.Add($tmp_shape_struct_ptr_str, $tmp_shape_struct_ptr_str)
-	$__shape_struct_dict.Add($tmp_shape_struct_ptr_str, $tmp_shape_struct)
+	_ArrayAdd($__shape_struct_ptr, DllStructGetPtr($__shape_struct[$shape_struct_index]))
 
-	; add the new vertices to the internal dictionary of shape vertices
-
-	if $type = $Box2C_e_edge Then
-
-		$__shape_vertice_dict.Add($tmp_shape_struct_ptr_str, $radius_vertice)
-	EndIf
-
-	; add the new sfTexture to the internal array of shape images
-	$__shape_image_file_path_dict.Add($tmp_shape_struct_ptr_str, $shape_image_file_path)
-
-	Local $tmp_shape_image = _CSFML_sfTexture_createFromFile($shape_image_file_path, Null)
-	$__shape_image_dict.Add($tmp_shape_struct_ptr_str, $tmp_shape_image)
-
-	; return the pointer (dictionary key) of the new shape
-	Return $tmp_shape_struct_ptr_str
+	; return the index of the new shape within the internal arrays of shapes
+	Return $shape_struct_index
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -939,33 +935,33 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2ShapeArray_SetItem_SFML($shape_ptr, $type, $radius_vertice, $shape_image_file_path)
+Func _Box2C_b2ShapeArray_SetItem_SFML($shape_index, $type, $radius_vertice, $shape_image_file_path)
 
 	; add the new vertices to the internal array of shape vertices
 	if $type = $Box2C_e_edge Then
 
-		$__shape_vertice_dict.Item($shape_ptr) = $radius_vertice
+		$__shape_vertice[$shape_index] = $radius_vertice
 	EndIf
 
 	; add the new sfTexture to the internal array of shape images
 
-	$__shape_image_file_path_dict.Item($shape_ptr) = $shape_image_file_path
-	$__shape_image_dict.Item($shape_ptr) = _CSFML_sfTexture_createFromFile($shape_image_file_path, Null)
+	$__shape_image_file_path[$shape_index] = $shape_image_file_path
+	$__shape_image[$shape_index] = _CSFML_sfTexture_createFromFile($shape_image_file_path, Null)
 
 	; create a new Box2C Polygone Shape for the new vertices and add it to the internal array of shape structures
 
 	; deallocated existing struct / memory
-	$__shape_struct_dict.Item($shape_ptr) = 0
+	$__shape_struct[$shape_index] = 0
 
 	Switch $type
 
 		case $Box2C_e_circle
 
-			$__shape_struct_dict($shape_ptr) = _Box2C_b2CircleShape_Constructor($radius_vertice)
+			$__shape_struct[$shape_index] = _Box2C_b2CircleShape_Constructor($radius_vertice)
 
 		case $Box2C_e_edge
 
-			$__shape_struct_dict($shape_ptr) = _Box2C_b2PolygonShape_Constructor($radius_vertice)
+			$__shape_struct[$shape_index] = _Box2C_b2PolygonShape_Constructor($radius_vertice)
 	EndSwitch
 
 EndFunc
@@ -983,9 +979,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2ShapeArray_GetItemImagePath_SFML($shape_ptr)
+Func _Box2C_b2ShapeArray_GetItemImagePath_SFML($shape_index)
 
-	Return $__shape_image_file_path_dict($shape_ptr)
+	Return $__shape_image_file_path[$shape_index]
 EndFunc
 
 ; #B2POLYGONSHAPE FUNCTIONS# =====================================================================================================
@@ -1005,20 +1001,63 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#cs
 Func _Box2C_b2PolygonShape_ArrayAdd_GDIPlus($vertice, $shape_image_file_path)
 
+;	Local $vertice_struct_str = "STRUCT"
+
+;	for $i = 1 to UBound($vertice)
+
+;		$vertice_struct_str = $vertice_struct_str & ";float;float"
+;	Next
+
+;	$vertice_struct_str = $vertice_struct_str & ";ENDSTRUCT"
+
+;	$struct_array_index = _ArrayAdd($__shape_vertice_struct, Null)
+
+;	$__shape_vertice_struct[$struct_array_index] = DllStructCreate($vertice_struct_str)
+;	Local $shape_vertice_struct_element_num = 0
+
+;	for $i = 0 to (UBound($vertice) - 1)
+
+;		$shape_vertice_struct_element_num = $shape_vertice_struct_element_num + 1
+;		DllStructSetData($__shape_vertice_struct[$struct_array_index], $shape_vertice_struct_element_num, $vertice[$i][0])
+;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $shape_vertice_struct_element_num = ' & $shape_vertice_struct_element_num & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $vertice[$i][0] = ' & $vertice[$i][0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;		$shape_vertice_struct_element_num = $shape_vertice_struct_element_num + 1
+;		DllStructSetData($__shape_vertice_struct[$struct_array_index], $shape_vertice_struct_element_num, $vertice[$i][1])
+;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $shape_vertice_struct_element_num = ' & $shape_vertice_struct_element_num & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;		ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $vertice[$i][1] = ' & $vertice[$i][1] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;	Next
+
+;	Local $struct_ptr_array_index = _ArrayAdd($__shape_vertice_struct_ptr, Null)
+
+;	$__shape_vertice_struct_ptr[$struct_ptr_array_index] = DllStructGetPtr($__shape_vertice_struct[$struct_array_index])
+
+;	_ArrayAdd($__shape_vertice_struct_size, (UBound($vertice) * 2))
+
+
+;	Local $shape_vertice_index = _ArrayAdd($__shape_vertice, $vertice)
 	Local $shape_vertice_index = _ArrayAdd($__shape_vertice, Null)
 	$__shape_vertice[$shape_vertice_index] = $vertice
 
+;	Local $struct_image_array_index = _ArrayAdd($__shape_image, _CSFML_sfTexture_createFromFile($shape_image_file_path, Null))
+
 	Local $struct_image_array_index = _ArrayAdd($__shape_image, _GDIPlus_ImageLoadFromFile($shape_image_file_path))
+	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $shape_image_file_path = ' & $shape_image_file_path & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
 	Local $shape_struct_index = _ArrayAdd($__shape_struct, _Box2C_b2PolygonShape_Constructor($vertice))
 	_ArrayAdd($__shape_struct_ptr, DllStructGetPtr($__shape_struct[$shape_struct_index]))
 
 	Return $shape_struct_index
+
+
+
+
+
+
+
+;	Return $struct_array_index
 EndFunc
-#ce
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2PolygonShape_ArrayAdd_Irrlicht
@@ -1034,12 +1073,14 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#cs
 Func _Box2C_b2PolygonShape_ArrayAdd_Irrlicht($vertice, $shape_image_file_path)
 
 	; add the new vertices to the internal array of shape vertices
 	Local $shape_vertice_index = _ArrayAdd($__shape_vertice, Null)
 	$__shape_vertice[$shape_vertice_index] = $vertice
+
+	; add the new sfTexture to the internal array of shape images
+;	Local $struct_image_array_index = _ArrayAdd($__shape_image, _CSFML_sfTexture_createFromFile($shape_image_file_path, Null))
 
 	; create a new Box2C Polygone Shape for the new vertices and add it to the internal array of shape structures
 	Local $shape_struct_index = _ArrayAdd($__shape_struct, _Box2C_b2PolygonShape_Constructor($vertice))
@@ -1048,15 +1089,15 @@ Func _Box2C_b2PolygonShape_ArrayAdd_Irrlicht($vertice, $shape_image_file_path)
 	; return the index of the new shape within the internal arrays of shapes
 	Return $shape_struct_index
 EndFunc
-#ce
+
 
 ; #B2BODYDEF FUNCTIONS# =====================================================================================================
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2BodyDefDict_AddItem
+; Name...........: _Box2C_b2BodyDefArray_AddItem
 ; Description ...: A convenience function that adds a body definition (b2BodyDef) to an internal array of body definitions.
-; Syntax.........: _Box2C_b2BodyDefDict_AddItem($body_type, $initial_x, $initial_y, $initial_angle, $linearDamping, $angularDamping)
+; Syntax.........: _Box2C_b2BodyDefArray_AddItem($body_type, $initial_x, $initial_y, $initial_angle, $linearDamping, $angularDamping)
 ; Parameters ....: $body_type
 ;				   $initial_x
 ;				   $initial_y
@@ -1071,15 +1112,14 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyDefDict_AddItem($body_type, $initial_x = 0, $initial_y = 0, $initial_angle = 0, $linearDamping = 0, $angularDamping = 0)
+Func _Box2C_b2BodyDefArray_AddItem($body_type, $initial_x = 0, $initial_y = 0, $initial_angle = 0, $linearDamping = 0, $angularDamping = 0)
 
 	; create a new Box2C Body Definition for the body type, initial x and y and angles, and add it to the internal array of body definition structures
-	Local $tmp_bodydef_struct = _Box2C_b2BodyDef_Constructor($body_type, $initial_x, $initial_y, $initial_angle, 0, 0, 0, $linearDamping, $angularDamping, True, True, False, False, True, Null, 1)
-	Local $tmp_bodydef_struct_ptr = String(DllStructGetPtr($tmp_bodydef_struct))
-	$__bodydef_struct_dict.Add($tmp_bodydef_struct_ptr, $tmp_bodydef_struct)
+	Local $bodydef_struct_index = _ArrayAdd($__bodydef_struct, _Box2C_b2BodyDef_Constructor($body_type, $initial_x, $initial_y, $initial_angle, 0, 0, 0, $linearDamping, $angularDamping, True, True, False, False, True, Null, 1))
+	_ArrayAdd($__bodydef_struct_ptr, DllStructGetPtr($__bodydef_struct[$bodydef_struct_index]))
 
 	; return the index of the new body definition within the internal array of body definitions
-	Return $tmp_bodydef_struct_ptr
+	Return $bodydef_struct_index
 
 
 
@@ -1149,9 +1189,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2FixtureArray_SetItemSensor($fixture_ptr, $value)
+Func _Box2C_b2FixtureArray_SetItemSensor($fixture_index, $value)
 
-	_Box2C_b2Fixture_SetSensor($__fixture_struct_ptr_dict.Item($fixture_ptr), $value)
+	_Box2C_b2Fixture_SetSensor($__fixture_struct_ptr[$fixture_index], $value)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1168,9 +1208,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2FixtureArray_GetItemDensity($fixture_ptr)
+Func _Box2C_b2FixtureArray_GetItemDensity($fixture_index)
 
-	Return _Box2C_b2Fixture_GetDensity($__fixture_struct_ptr_dict.Item($fixture_ptr))
+	Return _Box2C_b2Fixture_GetDensity($__fixture_struct_ptr[$fixture_index])
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1188,19 +1228,17 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2FixtureArray_SetItemDensity($fixture_ptr, $value)
+Func _Box2C_b2FixtureArray_SetItemDensity($fixture_index, $value)
 
-	if $fixture_ptr < 0 Then
+	if $fixture_index < 0 Then
 
-		Local $fixture_struct_ptr = $__fixture_struct_ptr_dict.Keys
+		for $i = 0 to (UBound($__fixture_struct_ptr) - 1)
 
-		for $i = 0 to (UBound($fixture_struct_ptr) - 1)
-
-			_Box2C_b2Fixture_SetDensity($__fixture_struct_ptr_dict.Item($fixture_struct_ptr[$i]), $value)
+			_Box2C_b2Fixture_SetDensity($__fixture_struct_ptr[$i], $value)
 		Next
 	Else
 
-		_Box2C_b2Fixture_SetDensity($__fixture_struct_ptr_dict.Item($fixture_ptr), $value)
+		_Box2C_b2Fixture_SetDensity($__fixture_struct_ptr[$fixture_index], $value)
 	EndIf
 EndFunc
 
@@ -1218,9 +1256,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2FixtureArray_GetItemRestitution($fixture_ptr)
+Func _Box2C_b2FixtureArray_GetItemRestitution($fixture_index)
 
-	Return _Box2C_b2Fixture_GetRestitution($__fixture_struct_ptr_dict.Item($fixture_ptr))
+	Return _Box2C_b2Fixture_GetRestitution($__fixture_struct_ptr[$fixture_index])
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1238,19 +1276,17 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2FixtureArray_SetItemRestitution($fixture_ptr, $value)
+Func _Box2C_b2FixtureArray_SetItemRestitution($fixture_index, $value)
 
-	if $fixture_ptr < 0 Then
+	if $fixture_index < 0 Then
 
-		Local $fixture_struct_ptr = $__fixture_struct_ptr_dict.Keys
+		for $i = 0 to (UBound($__fixture_struct_ptr) - 1)
 
-		for $i = 0 to (UBound($fixture_struct_ptr) - 1)
-
-			_Box2C_b2Fixture_SetRestitution($__fixture_struct_ptr_dict.Item($fixture_struct_ptr[$i]), $value)
+			_Box2C_b2Fixture_SetRestitution($__fixture_struct_ptr[$i], $value)
 		Next
 	Else
 
-		_Box2C_b2Fixture_SetRestitution($__fixture_struct_ptr_dict.Item($fixture_ptr), $value)
+		_Box2C_b2Fixture_SetRestitution($__fixture_struct_ptr[$fixture_index], $value)
 	EndIf
 EndFunc
 
@@ -1268,9 +1304,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2FixtureArray_GetItemFriction($fixture_ptr)
+Func _Box2C_b2FixtureArray_GetItemFriction($fixture_index)
 
-	Return _Box2C_b2Fixture_GetFriction($__fixture_struct_ptr_dict.Item($fixture_ptr))
+	Return _Box2C_b2Fixture_GetFriction($__fixture_struct_ptr[$fixture_index])
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1288,19 +1324,17 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2FixtureArray_SetItemFriction($fixture_ptr, $value)
+Func _Box2C_b2FixtureArray_SetItemFriction($fixture_index, $value)
 
-	if $fixture_ptr < 0 Then
+	if $fixture_index < 0 Then
 
-		Local $fixture_struct_ptr = $__fixture_struct_ptr_dict.Keys
+		for $i = 0 to (UBound($__fixture_struct_ptr) - 1)
 
-		for $i = 0 to (UBound($fixture_struct_ptr) - 1)
-
-			_Box2C_b2Fixture_SetFriction($__fixture_struct_ptr_dict.Item($fixture_struct_ptr[$i]), $value)
+			_Box2C_b2Fixture_SetFriction($__fixture_struct_ptr[$i], $value)
 		Next
 	Else
 
-		_Box2C_b2Fixture_SetFriction($__fixture_struct_ptr_dict.Item($fixture_ptr), $value)
+		_Box2C_b2Fixture_SetFriction($__fixture_struct_ptr[$fixture_index], $value)
 	EndIf
 EndFunc
 
@@ -1330,12 +1364,12 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#cs
 Func _Box2C_b2Body_ArrayAdd_GDIPlus($bodydef_index, $shape_index, $density, $restitution, $friction, $vertice, $initial_x, $initial_y)
 
 	; create a new Box2C Body for the index of the body definition supplied, and add it to the internal array of body structures
 	Local $body_struct_ptr_index = _ArrayAdd($__body_struct_ptr, _Box2C_b2World_CreateBody($__world_ptr, $__bodydef_struct_ptr[$bodydef_index]))
 	_Box2C_b2Body_SetAwake($__body_struct_ptr[$body_struct_ptr_index], True)
+;	_Box2C_b2Body_SetAngle($__body_struct_ptr[$body_struct_ptr_index],  _Radian($__body_def[0][$origin_angle_degrees]))
 
 	; add other attributes, such as the initial positions, angles and body widths and heights to the internal arrays for bodies
 	_ArrayAdd($__body_prev_screen_x, -1)
@@ -1354,19 +1388,23 @@ Func _Box2C_b2Body_ArrayAdd_GDIPlus($bodydef_index, $shape_index, $density, $res
 
 	Local $body_hGfx_Buffer_index = _ArrayAdd($__body_hGfx_Buffer, _GDIPlus_ImageGetGraphicsContext($__g_hBmp_Buffer))
 
+
+
 	Local $tmp_gui_pos = _Box2C_b2Vec2_GetGUIPosition($initial_x, $initial_y, $vertice)
 	_ArrayAdd($__body_gui_pos, $tmp_gui_pos[0] & "|" & $tmp_gui_pos[1])
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $tmp_gui_pos[1] = ' & $tmp_gui_pos[1] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $tmp_gui_pos[0] = ' & $tmp_gui_pos[0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
 
 	_ArrayAdd($__body_shape_index, $shape_index)
 
+
 	Return $body_struct_ptr_index
 EndFunc
-#ce
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2BodyDict_AddItem_SFML
+; Name...........: _Box2C_b2BodyArray_AddItem_SFML
 ; Description ...: A convenience function for SFML that adds a body (b2Body) and sprite to an internal (PTR) array of bodies and sprites.
-; Syntax.........: _Box2C_b2BodyDict_AddItem_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $vertice, $initial_x, $initial_y)
+; Syntax.........: _Box2C_b2BodyArray_AddItem_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $vertice, $initial_x, $initial_y)
 ; Parameters ....: $bodydef_index - the index of the body definition within the internal array of body definitions to create the body with
 ;				   $shape_index - the index of the shape within the internal arrays of shapes to create the body with
 ;				   $density - the density of the new body
@@ -1400,98 +1438,85 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyDict_AddItem_SFML($bodydef_ptr, $shape_ptr, $density, $restitution, $friction, $x = "", $y = "", $angle = "", $out_of_bounds_behaviour = 0, $shape_x_pixel_offset = 0, $shape_y_pixel_offset = 0)
+Func _Box2C_b2BodyArray_AddItem_SFML($bodydef_index, $shape_index, $density, $restitution, $friction, $x = "", $y = "", $angle = "", $out_of_bounds_behaviour = 0, $shape_x_pixel_offset = 0, $shape_y_pixel_offset = 0)
 
 	; create a new Box2C Body for the index of the body definition supplied, and add it to the internal array of body structures
-	Local $tmp_body_struct_ptr = _Box2C_b2World_CreateBody($__world_ptr, $bodydef_ptr)
-	Local $tmp_body_struct_ptr_str = String($tmp_body_struct_ptr)
-	$__body_struct_ptr_dict.Add($tmp_body_struct_ptr_str, $tmp_body_struct_ptr_str)
-	_Box2C_b2Body_SetAwake($tmp_body_struct_ptr, True)
+	Local $body_struct_ptr_index = _ArrayAdd($__body_struct_ptr, _Box2C_b2World_CreateBody($__world_ptr, $__bodydef_struct_ptr[$bodydef_index]))
+	_Box2C_b2Body_SetAwake($__body_struct_ptr[$body_struct_ptr_index], True)
 
 	if IsNumber($x) = True And IsNumber($y) = True Then
 
-		_Box2C_b2Body_SetPosition($tmp_body_struct_ptr, $x, $y)
+		_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_struct_ptr_index], $x, $y)
 	EndIf
 
 	if IsNumber($angle) = True Then
 
-		_Box2C_b2Body_SetAngle($tmp_body_struct_ptr, $angle)
+		_Box2C_b2Body_SetAngle($__body_struct_ptr[$body_struct_ptr_index], $angle)
 	EndIf
 
-	Local $tmp_shape_vertice = $__shape_vertice_dict.Item($shape_ptr)
-
-
-
 	; add other attributes, such as the initial positions, angles and body widths and heights to the internal arrays for bodies
-	$__body_prev_screen_x_dict.Add($tmp_body_struct_ptr_str, -1)
-	$__body_prev_screen_y_dict.Add($tmp_body_struct_ptr_str, -1)
-	$__body_curr_screen_x_dict.Add($tmp_body_struct_ptr_str, -1)
-	$__body_curr_screen_y_dict.Add($tmp_body_struct_ptr_str, -1)
-	$__body_prev_angle_degrees_dict.Add($tmp_body_struct_ptr_str, -1)
-	$__body_curr_angle_degrees_dict.Add($tmp_body_struct_ptr_str, -1)
-	$__body_width_dict.Add($tmp_body_struct_ptr_str, _ArrayMax($tmp_shape_vertice, 1, -1, -1, 0))
-	$__body_height_dict.Add($tmp_body_struct_ptr_str, _ArrayMax($tmp_shape_vertice, 1, -1, -1, 1))
-	$__body_out_of_bounds_behaviour_dict.Add($tmp_body_struct_ptr_str, $out_of_bounds_behaviour)
-	$__body_draw_dict.Add($tmp_body_struct_ptr_str, True)
+	_ArrayAdd($__body_prev_screen_x, -1)
+	_ArrayAdd($__body_prev_screen_y, -1)
+	_ArrayAdd($__body_curr_screen_x, -1)
+	_ArrayAdd($__body_curr_screen_y, -1)
+	_ArrayAdd($__body_prev_angle_degrees, -1)
+	_ArrayAdd($__body_curr_angle_degrees, -1)
+	_ArrayAdd($__body_width, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 0))
+	_ArrayAdd($__body_height, _ArrayMax($__shape_vertice[$shape_index], 1, -1, -1, 1))
+	_ArrayAdd($__body_out_of_bounds_behaviour, $out_of_bounds_behaviour)
+	_ArrayAdd($__body_draw, True)
 
 	; create a new Box2C Fixture for the index of the body created, and the index of the shape supplied, and other attributes supplied (density, restitution and friction), add it to the internal array of fixture structures
-	Local $tmp_fixture_struct_ptr = _Box2C_b2World_CreateFixture($tmp_body_struct_ptr, $shape_ptr, $density, $restitution, $friction)
-	Local $tmp_fixture_struct_ptr_str = String($tmp_fixture_struct_ptr)
-	$__fixture_struct_ptr_dict.Add($tmp_fixture_struct_ptr_str, $tmp_fixture_struct_ptr_str)
+	Local $fixture_struct_ptr_index = _ArrayAdd($__fixture_struct_ptr, _Box2C_b2World_CreateFixture($__body_struct_ptr[$body_struct_ptr_index], $__shape_struct_ptr[$shape_index], $density, $restitution, $friction))
 
 	; get the GUI position of the initial (vector) position of the body, and add it to the internal array of body GUI positions
 
 	if IsNumber($x) = False or IsNumber($y) = False Then
 
-		local $b2BodyDef = DllStructCreate("STRUCT;int;float;float;float;float;float;float;float;float;bool;bool;bool;bool;bool;ptr;float;ENDSTRUCT", $bodydef_ptr)
+		local $b2BodyDef = DllStructCreate("STRUCT;int;float;float;float;float;float;float;float;float;bool;bool;bool;bool;bool;ptr;float;ENDSTRUCT", $__bodydef_struct_ptr[$bodydef_index])
 		$x = DllStructGetData($b2BodyDef, 2)
 		$y = DllStructGetData($b2BodyDef, 3)
 	EndIf
 
-	Local $tmp_gui_pos = _Box2C_b2Vec2_GetGUIPosition($x, $y, $__shape_vertice_dict($shape_ptr))
+	Local $tmp_gui_pos = _Box2C_b2Vec2_GetGUIPosition($x, $y, $__shape_vertice[$shape_index])
 	_ArrayAdd($__body_gui_pos, $tmp_gui_pos[0] & "|" & $tmp_gui_pos[1])
 
 	; add the index of the shape to the internal array of body shapes
-;	_ArrayAdd($__body_shape_index, $shape_index)
+	_ArrayAdd($__body_shape_index, $shape_index)
 
 	; Add the SFML sprite
 
-	Local $tmp_sprite_ptr = _CSFML_sfSprite_create()
-	Local $tmp_sprite_ptr_str = String($tmp_sprite_ptr)
-	$__sprite_ptr_dict.Add($tmp_body_struct_ptr_str, $tmp_sprite_ptr_str)
-
-	_CSFML_sfSprite_setTexture($tmp_sprite_ptr, $__shape_image_dict($shape_ptr), $CSFML_sfTrue)
+	_ArrayAdd($__sprite_ptr, Null)
+	$__sprite_ptr[$body_struct_ptr_index] = _CSFML_sfSprite_create()
+	_CSFML_sfSprite_setTexture($__sprite_ptr[$body_struct_ptr_index], $__shape_image[$shape_index], $CSFML_sfTrue)
 ;	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor((($__body_width[$body_struct_ptr_index] / 2) * $__pixels_per_metre) + $shape_x_pixel_offset, (($__body_height[$body_struct_ptr_index] / 2) * $__pixels_per_metre) + $shape_y_pixel_offset))
-	_CSFML_sfSprite_setOrigin($tmp_sprite_ptr, _CSFML_sfVector2f_Constructor(-$shape_x_pixel_offset, -$shape_y_pixel_offset))
+	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(-$shape_x_pixel_offset, -$shape_y_pixel_offset))
 	_ArrayAdd($__sprite_screen_x_offset, $shape_x_pixel_offset)
 	_ArrayAdd($__sprite_screen_y_offset, $shape_y_pixel_offset)
 
 	; Add the SFML convex shape
 
-	Local $tmp_convex_shape_ptr = _CSFML_sfConvexShape_Create()
-	Local $tmp_convex_shape_ptr_str = String($tmp_convex_shape_ptr)
-	$__convex_shape_ptr_dict.Add($tmp_convex_shape_ptr_str, $tmp_convex_shape_ptr_str)
+	Local $tmp_shape_vertice_arr = $__shape_vertice[$shape_index]
 
-;	_ArrayAdd($__convex_shape_ptr, Null)
-;	$__convex_shape_ptr[$body_struct_ptr_index] = _CSFML_sfConvexShape_Create()
-	Local $tmp_shape_vertice_arr = $__shape_vertice_dict($shape_ptr)
-	_CSFML_sfConvexShape_setPointCount($tmp_convex_shape_ptr, UBound($tmp_shape_vertice_arr))
+	_ArrayAdd($__convex_shape_ptr, Null)
+	$__convex_shape_ptr[$body_struct_ptr_index] = _CSFML_sfConvexShape_Create()
+	_CSFML_sfConvexShape_setPointCount($__convex_shape_ptr[$body_struct_ptr_index], UBound($tmp_shape_vertice_arr))
 
 ;_ArrayDisplay($tmp_shape_vertice_arr)
 
 	for $i = 0 to (UBound($tmp_shape_vertice_arr) - 1)
 
-		_CSFML_sfConvexShape_setPoint($tmp_convex_shape_ptr, $i, $tmp_shape_vertice_arr[$i][0] * 50, $tmp_shape_vertice_arr[$i][1] * 50)
+		_CSFML_sfConvexShape_setPoint($__convex_shape_ptr[$body_struct_ptr_index], $i, $tmp_shape_vertice_arr[$i][0] * 50, $tmp_shape_vertice_arr[$i][1] * 50)
 	Next
 
 ;	_CSFML_sfConvexShape_setOrigin($__convex_shape_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(($__body_width[$body_struct_ptr_index] / 2) * $__pixels_per_metre, ($__body_height[$body_struct_ptr_index] / 2) * $__pixels_per_metre))
-	_CSFML_sfConvexShape_setOrigin($tmp_convex_shape_ptr, _CSFML_sfVector2f_Constructor(0, 0))
-	_CSFML_sfConvexShape_setFillColor($tmp_convex_shape_ptr, _CSFML_sfColor_Constructor(255, 255, 255, 128))
+	_CSFML_sfConvexShape_setOrigin($__convex_shape_ptr[$body_struct_ptr_index], _CSFML_sfVector2f_Constructor(0, 0))
+	_CSFML_sfConvexShape_setFillColor($__convex_shape_ptr[$body_struct_ptr_index], _CSFML_sfColor_Constructor(255, 255, 255, 128))
 
 
 
 	; return the index to the new body
-	Return $tmp_body_struct_ptr_str
+	Return $body_struct_ptr_index
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1514,7 +1539,6 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#cs
 Func _Box2C_b2Body_ArrayAdd_Irrlicht($bodydef_index, $shape_index, $density, $restitution, $friction, $vertice, $initial_x, $initial_y)
 
 	; create a new Box2C Body for the index of the body definition supplied, and add it to the internal array of body structures
@@ -1541,12 +1565,12 @@ Func _Box2C_b2Body_ArrayAdd_Irrlicht($bodydef_index, $shape_index, $density, $re
 	_ArrayAdd($__body_gui_pos, $tmp_gui_pos[0] & "|" & $tmp_gui_pos[1])
 
 	; add the index of the shape to the internal array of body shapes
-;	_ArrayAdd($__body_shape_index, $shape_index)
+	_ArrayAdd($__body_shape_index, $shape_index)
 
 	; return the index to the new body
 	Return $body_struct_ptr_index
 EndFunc
-#ce
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2BodyArray_SetItemImage_SFML
@@ -1562,17 +1586,17 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_SetItemImage_SFML($body_ptr, $shape_ptr)
+Func _Box2C_b2BodyArray_SetItemImage_SFML($body_index, $shape_index)
 
 
 	; Add the SFML sprite
 
 ;	_ArrayAdd($__sprite_ptr, Null)
 ;	$__sprite_ptr[$body_struct_ptr_index] = _CSFML_sfSprite_create()
-	_CSFML_sfSprite_setTexture($__sprite_ptr_dict($body_ptr), $__shape_image_dict($shape_ptr), $CSFML_sfTrue)
-	_CSFML_sfSprite_setOrigin($__sprite_ptr_dict($body_ptr), _CSFML_sfVector2f_Constructor(($__body_width_dict($body_ptr) / 2) * $__pixels_per_metre, ($__body_height_dict($body_ptr) / 2) * $__pixels_per_metre))
+	_CSFML_sfSprite_setTexture($__sprite_ptr[$body_index], $__shape_image[$shape_index], $CSFML_sfTrue)
+	_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_index], _CSFML_sfVector2f_Constructor(($__body_width[$body_index] / 2) * $__pixels_per_metre, ($__body_height[$body_index] / 2) * $__pixels_per_metre))
 
-;	$__body_shape_index[$body_index] = $shape_index
+	$__body_shape_index[$body_index] = $shape_index
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1590,9 +1614,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_SetItemActive($body_ptr, $active)
+Func _Box2C_b2BodyArray_SetItemActive($body_index, $active)
 
-	_Box2C_b2Body_SetActive($__body_struct_ptr_dict($body_ptr), $active)
+	_Box2C_b2Body_SetActive($__body_struct_ptr[$body_index], $active)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1609,14 +1633,14 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_GetItemPosition($body_ptr)
+Func _Box2C_b2BodyArray_GetItemPosition($body_index)
 
-	Return _Box2C_b2Body_GetPosition($__body_struct_ptr_dict[$body_ptr])
+	Return _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_index])
 EndFunc
 
-Func _Box2C_b2BodyArray_GetItemGUIPosition($body_ptr)
+Func _Box2C_b2BodyArray_GetItemGUIPosition($body_index)
 
-	Local $position = _Box2C_b2Body_GetPosition($__body_struct_ptr_dict[$body_ptr])
+	Local $position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_index])
 
 	Local $gui_pos[2]
 
@@ -1652,9 +1676,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_SetItemPosition($body_ptr, $x, $y)
+Func _Box2C_b2BodyArray_SetItemPosition($body_index, $x, $y)
 
-	_Box2C_b2Body_SetPosition($__body_struct_ptr_dict[$body_ptr], $x, $y)
+	_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_index], $x, $y)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1671,9 +1695,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_GetItemAngle($body_ptr)
+Func _Box2C_b2BodyArray_GetItemAngle($body_index)
 
-	Return _Box2C_b2Body_GetAngle($__body_struct_ptr_dict[$body_ptr])
+	Return _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_index])
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1691,9 +1715,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_SetItemAngle($body_ptr, $angle)
+Func _Box2C_b2BodyArray_SetItemAngle($body_index, $angle)
 
-	_Box2C_b2Body_SetAngle($__body_struct_ptr_dict[$body_ptr], $angle)
+	_Box2C_b2Body_SetAngle($__body_struct_ptr[$body_index], $angle)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1710,9 +1734,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_GetItemLinearVelocity($body_ptr)
+Func _Box2C_b2BodyArray_GetItemLinearVelocity($body_index)
 
-	Return _Box2C_b2Body_GetLinearVelocity($__body_struct_ptr_dict[$body_ptr])
+	Return _Box2C_b2Body_GetLinearVelocity($__body_struct_ptr[$body_index])
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1730,9 +1754,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_SetItemLinearVelocity($body_ptr, $velocity)
+Func _Box2C_b2BodyArray_SetItemLinearVelocity($body_index, $velocity)
 
-	Return _Box2C_b2Body_SetLinearVelocity($__body_struct_ptr_dict[$body_ptr], $velocity[0], $velocity[1])
+	Return _Box2C_b2Body_SetLinearVelocity($__body_struct_ptr[$body_index], $velocity[0], $velocity[1])
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1750,9 +1774,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_SetItemAwake($body_ptr, $awake)
+Func _Box2C_b2BodyArray_SetItemAwake($body_index, $awake)
 
-	_Box2C_b2Body_SetAwake($__body_struct_ptr_dict[$body_ptr], $awake)
+	_Box2C_b2Body_SetAwake($__body_struct_ptr[$body_index], $awake)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1773,9 +1797,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_ApplyItemForceAtBody($body_ptr, $force_x, $force_y, $offset_point_x = 0, $offset_point_y = 0)
+Func _Box2C_b2BodyArray_ApplyItemForceAtBody($body_index, $force_x, $force_y, $offset_point_x = 0, $offset_point_y = 0)
 
-	_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr_dict[$body_ptr], $force_x, $force_y, $offset_point_x, $offset_point_y)
+	_Box2C_b2Body_ApplyForceAtBody($__body_struct_ptr[$body_index], $force_x, $force_y, $offset_point_x, $offset_point_y)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1795,9 +1819,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_ApplyItemDirectionalForceAtBody($body_ptr, $force_magnitude, $offset_point_x = 0, $offset_point_y = 0)
+Func _Box2C_b2BodyArray_ApplyItemDirectionalForceAtBody($body_index, $force_magnitude, $offset_point_x = 0, $offset_point_y = 0)
 
-	_Box2C_b2Body_ApplyDirectionalForceAtBody($__body_struct_ptr_dict[$body_ptr], $force_magnitude, $offset_point_x, $offset_point_y)
+	_Box2C_b2Body_ApplyDirectionalForceAtBody($__body_struct_ptr[$body_index], $force_magnitude, $offset_point_x, $offset_point_y)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1816,9 +1840,7 @@ EndFunc
 ; ===============================================================================================================================
 Func _Box2C_b2BodyArray_GetItemCount()
 
-	Local $tmp_arr = $__body_struct_ptr_dict.Keys
-
-	Return UBound($tmp_arr)
+	Return UBound($__body_struct_ptr)
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
@@ -1836,9 +1858,9 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2BodyArray_SetItemDraw($body_ptr, $draw = True)
+Func _Box2C_b2BodyArray_SetItemDraw($body_index, $draw = True)
 
-	$__body_draw_dict($body_ptr) = $draw
+	$__body_draw[$body_index] = $draw
 EndFunc
 
 
@@ -1891,17 +1913,6 @@ EndFunc
 ; ===============================================================================================================================
 Func _Box2C_b2BodyArray_Transform_SFML()
 
-	Local $body_ptr = $__body_out_of_bounds_behaviour_dict.Keys
-
-	; converting dictionaries into arrays because arrays (including the conversion to arrays) perform about 6 times faster than dictionaries
-	;	these arrays can only be used to "get" data.  To "set" data we must still reference the associated dictionary.
-
-	Local $__body_struct_ptr_arr = $__body_struct_ptr_dict.Items
-	Local $__body_out_of_bounds_behaviour_arr = $__body_out_of_bounds_behaviour_dict.Items
-	Local $__body_draw_arr = $__body_draw_dict.Items
-	Local $__body_curr_screen_x_arr = $__body_curr_screen_x_dict.Items
-	Local $__body_curr_screen_y_arr = $__body_curr_screen_y_dict.Items
-	Local $__sprite_ptr_arr = $__sprite_ptr_dict.Items
 
 	; Transform the Box2D bodies and draw SFML sprites
 
@@ -1911,39 +1922,46 @@ Func _Box2C_b2BodyArray_Transform_SFML()
 
 		$body_num = $body_num + 1
 
-		if $body_num > (UBound($__body_struct_ptr_arr) - 1) Then
+		if $body_num > (UBound($__body_struct_ptr) - 1) Then
 
 			ExitLoop
 		EndIf
 
-		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr_arr[$body_num])
+;		if $body_num = $draw_info_text_before_body Then
+
+			; Draw the info text
+
+;			_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
+;		EndIf
+
+		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_num])
 
 		if $body_position[0] < -8 or $body_position[0] > 8 or $body_position[1] < -6 or $body_position[1] > 6 Then
 
-			if $__body_out_of_bounds_behaviour_arr[$body_num] = 4 Then
+			if $__body_out_of_bounds_behaviour[$body_num] = 4 Then
 
 				_Box2C_b2BodyArray_SetItemAwake($body_num, False)
-				$__body_draw_dict.Item($body_ptr[$body_num]) = False
+				$__body_draw[$body_num] = False
 			EndIf
 
-			if $__body_out_of_bounds_behaviour_arr[$body_num] = 2 Then
+			if $__body_out_of_bounds_behaviour[$body_num] = 2 Then
 
-				Local $velocity = _Box2C_b2Body_GetLinearVelocity($__body_struct_ptr_arr[$body_num])
+				Local $velocity = _Box2C_b2Body_GetLinearVelocity($__body_struct_ptr[$body_num])
 
 				if $body_position[0] < -8 or $body_position[0] > 8 Then
 
-					_Box2C_b2Body_SetPosition($__body_struct_ptr_arr[$body_num], $body_position[0] * 0.99, $body_position[1])
-					_Box2C_b2Body_SetLinearVelocity($__body_struct_ptr_arr[$body_num], 0 - $velocity[0], $velocity[1])
+					_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_num], $body_position[0] * 0.99, $body_position[1])
+					_Box2C_b2Body_SetLinearVelocity($__body_struct_ptr[$body_num], 0 - $velocity[0], $velocity[1])
 				EndIf
 
 				if $body_position[1] < -6 or $body_position[1] > 6 Then
 
-					_Box2C_b2Body_SetPosition($__body_struct_ptr_arr[$body_num], $body_position[0], $body_position[1] * 0.99)
-					_Box2C_b2Body_SetLinearVelocity($__body_struct_ptr_arr[$body_num], $velocity[0], 0 - $velocity[1])
+					_Box2C_b2Body_SetPosition($__body_struct_ptr[$body_num], $body_position[0], $body_position[1] * 0.99)
+					_Box2C_b2Body_SetLinearVelocity($__body_struct_ptr[$body_num], $velocity[0], 0 - $velocity[1])
 				EndIf
 			EndIf
 
-			if $__body_out_of_bounds_behaviour_arr[$body_num] = 1 Then
+			if $__body_out_of_bounds_behaviour[$body_num] = 1 Then
 
 				_Box2C_b2Body_Destroy_SFML($body_num)
 				$body_num = $body_num - 1
@@ -1954,15 +1972,25 @@ Func _Box2C_b2BodyArray_Transform_SFML()
 
 			; converting the below to C might improve animations by a further 500 frames per seconds
 
-			$__body_curr_screen_x_dict.Item($body_ptr[$body_num]) = $__gui_center_x + ($body_position[0] * $__pixels_per_metre)
-			$__body_curr_screen_y_dict.Item($body_ptr[$body_num]) = $__gui_center_y - ($body_position[1] * $__pixels_per_metre)
-			_CSFML_sfSprite_setPosition_xy($__sprite_ptr_arr[$body_num], $__body_curr_screen_x_arr[$body_num], $__body_curr_screen_y_arr[$body_num])
+			$__body_curr_screen_x[$body_num] = $__gui_center_x + ($body_position[0] * $__pixels_per_metre)
+;			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_position[0] = ' & $body_position[0] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;				$__body_curr_screen_x[$body_num] = x_metres_to_gui_x($body_position[0], $tmp_gui_center_x)
+
+			$__body_curr_screen_y[$body_num] = $__gui_center_y - ($body_position[1] * $__pixels_per_metre)
+;			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_position[1] = ' & $body_position[1] & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;				$__body_curr_screen_y[$body_num] = y_metres_to_gui_y($body_position[1], $tmp_gui_center_y)
+
+			_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+;			ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_num = ' & $body_num & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+;			_CSFML_sfConvexShape_setPosition($__convex_shape_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
+
 
 			; Update sprite rotation
 
-			Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr_arr[$body_num])
-			$__body_curr_angle_degrees_dict.Item($body_ptr[$body_num]) = _Degree($body_angle)
-			_CSFML_sfSprite_setRotation($__sprite_ptr_arr[$body_num], _Degree($body_angle))
+			Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
+			$__body_curr_angle_degrees[$body_num] = _Degree($body_angle)
+			_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+;			_CSFML_sfConvexShape_setRotation($__convex_shape_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
 		EndIf
 	WEnd
 
@@ -1985,7 +2013,6 @@ EndFunc
 ; ===============================================================================================================================
 Func _Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos, $player_body_index)
 
-	Local $body_ptr = $__body_out_of_bounds_behaviour_dict.Keys
 
 	; Transform the Box2D bodies and draw SFML sprites
 
@@ -1995,7 +2022,7 @@ Func _Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos, $player_body_in
 
 		$body_num = $body_num + 1
 
-		if $body_num > (UBound($body_ptr) - 1) Then
+		if $body_num > (UBound($__body_struct_ptr) - 1) Then
 
 			ExitLoop
 		EndIf
@@ -2007,7 +2034,7 @@ Func _Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos, $player_body_in
 ;			_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
 ;		EndIf
 
-		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr_dict.Item($body_ptr[$body_num]))
+		Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_num])
 
 
 		; Update sprite position
@@ -2016,45 +2043,45 @@ Func _Box2C_b2BodyArray_ScrollerTransform_SFML($view_centre_pos, $player_body_in
 
 		if $body_num = $player_body_index And $body_position[0] < 8 Then
 
-			$__body_curr_screen_x_dict.Item($body_ptr[$body_num]) = $body_position[0] * $__pixels_per_metre
+			$__body_curr_screen_x[$body_num] = $body_position[0] * $__pixels_per_metre
 		Else
 
 			if $body_num = $player_body_index And $body_position[0] > 150 Then
 
-				$__body_curr_screen_x_dict.Item($body_ptr[$body_num]) = 400 + (($body_position[0] - 150) * $__pixels_per_metre)
+				$__body_curr_screen_x[$body_num] = 400 + (($body_position[0] - 150) * $__pixels_per_metre)
 			Else
 
-				$__body_curr_screen_x_dict.Item($body_ptr[$body_num]) = ($body_position[0] - ($view_centre_pos[0] - 8)) * $__pixels_per_metre
+				$__body_curr_screen_x[$body_num] = ($body_position[0] - ($view_centre_pos[0] - 8)) * $__pixels_per_metre
 			EndIf
 		EndIf
 
 
 		if $body_num = $player_body_index And $body_position[1] < -6 Then
 
-			$__body_curr_screen_y_dict.Item($body_ptr[$body_num]) = ($body_position[1] + 12) * $__pixels_per_metre
+			$__body_curr_screen_y[$body_num] = ($body_position[1] + 12) * $__pixels_per_metre
 		Else
 
 			if $body_num = $player_body_index And $body_position[1] > 37 Then
 
-				$__body_curr_screen_y_dict.Item($body_ptr[$body_num]) = 300 + (($body_position[1] - 37) * $__pixels_per_metre)
+				$__body_curr_screen_y[$body_num] = 300 + (($body_position[1] - 37) * $__pixels_per_metre)
 			Else
 
-				$__body_curr_screen_y_dict.Item($body_ptr[$body_num]) = ($body_position[1] - ($view_centre_pos[1] - 6)) * $__pixels_per_metre
+				$__body_curr_screen_y[$body_num] = ($body_position[1] - ($view_centre_pos[1] - 6)) * $__pixels_per_metre
 			EndIf
 		EndIf
 
 
 ;		_CSFML_sfSprite_setOrigin($__sprite_ptr[$body_num], _CSFML_sfVector2f_Constructor(0, 0))
-		_CSFML_sfSprite_setPosition_xy($__sprite_ptr_dict.Item($body_ptr[$body_num]), $__body_curr_screen_x_dict.Item($body_ptr[$body_num]), $__body_curr_screen_y_dict.Item($body_ptr[$body_num]))
+		_CSFML_sfSprite_setPosition_xy($__sprite_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
 ;		_CSFML_sfConvexShape_setOrigin($__convex_shape_ptr[$body_num], _CSFML_sfVector2f_Constructor(0, 0))
-		_CSFML_sfConvexShape_setPosition($__convex_shape_ptr_dict.Item($body_ptr[$body_num]), $__body_curr_screen_x_dict.Item($body_ptr[$body_num]), $__body_curr_screen_y_dict.Item($body_ptr[$body_num]))
+		_CSFML_sfConvexShape_setPosition($__convex_shape_ptr[$body_num], $__body_curr_screen_x[$body_num], $__body_curr_screen_y[$body_num])
 
 		; Update sprite rotation
 
-		Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr_dict.Item($body_ptr[$body_num]))
-		$__body_curr_angle_degrees_dict.Item($body_ptr[$body_num]) = _Degree($body_angle)
-		_CSFML_sfSprite_setRotation($__sprite_ptr_dict.Item($body_ptr[$body_num]), $__body_curr_angle_degrees_dict.Item($body_ptr[$body_num]))
-		_CSFML_sfConvexShape_setRotation($__convex_shape_ptr_dict.Item($body_ptr[$body_num]), $__body_curr_angle_degrees_dict.Item($body_ptr[$body_num]))
+		Local $body_angle = _Box2C_b2Body_GetAngle($__body_struct_ptr[$body_num])
+		$__body_curr_angle_degrees[$body_num] = _Degree($body_angle)
+		_CSFML_sfSprite_setRotation($__sprite_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
+		_CSFML_sfConvexShape_setRotation($__convex_shape_ptr[$body_num], $__body_curr_angle_degrees[$body_num])
 	WEnd
 
 EndFunc
@@ -2063,9 +2090,9 @@ EndFunc
 
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2Body_GetDrawSpriteRange_SFML
+; Name...........: _Box2C_b2BodyArray_GetDrawSpriteRange_SFML
 ; Description ...: A convenience function for SFML that gets the range of sprites to draw
-; Syntax.........: _Box2C_b2Body_GetDrawSpriteRange_SFML()
+; Syntax.........: _Box2C_b2BodyArray_GetDrawSpriteRange_SFML()
 ; Parameters ....:
 ; Return values .: a two dimensional array of the range
 ; Author ........: Sean Griffin
@@ -2075,16 +2102,16 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_GetDrawSpriteRange_SFML()
+Func _Box2C_b2BodyArray_GetDrawSpriteRange_SFML()
 
 	Local $range[2] = [$__sprite_draw_lower_index, $__sprite_draw_upper_index]
 	return $range
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2Body_SetDrawSpriteRange_SFML
+; Name...........: _Box2C_b2BodyArray_SetDrawSpriteRange_SFML
 ; Description ...: A convenience function for SFML that sets a range of sprites to draw
-; Syntax.........: _Box2C_b2Body_SetDrawSpriteRange_SFML($lower_index, $upper_index)
+; Syntax.........: _Box2C_b2BodyArray_SetDrawSpriteRange_SFML($lower_index, $upper_index)
 ; Parameters ....: $lower_index
 ;				   $upper_index
 ; Return values .:
@@ -2095,16 +2122,16 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_SetDrawSpriteRange_SFML($lower_index, $upper_index)
+Func _Box2C_b2BodyArray_SetDrawSpriteRange_SFML($lower_index, $upper_index)
 
 	$__sprite_draw_lower_index = $lower_index
 	$__sprite_draw_upper_index = $upper_index
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2Body_GetDrawConvexShapeRange_SFML
+; Name...........: _Box2C_b2BodyArray_GetDrawConvexShapeRange_SFML
 ; Description ...: A convenience function for SFML that gets the range of convex shapes to draw
-; Syntax.........: _Box2C_b2Body_GetDrawConvexShapeRange_SFML()
+; Syntax.........: _Box2C_b2BodyArray_GetDrawConvexShapeRange_SFML()
 ; Parameters ....:
 ; Return values .: a two dimensional array of the range
 ; Author ........: Sean Griffin
@@ -2114,16 +2141,16 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_GetDrawConvexShapeRange_SFML()
+Func _Box2C_b2BodyArray_GetDrawConvexShapeRange_SFML()
 
 	Local $range[2] = [$__convex_shape_draw_lower_index, $__convex_shape_draw_upper_index]
 	return $range
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
-; Name...........: _Box2C_b2Body_SetDrawConvexShapeRange_SFML
+; Name...........: _Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML
 ; Description ...: A convenience function for SFML that sets a range of convex shapes to draw
-; Syntax.........: _Box2C_b2Body_SetDrawConvexShapeRange_SFML($lower_index, $upper_index)
+; Syntax.........: _Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML($lower_index, $upper_index)
 ; Parameters ....: $lower_index
 ;				   $upper_index
 ; Return values .:
@@ -2134,7 +2161,7 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func _Box2C_b2Body_SetDrawConvexShapeRange_SFML($lower_index, $upper_index)
+Func _Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML($lower_index, $upper_index)
 
 	$__convex_shape_draw_lower_index = $lower_index
 	$__convex_shape_draw_upper_index = $upper_index
@@ -2156,20 +2183,13 @@ EndFunc
 ; ===============================================================================================================================
 Func _Box2C_b2BodyArray_Draw_SFML($window_ptr, $info_text_ptr = -1, $info_text_string = "", $draw_info_text_before_body = -1)
 
-	; converting dictionaries into arrays because arrays (including the conversion to arrays) perform about 6 times faster than dictionaries
-	;	these arrays can only be used to "get" data.  To "set" data we must still reference the associated dictionary.
-
-	Local $__body_draw_arr = $__body_draw_dict.Items
-	Local $__sprite_ptr_arr = $__sprite_ptr_dict.Items
-	Local $__convex_shape_ptr_arr = $__convex_shape_ptr_dict.Items
-
 	Local $body_num = -1
 
 	While True
 
 		$body_num = $body_num + 1
 
-		if $body_num > (UBound($__body_draw_arr) - 1) Then
+		if $body_num > (UBound($__body_struct_ptr) - 1) Then
 
 			ExitLoop
 		EndIf
@@ -2181,16 +2201,16 @@ Func _Box2C_b2BodyArray_Draw_SFML($window_ptr, $info_text_ptr = -1, $info_text_s
 			_CSFML_sfRenderWindow_drawTextString($window_ptr, $info_text_ptr, $info_text_string, Null)
 		EndIf
 
-		if $__body_draw_arr[$body_num] = True Then
+		if $__body_draw[$body_num] = True Then
 
 			if $body_num >= $__sprite_draw_lower_index and $body_num <= $__sprite_draw_upper_index Then
 
-				_CSFML_sfRenderWindow_drawSprite($window_ptr, $__sprite_ptr_arr[$body_num], Null)
+				_CSFML_sfRenderWindow_drawSprite($window_ptr, $__sprite_ptr[$body_num], Null)
 			EndIf
 
 			if $body_num >= $__convex_shape_draw_lower_index and $body_num <= $__convex_shape_draw_upper_index Then
 
-				_CSFML_sfRenderWindow_drawConvexShape($window_ptr, $__convex_shape_ptr_arr[$body_num], Null)
+				_CSFML_sfRenderWindow_drawConvexShape($window_ptr, $__convex_shape_ptr[$body_num], Null)
 			EndIf
 		EndIf
 	WEnd
@@ -2235,7 +2255,6 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#cs
 Func _Box2C_b2Body_Transform_GDIPlus($body_index)
 
 	Local $body_position = _Box2C_b2Body_GetPosition($__body_struct_ptr[$body_index])
@@ -2300,7 +2319,6 @@ Func _Box2C_b2Body_Transform_GDIPlus($body_index)
 	Return True
 
 EndFunc
-#ce
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Body_Destroy
@@ -2315,7 +2333,6 @@ EndFunc
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#cs
 Func _Box2C_b2Body_Destroy($body_index)
 
 	; destroy the fixture
@@ -2336,7 +2353,7 @@ Func _Box2C_b2Body_Destroy($body_index)
 	_ArrayDelete($__body_width, $body_index)
 	_ArrayDelete($__body_height, $body_index)
 	_ArrayDelete($__body_gui_pos, $body_index)
-;	_ArrayDelete($__body_shape_index, $body_index)
+	_ArrayDelete($__body_shape_index, $body_index)
 	_ArrayDelete($__body_out_of_bounds_behaviour, $body_index)
 	_ArrayDelete($__body_draw, $body_index)
 
@@ -2346,7 +2363,6 @@ Func _Box2C_b2Body_Destroy($body_index)
 	_ArrayDelete($__body_hGfx_Buffer, $body_index)
 
 EndFunc
-#ce
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Body_Destroy_SFML
@@ -2362,35 +2378,39 @@ EndFunc
 ; Example .......:
 ; ===============================================================================================================================
 ;Func _Box2C_b2Body_Destroy_SFML($body_index, $sprite_ptr)
-Func _Box2C_b2Body_Destroy_SFML($body_ptr)
+Func _Box2C_b2Body_Destroy_SFML($body_index)
 
 	; destroy the fixture
 
-	_Box2C_b2Body_DestroyFixture($body_ptr, $__fixture_struct_ptr_dict.Item($body_ptr))
-	$__fixture_struct_ptr_dict.Remove($body_ptr)
+	_Box2C_b2Body_DestroyFixture($__body_struct_ptr[$body_index], $__fixture_struct_ptr[$body_index])
+	_ArrayDelete($__fixture_struct_ptr, $body_index)
 
 	; destroy the body
 
-	_Box2C_b2World_DestroyBody($__world_ptr, $body_ptr)
-	$__body_struct_ptr_dict.Remove($body_ptr)
-	$__body_prev_screen_x_dict.Remove($body_ptr)
-	$__body_prev_screen_y_dict.Remove($body_ptr)
-	$__body_curr_screen_x_dict.Remove($body_ptr)
-	$__body_curr_screen_y_dict.Remove($body_ptr)
-	$__body_prev_angle_degrees_dict.Remove($body_ptr)
-	$__body_curr_angle_degrees_dict.Remove($body_ptr)
-	$__body_width_dict.Remove($body_ptr)
-	$__body_height_dict.Remove($body_ptr)
-;	$__body_gui_pos_dict.Remove($body_ptr)
-	$__body_out_of_bounds_behaviour_dict.Remove($body_ptr)
-	$__body_draw_dict.Remove($body_ptr)
-
-;	_ArrayDelete($__body_shape_index, $body_index)
+	_Box2C_b2World_DestroyBody($__world_ptr, $__body_struct_ptr[$body_index])
+	_ArrayDelete($__body_struct_ptr, $body_index)
+	_ArrayDelete($__body_prev_screen_x, $body_index)
+	_ArrayDelete($__body_prev_screen_y, $body_index)
+	_ArrayDelete($__body_curr_screen_x, $body_index)
+	_ArrayDelete($__body_curr_screen_y, $body_index)
+	_ArrayDelete($__body_prev_angle_degrees, $body_index)
+	_ArrayDelete($__body_curr_angle_degrees, $body_index)
+	_ArrayDelete($__body_width, $body_index)
+	_ArrayDelete($__body_height, $body_index)
+	_ArrayDelete($__body_gui_pos, $body_index)
+	_ArrayDelete($__body_shape_index, $body_index)
+	_ArrayDelete($__body_out_of_bounds_behaviour, $body_index)
+	_ArrayDelete($__body_draw, $body_index)
 
 	; destroy the graphics
 
-	_CSFML_sfSprite_destroy($__sprite_ptr_dict.Item($body_ptr))
-	$__sprite_ptr_dict.Remove($body_ptr)
+	_CSFML_sfSprite_destroy($__sprite_ptr[$body_index])
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_index = ' & $body_index & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+	_ArrayDelete($__sprite_ptr, $body_index)
+;	ConsoleWrite('@@ Debug(' & @ScriptLineNumber & ') : $body_index = ' & $body_index & @CRLF & '>Error code: ' & @error & @CRLF) ;### Debug Console
+
+
+
 
 	; Add the SFML sprite
 
@@ -2403,7 +2423,6 @@ Func _Box2C_b2Body_Destroy_SFML($body_ptr)
 
 EndFunc
 
-#cs
 Func _Box2C_b2Body_DestroyAll_SFML($first_body_num = 0)
 
 	while True
@@ -2416,7 +2435,7 @@ Func _Box2C_b2Body_DestroyAll_SFML($first_body_num = 0)
 		_Box2C_b2Body_Destroy_SFML($first_body_num)
 	WEnd
 EndFunc
-#ce
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name...........: _Box2C_b2Body_Rotate_GDIPlus

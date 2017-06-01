@@ -1,13 +1,6 @@
 #include-once
 #include <Array.au3>
-#include <SQLite.au3>
-#include <SQLite.dll.au3>
 #include "Box2CEx.au3"
-
-; Setup SQLite
-
-_SQLite_Startup()
-_SQLite_Open(@ScriptDir & "\Box2C_speed_test_SFML.sqlite")
 
 ; Setup SFML
 
@@ -19,27 +12,37 @@ _Box2C_b2World_Setup(50, 800, 600, 0.000000000, -10.0000000)
 
 ; Setup the Box2D Shapes
 
-Global $platform_shape_ptr = _Box2C_b2ShapeDict_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-2.5,-0.5|2.5,-0.5|2.5,0.5|-2.5,0.5"), @ScriptDir & "\platform.gif")
-Global $crate_shape_ptr = _Box2C_b2ShapeDict_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-0.125,-0.125|0.125,-0.125|0.125,0.125|-0.125,0.125"), @ScriptDir & "\smallest_crate.gif")
+;Global $platform_shape_vertice[4][2] = [[0,0],[5,0],[5,1],[0,1]]
+;Global $platform_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, $platform_shape_vertice, @ScriptDir & "\platform.gif")
+Global $platform_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-2.5,-0.5|2.5,-0.5|2.5,0.5|-2.5,0.5"), @ScriptDir & "\platform.gif")
+
+;Global $crate_shape_vertice[4][2] = [[0,0],[0.25,0],[0.25,0.25],[0,0.25]]
+;Global $crate_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, $crate_shape_vertice, @ScriptDir & "\smallest_crate.gif")
+Global $crate_shape_index = _Box2C_b2ShapeArray_AddItem_SFML($Box2C_e_edge, _StringSplit2d("-0.125,-0.125|0.125,-0.125|0.125,0.125|-0.125,0.125"), @ScriptDir & "\smallest_crate.gif")
 
 ; Setup the Box2D Body Definitions
 
-Global $platform_bodydef_ptr = _Box2C_b2BodyDefDict_AddItem($Box2C_b2_staticBody, 0, -4, 0, 0, 0)
-Global $platform2_bodydef_ptr = _Box2C_b2BodyDefDict_AddItem($Box2C_b2_staticBody, -4.5, -2, -0.785398, 0, 0)
-Global $platform3_bodydef_ptr = _Box2C_b2BodyDefDict_AddItem($Box2C_b2_staticBody, +4.5, -2, +0.785398, 0, 0)
-Global $falling_bodydef_ptr = _Box2C_b2BodyDefDict_AddItem($Box2C_b2_dynamicBody, 0, 4, 0, 0, 0)
+;Global $platform_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, 0, -4, 0)
+;Global $platform2_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, -4.5, -2, -0.785398)
+;Global $platform3_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, +4.5, -2, +0.785398)
+;Global $falling_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, 0, 4, 0)
 
-_Box2C_b2Body_SetDrawSpriteRange_SFML(0, 99999)
-_Box2C_b2Body_SetDrawConvexShapeRange_SFML(-1, -1)
-;_Box2C_b2Body_SetDrawConvexShapeRange_SFML(0, 99999)
+Global $platform_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, 0, -4, 0, 0, 0)
+Global $platform2_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, -4.5, -2, -0.785398, 0, 0)
+Global $platform3_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_staticBody, +4.5, -2, +0.785398, 0, 0)
+Global $falling_bodydef_index = _Box2C_b2BodyDefArray_AddItem($Box2C_b2_dynamicBody, 0, 4, 0, 0, 0)
+
+_Box2C_b2BodyArray_SetDrawSpriteRange_SFML(0, 99999)
+_Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML(-1, -1)
+;_Box2C_b2BodyArray_SetDrawConvexShapeRange_SFML(0, 99999)
 
 
 ; Setup the Box2D Bodies and SFML Sprites
 
-Local $platform_body_ptr = _Box2C_b2BodyDict_AddItem_SFML($platform_bodydef_ptr, $platform_shape_ptr, 0, 0, 0, "", "", "", 0, 0, 0)
-Local $platform2_body_ptr = _Box2C_b2BodyDict_AddItem_SFML($platform2_bodydef_ptr, $platform_shape_ptr, 0, 0, 0, "", "", "", 0, 0, 0)
-Local $platform3_body_ptr = _Box2C_b2BodyDict_AddItem_SFML($platform3_bodydef_ptr, $platform_shape_ptr, 0, 0, 0, "", "", "", 0, 0, 0)
-Local $falling_body_ptr = _Box2C_b2BodyDict_AddItem_SFML($falling_bodydef_ptr, $crate_shape_ptr, 1, 0.2, 0.3, "", "", "", 0, -6.25, -6.25)
+Local $platform_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0, 0, 0)
+Local $platform2_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform2_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0, 0, 0)
+Local $platform3_body_index = _Box2C_b2BodyArray_AddItem_SFML($platform3_bodydef_index, $platform_shape_index, 0, 0, 0, "", "", "", 0, 0, 0)
+Local $falling_body_index = _Box2C_b2BodyArray_AddItem_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, "", "", "", 0, -6.25, -6.25)
 
 ; Setup the GUI for SFML inside the AutoIT GUI
 
@@ -68,7 +71,7 @@ While true
 ;		_Box2C_b2World_Step($__world_ptr, (1.0 / 60.0), 6, 2)
 
 		; The followsing b2World Step compensates well for a large number of bodies
-		_Box2C_b2World_Step_Ex((0.6 + ($__body_struct_ptr_dict.Count / 200)) / 60.0)
+		_Box2C_b2World_Step_Ex((0.6 + (UBound($__body_struct_ptr) / 200)) / 60.0)
 
 		; Check for events
 
@@ -99,25 +102,26 @@ While true
 
 						case 0 ; A
 
-							Local $new_body_num = _Box2C_b2BodyDict_AddItem_SFML($falling_bodydef_ptr, $crate_shape_ptr, 1, 0.2, 0.3, "", "", "", 0, -6.25, -6.25)
+							Local $new_body_num = _Box2C_b2BodyArray_AddItem_SFML($falling_bodydef_index, $crate_shape_index, 1, 0.2, 0.3, "", "", "", 0, -6.25, -6.25)
+;							Local $new_body_num = _Box2C_b2Body_ArrayAdd_SFML($falling_bodydef_index, $crate_shape_index, 0.1, 1.2, 1, $crate_shape_vertice, 0, 4)
 
 						; if "E" was pressed then rotate the center platform clockwise
 
 						Case 4 ; E
 
-;							Local $curr_angle = _Box2C_b2BodyArray_GetItemAngle(0)
-;							Local $curr_angle_degrees2 = _Degree($curr_angle)
-;							$curr_angle_degrees2 = $curr_angle_degrees2 - 5
-;							_Box2C_b2BodyArray_SetItemAngle(0, _Radian($curr_angle_degrees2))
+							Local $curr_angle = _Box2C_b2BodyArray_GetItemAngle(0)
+							Local $curr_angle_degrees2 = _Degree($curr_angle)
+							$curr_angle_degrees2 = $curr_angle_degrees2 - 5
+							_Box2C_b2BodyArray_SetItemAngle(0, _Radian($curr_angle_degrees2))
 
 						; if "Q" was pressed then rotate the center platform counter-clockwise
 
 						Case 16 ; Q
 
-;							Local $curr_angle = _Box2C_b2BodyArray_GetItemAngle(0)
-;							Local $curr_angle_degrees2 = _Degree($curr_angle)
-;							$curr_angle_degrees2 = $curr_angle_degrees2 + 5
-;							_Box2C_b2BodyArray_SetItemAngle(0, _Radian($curr_angle_degrees2))
+							Local $curr_angle = _Box2C_b2BodyArray_GetItemAngle(0)
+							Local $curr_angle_degrees2 = _Degree($curr_angle)
+							$curr_angle_degrees2 = $curr_angle_degrees2 + 5
+							_Box2C_b2BodyArray_SetItemAngle(0, _Radian($curr_angle_degrees2))
 
 					EndSwitch
 			EndSwitch
